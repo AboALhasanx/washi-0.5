@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Washi — Manuscript Pipeline</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&family=Merriweather:wght@700;900&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          paper: '#FFFCF8',
+          paper2: '#F7F2EA',
+          ink: '#0B1120',
+          ink2: '#3A4356',
+          accent: '#1E3A5F',
+          accent2: '#2C517F',
+          line: '#DED4C2',
+          ok: '#2F5D3A',
+          warn: '#8A5A20',
+          err: '#7A2E2E',
+        },
+        fontFamily: {
+          serif: ['Newsreader', 'Merriweather', 'Georgia', 'serif'],
+          display: ['Merriweather', 'Newsreader', 'serif'],
+          sans: ['Source Sans 3', 'system-ui', 'sans-serif'],
+          mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+        },
+      }
+    }
+  }
+</script>
+<style>
+  :root { color-scheme: light; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: #FFFCF8;
+    background-image:
+      radial-gradient(rgba(11,17,32,0.018) 1px, transparent 1px);
+    background-size: 3px 3px;
+    color: #0B1120;
+  }
+
+  /* subtle paper grain */
+  .grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.02 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+
+  .hairline { border-color: #DED4C2; }
+
+  .tracking-tightest { letter-spacing: -0.02em; }
+  .tracking-wide-cap { letter-spacing: 0.14em; }
+
+  .kicker {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #1E3A5F;
+  }
+
+  .editorial-shadow {
+    box-shadow: 0 1px 0 rgba(11,17,32,0.04), 0 12px 24px -16px rgba(11,17,32,0.18), 0 2px 6px -2px rgba(11,17,32,0.08);
+  }
+  .editorial-shadow-lg {
+    box-shadow: 0 1px 0 rgba(11,17,32,0.05), 0 30px 60px -30px rgba(11,17,32,0.28), 0 4px 12px -4px rgba(11,17,32,0.10);
+  }
+
+  /* Rule-based dividers, no rounded soup */
+  .rule { height: 1px; background: #DED4C2; }
+  .rule-thick { height: 2px; background: #0B1120; }
+
+  /* Pipeline rail */
+  .rail-node {
+    position: relative;
+  }
+  .rail-node::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 34px;
+    bottom: -28px;
+    width: 1px;
+    background: #DED4C2;
+  }
+  .rail-node:last-child::before { display: none; }
+  .rail-node[data-state="active"]::before,
+  .rail-node[data-state="done"]::before { background: #1E3A5F; }
+
+  .rail-dot {
+    width: 31px; height: 31px;
+    border: 1.5px solid #DED4C2;
+    background: #FFFCF8;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #3A4356;
+    flex-shrink: 0;
+    border-radius: 2px;
+  }
+  .rail-node[data-state="active"] .rail-dot {
+    background: #1E3A5F;
+    border-color: #1E3A5F;
+    color: #FFFCF8;
+  }
+  .rail-node[data-state="done"] .rail-dot {
+    background: #0B1120;
+    border-color: #0B1120;
+    color: #FFFCF8;
+  }
+
+  /* Inputs — no rounded-2xl, sharp editorial fields */
+  .field {
+    background: #FFFCF8;
+    border: 1px solid #DED4C2;
+    border-radius: 2px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.875rem;
+    padding: 0.55rem 0.7rem;
+    transition: border-color .15s ease, box-shadow .15s ease;
+    color: #0B1120;
+  }
+  .field:focus {
+    outline: none;
+    border-color: #1E3A5F;
+    box-shadow: 0 0 0 3px rgba(30,58,95,0.12);
+  }
+  .field::placeholder { color: #8A8577; }
+
+  .btn-primary {
+    background: #0B1120;
+    color: #FFFCF8;
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    padding: 0.65rem 1.15rem;
+    border-radius: 2px;
+    transition: background .15s ease, transform .1s ease;
+  }
+  .btn-primary:hover { background: #1E3A5F; }
+  .btn-primary:active { transform: translateY(1px); }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid #DED4C2;
+    color: #0B1120;
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 0.6rem 1.05rem;
+    border-radius: 2px;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .btn-ghost:hover { border-color: #0B1120; background: #F7F2EA; }
+
+  .dropzone {
+    border: 1.5px dashed #C9BCA1;
+    background: repeating-linear-gradient(135deg, rgba(11,17,32,0.015) 0px, rgba(11,17,32,0.015) 1px, transparent 1px, transparent 10px);
+    transition: border-color .2s ease, background-color .2s ease;
+  }
+  .dropzone:hover, .dropzone.active {
+    border-color: #1E3A5F;
+    background-color: #F7F2EA;
+  }
+
+  .checklist-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid #EAE2D3;
+  }
+  .checklist-item:last-child { border-bottom: none; }
+
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+
+  /* monospace editor look */
+  .code-editor {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    background: #0B1120;
+    color: #E9E4D8;
+    tab-size: 2;
+  }
+  .code-editor .ln {
+    color: #5B6478;
+    user-select: none;
+  }
+  .code-editor .tok-key { color: #7FB0E0; }
+  .code-editor .tok-str { color: #D9C48A; }
+  .code-editor .tok-head { color: #F3EDE0; font-weight: 700; }
+  .code-editor .tok-com { color: #6B7590; font-style: italic; }
+
+  .scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: #DED4C2; border-radius: 0; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+
+  /* Toolbar for PDF preview */
+  .toolbar-btn {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #3A4356;
+    padding: 0.4rem 0.65rem;
+    border-radius: 2px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .toolbar-btn:hover { background: #0B1120; color: #FFFCF8; }
+
+  .page-sheet {
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(11,17,32,0.06), 0 20px 45px -20px rgba(11,17,32,0.35);
+  }
+
+  .num-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: #8A8577;
+  }
+
+  ::selection { background: #1E3A5F; color: #FFFCF8; }
+
+  @media print { .no-print { display: none !important; } }
+</style>
+</head>
+<body class="antialiased text-ink font-sans">
+<div class="grain" aria-hidden="true"></div>
+
+<!-- Skip link -->
+<a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-ink focus:text-paper focus:px-3 focus:py-2 text-sm">Skip to content</a>
+
+<!-- ============ MASTHEAD ============ -->
+<header class="border-b hairline border-b-[1.5px] sticky top-0 z-40 bg-paper/95 backdrop-blur-[2px]">
+  <div class="max-w-[1440px] mx-auto px-6 lg:px-10">
+    <div class="flex items-center justify-between py-3 rule border-b">
+      <p class="kicker">Vol. 01 — Manuscript Systems</p>
+      <p class="kicker hidden sm:block">Local‑First · No Cloud Upload</p>
+      <time class="kicker" datetime="2026-08-24">24 Aug 2026</time>
+    </div>
+    <div class="flex flex-wrap items-baseline justify-between gap-4 py-5">
+      <div class="flex items-baseline gap-4">
+        <h1 class="font-display font-black text-[2.1rem] sm:text-[2.6rem] leading-none tracking-tightest">
+          Washi
+        </h1>
+        <span class="hidden md:inline font-serif italic text-ink2 text-lg pb-1">— a chapter compositor</span>
+      </div>
+      <nav class="flex items-center gap-3 no-print" aria-label="Document actions">
+        <button class="btn-ghost">Save Draft</button>
+        <button class="btn-primary">Export Session</button>
+      </nav>
+    </div>
+  </div>
+  <div class="rule-thick"></div>
+</header>
+
+<!-- ============ SHELL: RAIL + MAIN ============ -->
+<div class="max-w-[1440px] mx-auto px-6 lg:px-10 flex gap-10 lg:gap-14 py-10">
+
+  <!-- STICKY PIPELINE RAIL -->
+  <aside class="hidden lg:block w-[240px] shrink-0" aria-label="Pipeline progress">
+    <div class="sticky top-[132px]">
+      <p class="kicker mb-5">Pipeline · 4 Stages</p>
+      <ol class="space-y-7">
+        <li class="rail-node" data-state="done">
+          <div class="flex gap-3">
+            <div class="rail-dot" aria-hidden="true">✓</div>
+            <div class="pt-0.5">
+              <p class="font-serif font-semibold text-[0.95rem] leading-tight">Upload &amp; Extract</p>
+              <p class="text-xs text-ink2 mt-0.5">chapter-07-diffusion.pdf</p>
+            </div>
+          </div>
+        </li>
+        <li class="rail-node" data-state="active">
+          <div class="flex gap-3">
+            <div class="rail-dot" aria-hidden="true">02</div>
+            <div class="pt-0.5">
+              <p class="font-serif font-semibold text-[0.95rem] leading-tight text-accent">Params &amp; Summarize</p>
+              <p class="text-xs text-ink2 mt-0.5">LLM structuring, 7 sections</p>
+            </div>
+          </div>
+        </li>
+        <li class="rail-node" data-state="pending">
+          <div class="flex gap-3">
+            <div class="rail-dot" aria-hidden="true">03</div>
+            <div class="pt-0.5">
+              <p class="font-serif font-semibold text-[0.95rem] leading-tight text-ink2">Edit Markdown</p>
+              <p class="text-xs text-ink2/70 mt-0.5">Validation checklist</p>
+            </div>
+          </div>
+        </li>
+        <li class="rail-node" data-state="pending">
+          <div class="flex gap-3">
+            <div class="rail-dot" aria-hidden="true">04</div>
+            <div class="pt-0.5">
+              <p class="font-serif font-semibold text-[0.95rem] leading-tight text-ink2">Generate PDF</p>
+              <p class="text-xs text-ink2/70 mt-0.5">takumi‑pdf · pdfcn</p>
+            </div>
+          </div>
+        </li>
+      </ol>
+
+      <div class="rule my-8"></div>
+
+      <div class="text-xs text-ink2 space-y-2 leading-relaxed">
+        <p class="kicker !text-ink2/70 !text-[0.62rem]">Session</p>
+        <p>Theme: <span class="font-medium text-ink">Editorial / Default</span></p>
+        <p>Engine: <span class="font-medium text-ink">GPT‑4 class, local key</span></p>
+        <p>Storage: <span class="font-medium text-ink">Browser only</span></p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MOBILE RAIL (horizontal) -->
+  <div class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-ink text-paper no-print">
+    <div class="flex">
+      <button class="flex-1 py-3 text-center border-r border-white/10 opacity-60">
+        <span class="block font-mono text-[0.65rem]">01</span>
+        <span class="block text-[0.68rem] mt-0.5">Upload</span>
+      </button>
+      <button class="flex-1 py-3 text-center border-r border-white/10 bg-accent">
+        <span class="block font-mono text-[0.65rem]">02</span>
+        <span class="block text-[0.68rem] mt-0.5">Params</span>
+      </button>
+      <button class="flex-1 py-3 text-center border-r border-white/10 opacity-60">
+        <span class="block font-mono text-[0.65rem]">03</span>
+        <span class="block text-[0.68rem] mt-0.5">Edit</span>
+      </button>
+      <button class="flex-1 py-3 text-center opacity-60">
+        <span class="block font-mono text-[0.65rem]">04</span>
+        <span class="block text-[0.68rem] mt-0.5">PDF</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ MAIN CONTENT ============ -->
+  <main id="main" class="flex-1 min-w-0 space-y-24 pb-24">
+
+    <!-- ============ STEP 1: UPLOAD + EXTRACT ============ -->
+    <section aria-labelledby="step1-h" class="space-y-6">
+      <div class="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <p class="kicker mb-2">Stage 01</p>
+          <h2 id="step1-h" class="font-display font-bold text-3xl tracking-tightest">Upload &amp; Extract</h2>
+        </div>
+        <p class="text-sm text-ink2 max-w-sm text-right hidden sm:block">Plain‑text PDFs are parsed client‑side. No file leaves the browser.</p>
+      </div>
+      <div class="rule"></div>
+
+      <div class="grid lg:grid-cols-2 gap-8">
+        <!-- Dropzone -->
+        <div class="space-y-4">
+          <div class="dropzone active rounded-none p-10 flex flex-col items-center justify-center text-center min-h-[340px]" role="button" tabindex="0" aria-label="Upload chapter PDF">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1E3A5F" stroke-width="1.4" class="mb-4">
+              <path d="M12 3v12m0-12 4 4m-4-4-4 4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <p class="font-serif font-semibold text-lg">Drop chapter PDF here</p>
+            <p class="text-sm text-ink2 mt-1.5">or <span class="underline decoration-accent decoration-2 underline-offset-2 text-accent font-medium cursor-pointer">browse files</span></p>
+            <p class="kicker mt-6 !text-[0.62rem] text-ink2/60">Plain‑text PDF · max 40MB</p>
+          </div>
+
+          <div class="flex items-center justify-between border hairline px-4 py-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-8 h-8 border hairline flex items-center justify-center flex-shrink-0 font-mono text-[0.65rem]">PDF</div>
+              <div class="min-w-0">
+                <p class="text-sm font-medium truncate">chapter-07-diffusion.pdf</p>
+                <p class="text-xs text-ink2">2.4 MB · 18 pages</p>
+              </div>
+            </div>
+            <span class="kicker !text-ok !text-[0.62rem]">Extracted</span>
+          </div>
+        </div>
+
+        <!-- Extracted text preview -->
+        <div class="flex flex-col border hairline editorial-shadow">
+          <div class="flex items-center justify-between px-4 py-2.5 border-b hairline bg-paper2">
+            <p class="kicker !text-[0.62rem]">Extracted Text Preview</p>
+            <span class="num-badge">14,208 chars</span>
+          </div>
+          <div class="p-5 overflow-y-auto scrollbar-thin flex-1 max-h-[300px] font-serif text-[0.93rem] leading-relaxed text-ink2">
+            <p class="text-ink font-semibold mb-2">7. Diffusion Models and Score Matching</p>
+            <p class="mb-3">Diffusion probabilistic models define a Markov chain of diffusion steps to slowly add random noise to data, then learn to reverse the diffusion process to construct desired data samples from the noise&hellip;</p>
+            <p class="mb-3">Let <em>x₀</em> ∼ <em>q(x)</em> be a data point. The forward process produces a sequence of latents <em>x₁, &hellip;, x_T</em> by progressively adding Gaussian noise at each timestep, controlled by a variance schedule&hellip;</p>
+            <p>This chapter formalizes the connection between denoising score matching and the reverse SDE, following Song et al. and Ho et al., before deriving the simplified training objective used in practice.</p>
+          </div>
+          <div class="border-t hairline px-4 py-2.5 flex items-center justify-between bg-paper2">
+            <span class="text-xs text-ink2">Encoding: UTF‑8 · Detected language: EN</span>
+            <button class="toolbar-btn">Re‑extract</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button class="btn-primary">Continue to Params →</button>
+      </div>
+    </section>
+
+    <!-- ============ STEP 2: PARAMS + SUMMARIZE ============ -->
+    <section aria-labelledby="step2-h" class="space-y-6">
+      <div class="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <p class="kicker mb-2">Stage 02</p>
+          <h2 id="step2-h" class="font-display font-bold text-3xl tracking-tightest">Params &amp; Summarize</h2>
+        </div>
+        <p class="text-sm text-ink2 max-w-sm text-right hidden sm:block">Strict prompt enforces 5 frontmatter keys and 7 fixed sections.</p>
+      </div>
+      <div class="rule"></div>
+
+      <div class="grid lg:grid-cols-[1.1fr_0.9fr] gap-10">
+        <!-- Params grid -->
+        <form class="grid grid-cols-2 gap-x-6 gap-y-5">
+          <div class="col-span-2">
+            <label class="kicker !text-[0.65rem] block mb-1.5" for="p-title">Chapter Title</label>
+            <input id="p-title" type="text" class="field w-full" value="Diffusion Models and Score Matching">
+          </div>
+          <div>
+            <label class="kicker !text-[0.65rem] block mb-1.5" for="p-author">Author</label>
+            <input id="p-author" type="text" class="field w-full" value="R. Alden">
+          </div>
+          <div>
+            <label class="kicker !text-[0.65rem] block mb-1.5" for="p-vol">Volume / Ch. No.</label>
+            <input id="p-vol" type="text" class="field w-full" value="Vol. II · Ch. 07">
+          </div>
+          <div>
+            <label class="kicker !text-[0.65rem] block mb-1.5" for="p-audience">Audience Level</label>
+            <select id="p-audience" class="field w-full">
+              <option>Graduate</option>
+              <option>Advanced Undergraduate</option>
+              <option>Practitioner</option>
+            </select>
+          </div>
+          <div>
+            <label class="kicker !text-[0.65rem] block mb-1.5" for="p-tone">Tone</label>
+            <select id="p-tone" class="field w-full">
+              <option>Formal / Academic</option>
+              <option>Expository</option>
+              <option>Concise Reference</option>
+            </select>
+          </div>
+          <div>
+            <label class="kicker !text-[0.65rem] block mb-1.5" for="p-len">Target Length</label>
+            <input id="p-len" type="text" class="field w-full" value="2,200 words">
+          </div>
+          <div>
+            <label class="kicker !text-[0.65rem] block mb-1.5" for="p-cite">Citation Style</label>
+            <select id="p-cite" class="field w-full">
+              <option>APA 7</option>
+              <option>IEEE</option>
+              <option>Chicago</option>
+            </select>
+          </div>
+          <div class="col-span-2">
+            <label class="kicker !text-[0.65rem] block mb-1.5" for="p-notes">Editorial Notes</label>
+            <textarea id="p-notes" rows="3" class="field w-full resize-none" placeholder="Preserve original notation; keep derivations concise…"></textarea>
+          </div>
+
+          <div class="col-span-2 pt-2 flex items-center justify-between border-t hairline mt-1">
+            <p class="text-xs text-ink2 pt-3">5 frontmatter keys · 7 fixed sections enforced by prompt</p>
+            <button type="button" class="btn-primary mt-3">Run Summarize →</button>
+          </div>
+        </form>
+
+        <!-- Live prompt / output status -->
+        <div class="border hairline editorial-shadow flex flex-col">
+          <div class="px-4 py-2.5 border-b hairline bg-paper2 flex items-center justify-between">
+            <p class="kicker !text-[0.62rem]">Structure Contract</p>
+            <span class="num-badge">strict schema</span>
+          </div>
+          <div class="p-5 space-y-4 flex-1">
+            <div>
+              <p class="text-xs font-semibold text-ink2 mb-2 tracking-wide-cap uppercase !text-[0.65rem]">Frontmatter (5)</p>
+              <ol class="space-y-1.5 font-mono text-[0.78rem] text-ink2">
+                <li>01 · title</li>
+                <li>02 · author</li>
+                <li>03 · abstract</li>
+                <li>04 · keywords</li>
+                <li>05 · citation</li>
+              </ol>
+            </div>
+            <div class="rule"></div>
+            <div>
+              <p class="text-xs font-semibold text-ink2 mb-2 tracking-wide-cap uppercase !text-[0.65rem]">Sections (7)</p>
+              <ol class="space-y-1.5 font-mono text-[0.78rem] text-ink2">
+                <li>01 · Introduction</li>
+                <li>02 · Background</li>
+                <li>03 · Method / Theory</li>
+                <li>04 · Results / Analysis</li>
+                <li>05 · Discussion</li>
+                <li>06 · Limitations</li>
+                <li>07 · Summary</li>
+              </ol>
+            </div>
+          </div>
+          <div class="border-t hairline px-4 py-3 bg-paper2 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-warn"></span>
+            <p class="text-xs text-ink2">Awaiting run — estimated 20–35s</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 3: EDIT MARKDOWN ============ -->
+    <section aria-labelledby="step3-h" class="space-y-6">
+      <div class="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <p class="kicker mb-2">Stage 03</p>
+          <h2 id="step3-h" class="font-display font-bold text-3xl tracking-tightest">Edit Markdown</h2>
+        </div>
+        <p class="text-sm text-ink2 max-w-sm text-right hidden sm:block">Manual edits are re‑validated against the structure contract on save.</p>
+      </div>
+      <div class="rule"></div>
+
+      <div class="grid lg:grid-cols-[1fr_300px] gap-8">
+        <!-- Monospace editor -->
+        <div class="border hairline editorial-shadow-lg flex flex-col">
+          <div class="flex items-center justify-between px-4 py-2.5 border-b hairline bg-ink text-paper">
+            <div class="flex items-center gap-3">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#7A2E2E]/70"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#8A5A20]/70"></span>
+              <span class="w-2.5 h-2.5 rounded-full bg-[#2F5D3A]/70"></span>
+              <p class="font-mono text-[0.72rem] text-paper/70 ml-2">chapter-07.md</p>
+            </div>
+            <span class="font-mono text-[0.68rem] text-paper/50">UTF‑8 · MD · Ln 42, Col 12</span>
+          </div>
+          <div class="code-editor p-5 overflow-x-auto scrollbar-thin">
+<pre class="whitespace-pre"><span class="ln">01</span>  <span class="tok-com">---</span>
+<span class="ln">02</span>  <span class="tok-key">title:</span> <span class="tok-str">"Diffusion Models and Score Matching"</span>
+<span class="ln">03</span>  <span class="tok-key">author:</span> <span class="tok-str">"R. Alden"</span>
+<span class="ln">04</span>  <span class="tok-key">abstract:</span> <span class="tok-str">"A treatment of forward/reverse diffusion..."</span>
+<span class="ln">05</span>  <span class="tok-key">keywords:</span> [<span class="tok-str">diffusion</span>, <span class="tok-str">score-matching</span>, <span class="tok-str">SDE</span>]
+<span class="ln">06</span>  <span class="tok-key">citation:</span> <span class="tok-str">"Alden, R. (2026)."</span>
+<span class="ln">07</span>  <span class="tok-com">---</span>
+
+<span class="ln">08</span>  <span class="tok-head">## 1. Introduction</span>
+<span class="ln">09</span>
+<span class="ln">10</span>  Diffusion probabilistic models define a Markov
+<span class="ln">11</span>  chain of diffusion steps that slowly add random
+<span class="ln">12</span>  noise to data...
+<span class="ln">13</span>
+<span class="ln">14</span>  <span class="tok-head">## 2. Background</span>
+<span class="ln">15</span>
+<span class="ln">16</span>  Let <span class="tok-str">x₀ ~ q(x)</span> denote a data sample drawn from
+<span class="ln">17</span>  the true distribution. The forward process...
+<span class="ln">18</span>
+<span class="ln">19</span>  <span class="tok-head">## 3. Method</span>
+<span class="ln">20</span>
+<span class="ln">21</span>  We parameterize the reverse process with a neural
+<span class="ln">22</span>  network ε_θ trained via the simplified objective:</span><span class="text-[#E9E4D8]">|</span>
+</pre>
+          </div>
+          <div class="border-t hairline px-4 py-2.5 flex items-center justify-between bg-paper2">
+            <p class="text-xs text-ink2">Auto‑saved 12s ago</p>
+            <div class="flex gap-2">
+              <button class="btn-ghost !py-1.5 !text-xs">Format</button>
+              <button class="btn-primary !py-1.5 !text-xs">Validate &amp; Save</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validation sidebar -->
+        <div class="border hairline editorial-shadow flex flex-col">
+          <div class="px-4 py-2.5 border-b hairline bg-paper2">
+            <p class="kicker !text-[0.62rem]">Validation Checklist</p>
+          </div>
+          <div class="p-4 space-y-0 flex-1 overflow-y-auto scrollbar-thin max-h-[420px]">
+            <div class="checklist-item">
+              <span class="status-dot bg-ok"></span>
+              <p class="text-sm">Frontmatter contains all 5 required keys</p>
+            </div>
+            <div class="checklist-item">
+              <span class="status-dot bg-ok"></span>
+              <p class="text-sm">Keywords array is non‑empty</p>
+            </div>
+            <div class="checklist-item">
+              <span class="status-dot bg-warn"></span>
+              <p class="text-sm">Section 4 <span class="font-mono text-xs">(Results)</span> under min. length</p>
+            </div>
+            <div class="checklist-item">
+              <span class="status-dot bg-err"></span>
+              <p class="text-sm">Section 6 <span class="font-mono text-xs">(Limitations)</span> missing</p>
+            </div>
+            <div class="checklist-item">
+              <span class="status-dot bg-ok"></span>
+              <p class="text-sm">No unresolved <span class="font-mono text-xs">{{placeholder}}</span> tokens</p>
+            </div>
+            <div class="checklist-item">
+              <span class="status-dot bg-ok"></span>
+              <p class="text-sm">Citation format matches APA 7</p>
+            </div>
+            <div class="checklist-item">
+              <span class="status-dot bg-warn"></span>
+              <p class="text-sm">2 headings exceed sentence‑case convention</p>
+            </div>
+          </div>
+          <div class="border-t hairline px-4 py-3 bg-paper2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-ink2">5 of 7 checks passed</span>
+              <span class="font-mono text-ink font-semibold">71%</span>
+            </div>
+            <div class="h-1 bg-line mt-2">
+              <div class="h-1 bg-accent" style="width:71%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 4: GENERATE PDF ============ -->
+    <section aria-labelledby="step4-h" class="space-y-6">
+      <div class="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <p class="kicker mb-2">Stage 04</p>
+          <h2 id="step4-h" class="font-display font-bold text-3xl tracking-tightest">Generate PDF</h2>
+        </div>
+        <p class="text-sm text-ink2 max-w-sm text-right hidden sm:block">Rendered locally via takumi‑pdf, composited with pdfcn layout primitives.</p>
+      </div>
+      <div class="rule"></div>
+
+      <div class="border hairline editorial-shadow-lg">
+        <!-- Toolbar -->
+        <div class="flex items-center justify-between px-4 py-2.5 border-b hairline bg-ink text-paper flex-wrap gap-2">
+          <div class="flex items-center gap-1">
+            <button class="toolbar-btn !text-paper/80">◀ Prev</button>
+            <span class="font-mono text-[0.72rem] px-2 text-paper/60">Page 3 / 18</span>
+            <button class="toolbar-btn !text-paper/80">Next ▶</button>
+          </div>
+          <div class="flex items-center gap-1">
+            <button class="toolbar-btn !text-paper/80">−</button>
+            <span class="font-mono text-[0.72rem] px-1 text-paper/60">100%</span>
+            <button class="toolbar-btn !text-paper/80">+</button>
+            <span class="w-px h-4 bg-white/15 mx-1"></span>
+            <button class="toolbar-btn !text-paper/80">Fit Width</button>
+            <span class="w-px h-4 bg-white/15 mx-1"></span>
+            <button class="toolbar-btn !bg-accent !text-paper">Download PDF</button>
+          </div>
+        </div>
+
+        <!-- Preview frame -->
+        <div class="bg-paper2 p-6 sm:p-12 flex justify-center overflow-y-auto scrollbar-thin max-h-[640px]">
+          <div class="page-sheet w-full max-w-[560px] aspect-[8.5/11] p-10 sm:p-14 flex flex-col">
+            <div class="text-center mb-8">
+              <p class="kicker !text-[0.6rem] text-ink2">Vol. II · Chapter 07</p>
+              <h3 class="font-display font-bold text-xl mt-2 leading-snug">Diffusion Models and<br>Score Matching</h3>
+              <p class="text-xs text-ink2 mt-2 font-serif italic">R. Alden</p>
+            </div>
+            <div class="rule mb-6"></div>
+            <div class="font-serif text-[0.8rem] leading-relaxed text-ink2 space-y-3 columns-1">
+              <p><span class="font-semibold text-ink">1. Introduction.</span> Diffusion probabilistic models define a Markov chain of diffusion steps to slowly add random noise to data, then learn to reverse the diffusion process&hellip;</p>
+              <p>The reverse process is parameterized as a Gaussian transition kernel, with mean predicted by a neural network trained to denoise <em>x_t</em> at each timestep <em>t</em>.</p>
+              <p><span class="font-semibold text-ink">2. Background.</span> Score‑based generative models learn the gradient of the log density, ∇ₓ log p(x), commonly referred to as the score function&hellip;</p>
+            </div>
+            <div class="mt-auto pt-6 flex justify-between text-[0.65rem] text-ink2 font-mono">
+              <span>Washi</span>
+              <span>03</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom status bar -->
+        <div class="flex items-center justify-between px-4 py-3 border-t hairline bg-paper2 flex-wrap gap-2">
+          <p class="text-xs text-ink2">Rendered in 1.8s · takumi‑pdf v0.9 · pdfcn layout</p>
+          <div class="flex gap-2">
+            <button class="btn-ghost">Regenerate</button>
+            <button class="btn-primary">Finalize &amp; Export</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer class="border-t hairline border-t-[1.5px] mt-4">
+  <div class="max-w-[1440px] mx-auto px-6 lg:px-10 py-8 flex flex-wrap items-center justify-between gap-4">
+    <p class="font-serif italic text-sm text-ink2">Washi — local‑first manuscript compositor.</p>
+    <p class="kicker !text-[0.6rem] text-ink2/60">All processing occurs in‑browser. No data leaves this device.</p>
+  </div>
+</footer>
+
+</body>
+</html>

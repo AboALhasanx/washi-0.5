@@ -1,0 +1,32 @@
+# dependencies
+node_modules/
+
+# next.js build output
+.next/
+out/
+build/
+
+# env & secrets
+.env
+.env*.local
+
+# build info
+*.tsbuildinfo
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+
+# washi studio runtime data (build history, saved themes, settings)
+.washi/
+
+# local test artifacts
+content/
+output/
+
+# washi 0.5 runtime data (document projects live on the user's disk)
+projects/
+
+# ephemeral e2e test scratch
+.e2e/

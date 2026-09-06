@@ -1,0 +1,407 @@
+/**
+ * lib/project.ts
+ * Washi 0.5 document-project store — filesystem-first.
+ *
+ * Project layout on disk:
+ *
+ *   projects/<id>/
+ *   ├── content.md          (source of content — what the document says)
+ *   ├── metadata.json       (what the system knows about the project)
+ *   ├── template.json       (how it is presented — StudioTheme JSON)
+ *   ├── assets/             (binary content / linked files)
+ *   ├── snapshots/vN/       (important saves: content.md + template.json)
+ *   └── publications/vN/    (immutable Publication Package)
+ *
+ * Presentation changes never rewrite content; publishing freezes.
+ */
+
+import fs from "node:fs";
+import path from "node:path";
+import {
+  documentMetadataSchema,
+  type DocumentMetadata,
+  type DocumentStatus,
+} from "./schemas";
+import { mergeTheme, type StudioTheme } from "./theme";
+import { parseMarkdown } from "./markdown-parser";
+import { buildDocumentAst, buildAppContent, type DocumentAst, type AppContent } from "./artifacts";
+import { validateMarkdown, type ValidationResult } from "./validate";
+import { renderChapterPdf } from "./render-pdf";
+import type { PublicationManifest } from "./schemas";
+
+const ROOT = path.join(process.cwd(), "projects");
+
+const safeId = (s: string) =>
+  s
+    .toLowerCase()
+    .trim()
+    .replace(/[^\p{L}\p{N}\s_-]/gu, "")
+    .replace(/\s+/g, "-")
+    .slice(0, 64) || "project";
+
+function ensureRoot() {
+  fs.mkdirSync(ROOT, { recursive: true });
+}
+
+function projectDir(id: string) {
+  const dir = path.join(ROOT, safeId(id));
+  if (!dir.startsWith(ROOT)) throw new Error("invalid project id");
+  return dir;
+}
+
+/* ─── CRUD ──────────────────────────────────────────────────────────────────── */
+
+export interface CreateProjectInput {
+  title: string;
+  subject?: string;
+  language?: "ar" | "en";
+  markdown: string;
+  template?: unknown;
+}
+
+export function createProject(input: CreateProjectInput): DocumentMetadata {
+  ensureRoot();
+  // Parse up-front: a project cannot exist without structurally parseable
+  // frontmatter (title/subject/language come from frontmatter when present).
+  const { ast } = parseMarkdown(input.markdown);
+  const fm = ast.frontmatter;
+
+  let id = safeId(input.title || fm.title || fm.subject);
+  if (fs.existsSync(projectDir(id))) {
+    id = `${id}-${Date.now().toString(36)}`;
+  }
+
+  // Validate the metadata record BEFORE touching the filesystem so a schema
+  // failure never leaves an orphan project directory behind.
+  const now = new Date().toISOString();
+  const metadata: DocumentMetadata = documentMetadataSchema.parse({
+    id,
+    title: input.title || fm.title,
+    subject: input.subject || fm.subject,
+    language: input.language || fm.language,
+    status: "draft",
+    createdAt: now,
+    updatedAt: now,
+    currentVersion: 1,
+    publicationCount: 0,
+  });
+
+  const dir = projectDir(id);
+  fs.mkdirSync(path.join(dir, "assets"), { recursive: true });
+  fs.mkdirSync(path.join(dir, "snapshots"), { recursive: true });
+  fs.mkdirSync(path.join(dir, "publications"), { recursive: true });
+
+  fs.writeFileSync(path.join(dir, "content.md"), input.markdown, "utf8");
+  fs.writeFileSync(path.join(dir, "metadata.json"), JSON.stringify(metadata, null, 2), "utf8");
+  const theme = mergeTheme(input.template ?? undefined);
+  theme.id = id;
+  fs.writeFileSync(path.join(dir, "template.json"), JSON.stringify(theme, null, 2), "utf8");
+
+  // v1 snapshot = the imported draft
+  snapshot(dir, 1);
+  return metadata;
+}
+
+export function listProjects(): DocumentMetadata[] {
+  ensureRoot();
+  return fs
+    .readdirSync(ROOT, { withFileTypes: true })
+    .filter((d) => d.isDirectory())
+    .map((d) => {
+      try {
+        return documentMetadataSchema.parse(
+          JSON.parse(fs.readFileSync(path.join(ROOT, d.name, "metadata.json"), "utf8"))
+        );
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean) as DocumentMetadata[];
+}
+
+export interface LoadedProject {
+  metadata: DocumentMetadata;
+  content: string;
+  template: StudioTheme;
+}
+
+export function loadProject(id: string): LoadedProject {
+  const dir = projectDir(id);
+  const metadata = documentMetadataSchema.parse(
+    JSON.parse(fs.readFileSync(path.join(dir, "metadata.json"), "utf8"))
+  );
+  const content = fs.readFileSync(path.join(dir, "content.md"), "utf8");
+  const template = mergeTheme(JSON.parse(fs.readFileSync(path.join(dir, "template.json"), "utf8")));
+  return { metadata, content, template };
+}
+
+function writeMetadata(dir: string, metadata: DocumentMetadata) {
+  fs.writeFileSync(path.join(dir, "metadata.json"), JSON.stringify(metadata, null, 2), "utf8");
+}
+
+/* ─── Editing + snapshots ───────────────────────────────────────────────────── */
+
+function snapshot(dir: string, version: number) {
+  const vDir = path.join(dir, "snapshots", `v${version}`);
+  fs.mkdirSync(vDir, { recursive: true });
+  fs.copyFileSync(path.join(dir, "content.md"), path.join(vDir, "content.md"));
+  fs.copyFileSync(path.join(dir, "template.json"), path.join(vDir, "template.json"));
+}
+
+export interface SaveProjectInput {
+  content?: string;
+  template?: unknown;
+  /** create a named snapshot after saving (important save) */
+  snapshotVersion?: boolean;
+}
+
+export function saveProject(id: string, input: SaveProjectInput): DocumentMetadata {
+  const dir = projectDir(id);
+  const metadata: DocumentMetadata = documentMetadataSchema.parse(
+    JSON.parse(fs.readFileSync(path.join(dir, "metadata.json"), "utf8"))
+  );
+
+  if (typeof input.content === "string") {
+    // content edits must still parse — structural gate before persisting
+    parseMarkdown(input.content);
+    fs.writeFileSync(path.join(dir, "content.md"), input.content, "utf8");
+  }
+  if (input.template !== undefined) {
+    const theme = mergeTheme(input.template);
+    fs.writeFileSync(path.join(dir, "template.json"), JSON.stringify(theme, null, 2), "utf8");
+  }
+
+  metadata.updatedAt = new Date().toISOString();
+  if (input.snapshotVersion !== false) {
+    metadata.currentVersion += 1;
+    snapshot(dir, metadata.currentVersion);
+  }
+  writeMetadata(dir, metadata);
+  return metadata;
+}
+
+export interface SnapshotInfo {
+  version: number;
+  at: string;
+  bytes: number;
+}
+
+export function listSnapshots(id: string): SnapshotInfo[] {
+  const dir = path.join(projectDir(id), "snapshots");
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && /^v\d+$/.test(d.name))
+    .map((d) => {
+      const vDir = path.join(dir, d.name);
+      const stat = fs.statSync(vDir);
+      const bytes = fs
+        .readdirSync(vDir)
+        .reduce((s, f) => s + fs.statSync(path.join(vDir, f)).size, 0);
+      return { version: parseInt(d.name.slice(1), 10), at: stat.mtime.toISOString(), bytes };
+    })
+    .sort((a, b) => a.version - b.version);
+}
+
+export function getSnapshot(id: string, version: number): { content: string; template: StudioTheme } {
+  const vDir = path.join(projectDir(id), "snapshots", `v${version}`);
+  return {
+    content: fs.readFileSync(path.join(vDir, "content.md"), "utf8"),
+    template: mergeTheme(JSON.parse(fs.readFileSync(path.join(vDir, "template.json"), "utf8"))),
+  };
+}
+
+/** Restore = copy snapshot back, then snapshot the restored state as current+1. */
+export function restoreSnapshot(id: string, version: number): DocumentMetadata {
+  const snap = getSnapshot(id, version);
+  return saveProject(id, { content: snap.content, template: snap.template });
+}
+
+/* ─── Validation ────────────────────────────────────────────────────────────── */
+
+export function validateProject(id: string): ValidationResult {
+  const dir = projectDir(id);
+  const content = fs.readFileSync(path.join(dir, "content.md"), "utf8");
+  const result = validateMarkdown(content, { assetsDir: path.join(dir, "assets") });
+  const metadata: DocumentMetadata = documentMetadataSchema.parse(
+    JSON.parse(fs.readFileSync(path.join(dir, "metadata.json"), "utf8"))
+  );
+  metadata.lastValidation = {
+    at: new Date().toISOString(),
+    ok: result.ok,
+    errors: result.errors,
+    warnings: result.warnings,
+  };
+  metadata.updatedAt = new Date().toISOString();
+  writeMetadata(dir, metadata);
+  return result;
+}
+
+/* ─── Publishing ────────────────────────────────────────────────────────────── */
+
+export class PublishError extends Error {
+  constructor(message: string, public validation?: ValidationResult) {
+    super(message);
+  }
+}
+
+export interface PublishResult {
+  version: number;
+  manifest: PublicationManifest;
+  dir: string;
+}
+
+/**
+ * Publish = Freeze. Runs the full pipeline (validate → parse → render →
+ * package) and writes the immutable Publication Package. The author owns
+ * the publish decision; once written the package is never edited.
+ */
+export async function publishProject(id: string): Promise<PublishResult> {
+  const dir = projectDir(id);
+  const metadata: DocumentMetadata = documentMetadataSchema.parse(
+    JSON.parse(fs.readFileSync(path.join(dir, "metadata.json"), "utf8"))
+  );
+  if (metadata.status === "published") {
+    // re-publishing creates a new immutable version — allowed, never edits old ones
+  }
+
+  const content = fs.readFileSync(path.join(dir, "content.md"), "utf8");
+  const template = mergeTheme(JSON.parse(fs.readFileSync(path.join(dir, "template.json"), "utf8")));
+
+  const validation = validateMarkdown(content, { assetsDir: path.join(dir, "assets") });
+  if (!validation.ok) {
+    throw new PublishError(
+      `لا يمكن النشر — ${validation.errors} خطأ هيكلي. صحّح المستند أولاً.`,
+      validation
+    );
+  }
+
+  const { pdf, ast } = await renderChapterPdf(content, template);
+  const documentAst = buildDocumentAst(ast);
+  const appContent = buildAppContent(ast);
+
+  const version = metadata.publicationCount + 1;
+  const pubDir = path.join(dir, "publications", `v${version}`);
+  fs.mkdirSync(path.join(pubDir, "assets"), { recursive: true });
+  fs.mkdirSync(path.join(pubDir, "metadata"), { recursive: true });
+
+  fs.writeFileSync(path.join(pubDir, "content.md"), content, "utf8");
+  fs.writeFileSync(path.join(pubDir, "document.ast"), JSON.stringify(documentAst, null, 2), "utf8");
+  fs.writeFileSync(path.join(pubDir, "app-content.json"), JSON.stringify(appContent, null, 2), "utf8");
+  fs.writeFileSync(path.join(pubDir, "document.pdf"), pdf);
+
+  // assets snapshot — only files actually referenced stay honest; copy all
+  const assetsDir = path.join(dir, "assets");
+  if (fs.existsSync(assetsDir)) {
+    for (const f of fs.readdirSync(assetsDir)) {
+      fs.copyFileSync(path.join(assetsDir, f), path.join(pubDir, "assets", f));
+    }
+  }
+
+  const manifest: PublicationManifest = {
+    version,
+    publishedAt: new Date().toISOString(),
+    title: metadata.title,
+    subject: metadata.subject,
+    language: metadata.language,
+    contents: [
+      "content.md",
+      "document.ast",
+      "app-content.json",
+      "document.pdf",
+      "assets/",
+      "metadata/",
+    ],
+    validation: { ok: validation.ok, errors: validation.errors, warnings: validation.warnings },
+  };
+  fs.writeFileSync(path.join(pubDir, "manifest.json"), JSON.stringify(manifest, null, 2), "utf8");
+  fs.writeFileSync(
+    path.join(pubDir, "metadata", "metadata.json"),
+    JSON.stringify({ ...metadata, status: "published", publishedAt: manifest.publishedAt }, null, 2),
+    "utf8"
+  );
+  fs.writeFileSync(
+    path.join(pubDir, "metadata", "template.json"),
+    JSON.stringify(template, null, 2),
+    "utf8"
+  );
+
+  metadata.status = "published";
+  metadata.publishedAt = manifest.publishedAt;
+  metadata.publicationCount = version;
+  metadata.updatedAt = manifest.publishedAt;
+  writeMetadata(dir, metadata);
+
+  return { version, manifest, dir: pubDir };
+}
+
+export interface PublicationSummary {
+  version: number;
+  publishedAt: string;
+  title: string;
+  dir: string;
+}
+
+export function listPublications(id: string): PublicationSummary[] {
+  const dir = path.join(projectDir(id), "publications");
+  if (!fs.existsSync(dir)) return [];
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && /^v\d+$/.test(d.name))
+    .map((d) => {
+      const v = parseInt(d.name.slice(1), 10);
+      const vDir = path.join(dir, d.name);
+      let publishedAt = "";
+      let title = "";
+      try {
+        const manifest = JSON.parse(fs.readFileSync(path.join(vDir, "manifest.json"), "utf8"));
+        publishedAt = manifest.publishedAt;
+        title = manifest.title;
+      } catch {}
+      return { version: v, publishedAt, title, dir: vDir };
+    })
+    .sort((a, b) => a.version - b.version);
+}
+
+export function loadPublication(id: string, version: number) {
+  const pubDir = path.join(projectDir(id), "publications", `v${version}`);
+  const read = (f: string) => fs.readFileSync(path.join(pubDir, f), "utf8");
+  return {
+    manifest: JSON.parse(read("manifest.json")) as PublicationManifest,
+    documentAst: JSON.parse(read("document.ast")) as DocumentAst,
+    appContent: JSON.parse(read("app-content.json")) as AppContent,
+  };
+}
+
+/* ─── Assets ────────────────────────────────────────────────────────────────── */
+
+export function listAssets(id: string): string[] {
+  const dir = path.join(projectDir(id), "assets");
+  if (!fs.existsSync(dir)) return [];
+  return fs.readdirSync(dir).filter((f) => fs.statSync(path.join(dir, f)).isFile());
+}
+
+export function saveAsset(id: string, filename: string, data: Buffer): string {
+  const safe = path.basename(filename).replace(/[^\p{L}\p{N}._-]/gu, "_");
+  const dir = path.join(projectDir(id), "assets");
+  fs.mkdirSync(dir, { recursive: true });
+  const dest = path.join(dir, safe);
+  fs.writeFileSync(dest, data);
+  return safe;
+}
+
+export function readAsset(id: string, filename: string): Buffer | null {
+  const safe = path.basename(filename);
+  const p = path.join(projectDir(id), "assets", safe);
+  if (!fs.existsSync(p)) return null;
+  return fs.readFileSync(p);
+}
+
+export function deleteProject(id: string): boolean {
+  const dir = projectDir(id);
+  if (fs.existsSync(dir)) {
+    fs.rmSync(dir, { recursive: true, force: true });
+    return true;
+  }
+  return false;
+}
