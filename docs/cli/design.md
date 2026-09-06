@@ -85,7 +85,7 @@ washi trace <id> [--version N]          # نموذج استهلاك المنصة
 washi delete <id> [--yes]               # حذف مشروع (يتطلب تأكيدًا)
 washi serve [--port 3000]               # جسر الاستوديو
 washi demo                              # دورة كاملة على الفصل الشامل — عرض حي للمنتج
-washi --help | --version
+washi -V | --help                      # إصدار الـ CLI نفسه / المساعدة (--version محجوزة لـ verify)
 ```
 
 قرارات قواعد ملحوظة:
