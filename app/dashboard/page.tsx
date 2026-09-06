@@ -4,7 +4,7 @@
  */
 
 import Link from "next/link";
-import { loadBuilds, listThemes, loadSettings } from "@/lib/theme-server";
+import { loadBuilds, listThemes } from "@/lib/theme-server";
 import { Logo } from "@/components/studio/Logo";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,6 @@ const fmtDate = (iso: string) => {
 export default function DashboardPage() {
   const builds = loadBuilds();
   const themes = listThemes();
-  const settings = loadSettings();
 
   const totalBytes = builds.reduce((s, b) => s + b.bytes, 0);
   const avgMs = builds.length ? Math.round(builds.reduce((s, b) => s + b.ms, 0) / builds.length) : 0;
@@ -69,8 +68,8 @@ export default function DashboardPage() {
               <p className="font-bold text-ink">MathJax → SVG (متجهة)</p>
             </div>
             <div>
-              <p className="text-ink2 text-xs">مزوّد التلخيص</p>
-              <p className="font-bold text-ink">{settings.provider} · {settings.model}</p>
+              <p className="text-ink2 text-xs">الـ AI</p>
+              <p className="font-bold text-ink">خارجي (مكتبة Prompts)</p>
             </div>
             <div>
               <p className="text-ink2 text-xs">المقاس الافتراضي</p>
@@ -106,8 +105,8 @@ export default function DashboardPage() {
                   <tr key={i} className="border-b hairline last:border-0">
                     <td className="px-5 py-2.5 font-semibold text-ink max-w-[260px] truncate">{b.title}</td>
                     <td className="px-3 py-2.5 text-ink2 text-xs font-mono">{b.themeId}</td>
-                    <td className="px-3 py-2.5 text-ink2 text-xs font-mono">{b.ms} ms</td>
-                    <td className="px-3 py-2.5 text-ink2 text-xs font-mono">{fmtKB(b.bytes)}</td>
+                    <td className="px-3 py-2.5 text-ink2 text-xs font-mono" dir="ltr">{b.ms} ms</td>
+                    <td className="px-3 py-2.5 text-ink2 text-xs font-mono" dir="ltr">{fmtKB(b.bytes)}</td>
                     <td className="px-5 py-2.5 text-ink2 text-xs">{fmtDate(b.at)}</td>
                   </tr>
                 ))}

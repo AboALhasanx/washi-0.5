@@ -51,6 +51,10 @@ export const provenanceRefSchema = z.object({
   pages: z.array(z.number().int().positive()).optional(),
   paragraphs: z.array(z.number().int().positive()).optional(),
   regions: z.array(z.string()).optional(),
+  // §21 provenance semantics: where the block's content came from. The parser
+  // only derives "source-derived" (or explicit "(generated)" markers); a
+  // human edit workflow may later mark "edited"/"authored". Never invented.
+  kind: z.enum(["source-derived", "generated", "authored", "edited"]).optional(),
 });
 
 export type ProvenanceRef = z.infer<typeof provenanceRefSchema>;
@@ -288,15 +292,30 @@ export const templateFileSchema = z.object({
 
 export type TemplateFile = z.infer<typeof templateFileSchema>;
 
-// Publication Package manifest (immutable once published)
+// Publication Package manifest (immutable once published).
+// Reproducibility note: PDFs are reproducible (same inputs → same intended
+// document) but NOT guaranteed byte-identical by the toolchain — the hashes
+// below identify exact published artifacts, they are not a determinism claim.
 export const publicationManifestSchema = z.object({
   version: z.number().int().positive(),
   publishedAt: z.string().min(1),
   title: z.string().min(1),
   subject: z.string().min(1),
   language: z.enum(["ar", "en"]),
+  templateId: z.string().min(1),
   contents: z.array(z.string()).min(1), // files inside the package
   validation: z.object({ ok: z.boolean(), errors: z.number(), warnings: z.number() }),
+  hashes: z.object({
+    /** sha256 of content.md — content identity (canonical source) */
+    contentSha256: z.string().min(1),
+    /** sha256 of document.pdf — exact published artifact identity */
+    pdfSha256: z.string().min(1),
+  }),
+  toolchain: z.object({
+    washi: z.string().min(1),
+    schema: z.string().min(1),
+    takumi: z.string().min(1),
+  }),
 });
 
 export type PublicationManifest = z.infer<typeof publicationManifestSchema>;

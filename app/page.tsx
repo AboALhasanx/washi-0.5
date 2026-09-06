@@ -10,7 +10,6 @@
  */
 
 import * as React from "react";
-import { UploadDropzone } from "@/components/UploadDropzone";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
 import { PdfPreview } from "@/components/PdfPreview";
 import { Logo } from "@/components/studio/Logo";
@@ -19,7 +18,7 @@ import { StudioTheme, DEFAULT_THEME, AVAILABLE_FONT_STACKS } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 type View = "preview" | "edit" | "pdf";
-type RailTab = "insert" | "outline" | "sources" | "themes";
+type RailTab = "insert" | "outline" | "themes";
 type UiTheme = "system" | "light" | "dark";
 
 const VIEW_TABS: Array<{ id: View; label: string }> = [
@@ -164,54 +163,10 @@ export default function StudioPage() {
     refreshThemes();
   };
 
-  /* ─── Sources: extract + summarize ─── */
-  const [extractedText, setExtractedText] = React.useState("");
-  const [extractedFileName, setExtractedFileName] = React.useState("");
+  /* ─── Document meta (authored frontmatter hints) ─── */
   const [subject, setSubject] = React.useState("software-engineering");
   const [title, setTitle] = React.useState("الفصل التاسع");
   const [language, setLanguage] = React.useState<"ar" | "en">("ar");
-  const [sourceDocument, setSourceDocument] = React.useState("");
-  const [summarizeLoading, setSummarizeLoading] = React.useState(false);
-  const [summarizeError, setSummarizeError] = React.useState<string | null>(null);
-
-  const handleExtract = (data: { text: string; numPages: number; fileName: string }) => {
-    setExtractedText(data.text);
-    setExtractedFileName(data.fileName);
-    setSourceDocument(data.fileName);
-  };
-
-  const handleSummarize = async () => {
-    setSummarizeError(null);
-    if (!extractedText.trim()) {
-      setSummarizeError("ارفع PDF الفصل أولاً.");
-      return;
-    }
-    setSummarizeLoading(true);
-    try {
-      const raw = (document.getElementById("washi-source-pages") as HTMLInputElement | null)?.value ?? "";
-      const res = await fetch("/api/summarize", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chapterText: extractedText,
-          subject: subject.trim(),
-          title: title.trim(),
-          language,
-          sourceDocument: sourceDocument.trim(),
-          sourcePages: raw || undefined,
-          theme: "default",
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || data?.message || `فشل التلخيص (${res.status})`);
-      setMarkdown(data.markdown);
-      setView("edit");
-    } catch (e: any) {
-      setSummarizeError(e?.message ?? String(e));
-    } finally {
-      setSummarizeLoading(false);
-    }
-  };
 
   /* ─── PDF generation ─── */
   const [pdfUrl, setPdfUrl] = React.useState<string | null>(null);
@@ -335,7 +290,6 @@ export default function StudioPage() {
           <a href="/prompts" className="btn-ghost !py-1.5 !text-xs">Prompts</a>
           <a href="/dashboard" className="btn-ghost !py-1.5 !text-xs">لوحة التحكم</a>
           <a href="/settings" className="btn-ghost !py-1.5 !text-xs">الإعدادات</a>
-          <a href="/wizard" className="btn-ghost !py-1.5 !text-xs hidden lg:inline" title="المعالج الكلاسيكي خطوة-بخطوة">المعالج</a>
           <button
             onClick={handleGeneratePdf}
             disabled={generateLoading || !markdown.trim()}
@@ -398,41 +352,6 @@ export default function StudioPage() {
                     <button onClick={() => moveSection(i, 1)} disabled={i === outline.length - 1} className="text-ink2 hover:text-accent disabled:opacity-30 px-1">↓</button>
                   </div>
                 ))}
-              </div>
-            )}
-
-            {railTab === "sources" && (
-              <div className="space-y-3">
-                <UploadDropzone onExtract={handleExtract} />
-                {extractedText && (
-                  <div className="border hairline rounded-xl p-3 space-y-2">
-                    <p className="text-[0.68rem] font-mono text-ink2 truncate">{extractedFileName}</p>
-                    <input
-                      id="washi-source-pages"
-                      placeholder="نطاق الصفحات: 256-281"
-                      className="w-full border hairline rounded-lg px-2.5 py-1.5 text-xs bg-paper text-ink"
-                    />
-                    <input
-                      value={subject}
-                      onChange={(e) => setSubject(e.target.value)}
-                      placeholder="subject"
-                      className="w-full border hairline rounded-lg px-2.5 py-1.5 text-xs bg-paper text-ink"
-                    />
-                    <input
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      placeholder="العنوان"
-                      className="w-full border hairline rounded-lg px-2.5 py-1.5 text-xs bg-paper text-ink"
-                    />
-                    <button onClick={handleSummarize} disabled={summarizeLoading} className="btn-primary w-full !py-2 !text-xs">
-                      {summarizeLoading ? "…يلخص" : "تلخيص آلي →"}
-                    </button>
-                    {summarizeError && <p className="text-[0.68rem] text-err">{summarizeError}</p>}
-                  </div>
-                )}
-                <p className="text-[0.65rem] text-ink2 leading-relaxed px-1">
-                  ارفع فصلاً من PDF، استخرج نصه، ثم شغّل الملخّص — أو الصق Markdown جاهزاً في «تحرير».
-                </p>
               </div>
             )}
 

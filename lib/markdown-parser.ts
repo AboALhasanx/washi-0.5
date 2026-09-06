@@ -82,16 +82,24 @@ function detectSectionName(heading: string): ChapterSection["name"] {
   return "custom";
 }
 
-function parseSourceComment(html: string): { raw: string; document?: string; pages?: number[] } {
+function parseSourceComment(html: string): { raw: string; document?: string; pages?: number[]; kind?: "source-derived" | "generated" } {
   // <!-- source: Computer Networks.pdf p.142 -->
   // <!-- source: Textbook.pdf p.142-143 -->
+  // <!-- source: (generated) -->  — AI-authored explanatory content, no source page
   const raw = html.trim();
   // Strip <!-- and -->
   const inner = raw.replace(/^<!--\s*/, "").replace(/\s*-->$/, "").trim();
   // Expect "source: ..." or "source ..."
   const m = inner.match(/source\s*:?\s*(.+)/i);
   if (!m) return { raw, document: undefined, pages: undefined };
-  const rest = m[1].trim();
+  let rest = m[1].trim();
+  // Explicit provenance kind marker, e.g. "(generated)" — see prompt contract
+  let kind: "source-derived" | "generated" | undefined;
+  const genMatch = rest.match(/\(generated\)\s*$/i);
+  if (genMatch) {
+    kind = "generated";
+    rest = rest.replace(/\(generated\)\s*$/i, "").trim();
+  }
   // Try to extract pages: p.142, p142, pp 142-143, [142,143]
   let document: string | undefined;
   let pages: number[] | undefined;
@@ -113,7 +121,8 @@ function parseSourceComment(html: string): { raw: string; document?: string; pag
     }
   }
   if (document) document = document.replace(/^["']|["']$/g, "");
-  return { raw, document, pages };
+  if (!document) return { raw, kind };
+  return { raw, document, pages, kind: kind ?? "source-derived" };
 }
 
 function parsePages(s: string): number[] | undefined {
@@ -381,6 +390,7 @@ export function parseMarkdown(md: string): ParseResult {
         pendingProv.push({
           document: parsedSrc.document,
           ...(parsedSrc.pages ? { pages: parsedSrc.pages } : {}),
+          ...(parsedSrc.kind ? { kind: parsedSrc.kind } : {}),
         });
       }
       // Don't double attach pendingSource to this node

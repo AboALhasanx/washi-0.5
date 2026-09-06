@@ -17,6 +17,7 @@
 
 import fs from "node:fs";
 import path from "node:path";
+import crypto from "node:crypto";
 import {
   documentMetadataSchema,
   type DocumentMetadata,
@@ -41,6 +42,18 @@ const safeId = (s: string) =>
 
 function ensureRoot() {
   fs.mkdirSync(ROOT, { recursive: true });
+}
+
+/** Resolved takumi-pdf version — recorded in the publication manifest so any
+ *  publication can be explained and reproduced with the same toolchain. */
+function getTakumiVersion(): string {
+  try {
+    return JSON.parse(
+      fs.readFileSync(path.join(process.cwd(), "node_modules", "takumi-pdf", "package.json"), "utf8")
+    ).version ?? "unknown";
+  } catch {
+    return "unknown";
+  }
 }
 
 function projectDir(id: string) {
@@ -304,6 +317,7 @@ export async function publishProject(id: string): Promise<PublishResult> {
     title: metadata.title,
     subject: metadata.subject,
     language: metadata.language,
+    templateId: template.id,
     contents: [
       "content.md",
       "document.ast",
@@ -313,6 +327,15 @@ export async function publishProject(id: string): Promise<PublishResult> {
       "metadata/",
     ],
     validation: { ok: validation.ok, errors: validation.errors, warnings: validation.warnings },
+    hashes: {
+      contentSha256: crypto.createHash("sha256").update(content, "utf8").digest("hex"),
+      pdfSha256: crypto.createHash("sha256").update(pdf).digest("hex"),
+    },
+    toolchain: {
+      washi: "0.5.0",
+      schema: "washi.document-ast/0.5",
+      takumi: getTakumiVersion(),
+    },
   };
   fs.writeFileSync(path.join(pubDir, "manifest.json"), JSON.stringify(manifest, null, 2), "utf8");
   fs.writeFileSync(

@@ -29,7 +29,7 @@ async function loadFonts() {
 }
 
 async function verify(pdfPath: string) {
-  const pdfjs: any = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const pdfjs: any = await import("pdfjs6/legacy/build/pdf.mjs");
   const data = new Uint8Array(fs.readFileSync(pdfPath));
   const doc = await pdfjs.getDocument({ data }).promise;
   console.log("pages:", doc.numPages);
@@ -39,7 +39,7 @@ async function verify(pdfPath: string) {
   const arabicOk = /[\u0600-\u06FF]/.test(text);
   console.log("page1 has arabic glyphs:", arabicOk);
   console.log("page1 sample:", text.slice(0, 140).replace(/\s+/g, " "));
-  await doc.destroy();
+  await (doc.cleanup?.() ?? doc.destroy?.());
 }
 
 async function main() {

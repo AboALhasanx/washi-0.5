@@ -18,6 +18,7 @@ interface ProvRef {
   pages?: number[];
   paragraphs?: number[];
   regions?: string[];
+  kind?: string;
 }
 
 interface AstBlock {
@@ -165,7 +166,7 @@ export default function TracePage() {
                         </span>
                         {showProvenance && n.provenance?.length ? (
                           <span className="font-mono text-[0.55rem] text-amber-700" dir="ltr" title="hidden provenance">
-                            ⌖ {n.provenance.map((p) => `${p.document}${p.pages ? ` p.${p.pages.join(",")}` : ""}`).join(" | ")}
+                            ⌖ {n.provenance.map((p) => `${p.document}${p.pages ? ` p.${p.pages.join(",")}` : ""}${p.kind && p.kind !== "source-derived" ? ` [${p.kind}]` : ""}`).join(" | ")}
                           </span>
                         ) : null}
                       </li>

@@ -4,6 +4,31 @@
 
 ---
 
+## D-100 — تدقيق المعمارية والتنظيف (Audit & Cleanup)
+
+تدقيق شامل وفق ملف التوجيه (audit → clean → complete → test). النتائج:
+
+### REMOVE — نطاق عرضي وميت
+- `lib/pdf-renderer.tsx` (renderer قديم ميت، لا يستخدمه أي مسار) و`lib/render-formula.ts` (مسار KaTeX القديم — كان يخدم الميت فقط). المسار الرسمي: `formula-svg.ts` (MathJax → SVG → vector).
+- **سلسلة الاستخراج/التلخيص كاملة** (§40/§46 — accidental scope): `pdf-extract.ts`, `llm-summarize.ts`, `api/extract`, `api/summarize`, `UploadDropzone`, `app/wizard/`, rail «مصادر» في الستوديو، `scripts/extract-*.mjs`, `examples/`. الأساس: Ingestion تلقائي للمصادر non-goal موثق — الـ AI خارجي بالتصميم (§22).
+- **اعتماديات**: `pdf-parse`, `pdfjs-dist@4`, `katex`, `@types/katex` أزيلت. `pdfjs6` (alias لـ pdfjs-dist@6) فقط للترسيم السيرفري (D-004).
+
+### FIX
+- **Manifest النشر** (§28-31): أضيف `hashes.contentSha256` (هوية المحتوى الكنونية) + `hashes.pdfSha256` (هوية الـ artifact) + `toolchain` (washi/schema/takumi). ملاحظة صريحة: **قابلية إعادة الإنتاج ≠ تطابق بايت-بايت** — لا ندعي determinism لا يضمنه الـ toolchain.
+- **Provenance semantics** (§21): `kind: source-derived | generated | authored | edited` — الـ parser لا يخترعها؛ `<!-- source: (generated) -->` يعلّم محتوى AI تفسيرياً. المحتوى بلا مصدر صفحة لا يحصل على page range مختلق.
+
+### COMPLETE — ثغرات 0.5 المهمة فقط
+- مكتبة قوالب بمفاتيح §14: اختيار/تطبيق/حفظ/تكرار في مساحة العمل (النسخ versioned عبر snapshots المشروع).
+- `Live Preview: ON/OFF` (§16) — الدقة قبل السرعة، والمعاينة الدقيقة من نفس مسار takumi.
+- لوحة أصول (§36): رفع صور + إدراج مرجع ثابت `assets/…` في Markdown.
+- `scripts/e2e-test.mjs` ملتزم بالريبو يغطي فحوص §47 كاملة (29 فحصاً: إنشاء/تحقق/تحرير/سnapshots/استعادة/rندر/نشر/immute/hash/provenance/app-content/regression).
+
+### ملاحظات الفحص البصري (§48)
+- كل الشاشات والصفحات pass عبر judge مع Playwright محلي (وليس أدوات سحابية لا تدعم localhost).
+- نمط متكرر غير مانع: إعادة ترتيب bidi في السلاسل المختلطة عربي/لاتيني (وحدات، تواريخ، أقواس) — سلوك bidi طبيعي، عولجت أبرز مواضعه (وحدات لوحة التحكم dir="ltr"). لا regression في تشكيل العربي ولا RTL.
+
+---
+
 ## D-001 — نقطة البداية: نسخ working tree من washi الأصلي
 
 - **القرار:** يبدأ Washi 0.5 بنسخ الملفات من `C:\Users\gokoq\prog\washi` (repo الأصلي) ثم التطوير فوقها. لا يُبنى شيء من الصفر.

@@ -117,28 +117,13 @@ export default function SettingsPage() {
             </section>
 
             <section className="border hairline rounded-2xl p-5 bg-paper space-y-4">
-              <p className="kicker text-[0.6rem] text-ink2">التلخيص الآلي</p>
-              <label className="block">
-                <span className="text-xs text-ink2">المزوّد</span>
-                <select
-                  value={settings.provider}
-                  onChange={(e) => patch({ provider: e.target.value })}
-                  className="w-full border hairline rounded-lg px-3 py-2 text-sm bg-paper text-ink mt-1"
-                >
-                  <option value="openai">OpenAI</option>
-                  <option value="local">Local (غير مفعّل بعد)</option>
-                </select>
-              </label>
-              <label className="block">
-                <span className="text-xs text-ink2">الموديل</span>
-                <input
-                  value={settings.model}
-                  onChange={(e) => patch({ model: e.target.value })}
-                  className="w-full border hairline rounded-lg px-3 py-2 text-sm bg-paper text-ink mt-1 font-mono"
-                />
-              </label>
-              <p className="text-[0.68rem] text-ink2 leading-relaxed">
-                مفتاح الـ API يُقرأ من <code className="font-mono">.env</code> على جهازك (OPENAI_API_KEY) — لا يُرسل ولا يُخزّن بالمتصفح أبداً.
+              <p className="kicker text-[0.6rem] text-ink2">سير عمل الـ AI</p>
+              <p className="text-[0.72rem] text-ink2 leading-relaxed">
+                في Washi 0.5 الـ AI خارجي بالتصميم: جهّز الـ prompt من
+                <a href="/prompts" className="text-accent font-semibold mx-1">مكتبة الـ Prompts</a>
+                وشغّله في ChatGPT / Claude / Gemini / Kimi، ثم أعِد بالـ Markdown وأنشئ مشروعاً من صفحة
+                <a href="/projects" className="text-accent font-semibold mx-1">المشاريع</a>.
+                لا يوجد تكامل مزوّد داخل Washi — وهذا مقصود.
               </p>
             </section>
 
