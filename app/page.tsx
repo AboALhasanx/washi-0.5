@@ -11,7 +11,6 @@
 
 import * as React from "react";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
-import { PdfPreview } from "@/components/PdfPreview";
 import { Logo } from "@/components/studio/Logo";
 import { LivePreview } from "@/components/studio/LivePreview";
 import { StudioTheme, DEFAULT_THEME, AVAILABLE_FONT_STACKS } from "@/lib/theme";

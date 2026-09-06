@@ -2,9 +2,12 @@ import { z } from "zod";
 
 /**
  * Schemas for Washi — validates structured Markdown frontmatter
- * and ChapterAST per specs/markdown-schema-spec.md (Source of Truth).
+ * and ChapterAST.
  *
- * Frontmatter required: subject, theme, title, language, sources[]
+ * Frontmatter required: subject, title, language, sources[]
+ * (theme is DEPRECATED — presentation belongs exclusively to template.json;
+ * the field is accepted for backward compatibility with existing content and
+ * ignored by the renderer.)
  * ChapterAST: finite vocabulary mapped to pdfcn components via KeepTogether etc.
  */
 
@@ -26,7 +29,10 @@ export const frontmatterSchema = z.object({
     .string()
     .min(1)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "subject must be lowercase-hyphenated slug, e.g., computer-networks"),
-  theme: z.literal("default").describe('MVP1 always "default" — multi-theme deferred'),
+  // DEPRECATED (§6 no competing presentation sources): kept optional so legacy
+  // content still parses. The renderer never reads it — template.json is the
+  // only presentation authority.
+  theme: z.literal("default").optional().describe("DEPRECATED — ignored; presentation lives in template.json"),
   title: z.string().min(1, "chapter title required"),
   language: z.enum(["ar", "en"], {
     errorMap: () => ({ message: "language must be ar or en" }),
@@ -46,16 +52,20 @@ export const calloutVariantSchema = z.enum(["NOTE", "IMPORTANT", "WARNING", "EXA
 // <!-- source: Doc.pdf p.142 --> comments; a block may carry multiple refs.
 // paragraphs/regions granularity is accepted but never invented by the parser.
 
-export const provenanceRefSchema = z.object({
-  document: z.string().min(1),
-  pages: z.array(z.number().int().positive()).optional(),
-  paragraphs: z.array(z.number().int().positive()).optional(),
-  regions: z.array(z.string()).optional(),
-  // §21 provenance semantics: where the block's content came from. The parser
-  // only derives "source-derived" (or explicit "(generated)" markers); a
-  // human edit workflow may later mark "edited"/"authored". Never invented.
-  kind: z.enum(["source-derived", "generated", "authored", "edited"]).optional(),
-});
+export const provenanceRefSchema = z
+  .object({
+    document: z.string().min(1).optional(),
+    pages: z.array(z.number().int().positive()).optional(),
+    paragraphs: z.array(z.number().int().positive()).optional(),
+    regions: z.array(z.string()).optional(),
+    // §21 provenance semantics: where the block's content came from. The parser
+    // only derives "source-derived" (or explicit "(generated)" markers); a
+    // human edit workflow may later mark "edited"/"authored". Never invented.
+    kind: z.enum(["source-derived", "generated", "authored", "edited"]).optional(),
+  })
+  .refine((v) => !!v.document || !!v.kind, {
+    message: "provenance ref needs a source document or an explicit kind",
+  });
 
 export type ProvenanceRef = z.infer<typeof provenanceRefSchema>;
 

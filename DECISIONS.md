@@ -78,6 +78,37 @@
 - **bidi في المحرر:** الـ textarea أصبح `dir="ltr"` — الـ Markdown/YAML محتوى شيفرة-مثل ويُقرأ LTR داخل واجهة RTL. أصلحنا أيضاً سطر ملخص الـ checklist وأسماء أدوات AI في واجهة prompts.
 - **createProject:** يتحقق من metadata قبل كتابة أي ملف — فشل الـ schema لا يترك مجلد مشروع يتيم.
 
-## D-007 — خارج نطاق 0.5 (موجودة في الكود المنسوخ لكنها مجمّدة)
+## D-007 — خارج نطاق 0.5 (أزيلت نهائياً في Phase 2)
 
-ملفات الاستخراج والتلخيص (`pdf-extract.ts`, `llm-summarize.ts`, `api/extract`, `api/summarize`) تبقى كما نُسخت لأنها جزء من الأصل، لكنها **خارج نطاق 0.5** — ingestion تلقائي للمصادر non-goal موثق. لا نبني عليها. مسار 0.5 يبدأ من Markdown جاهز من AI خارجي.
+سلسلة الاستخراج والتلخيص (`pdf-extract.ts`, `llm-summarize.ts`, `api/extract`, `api/summarize`, `UploadDropzone`, `app/wizard/`, سكربتات extract) كانت منسوخة من الأصل ثم **أُزيلت نهائياً** في تمريرة التنظيف — ingestion تلقائي للمصادر non-goal موثق، والـ AI خارجي بالتصميم. إن ظهرت لك إشارات لها في ملفات قديمة فهي تاريخية؛ الواقع الحالي: لا يوجد أي كود استخراج في الريبو.
+
+---
+
+## Phase 2 — Hardening Pass (D-101)
+
+تصليب الأساس بعد اكتمال الشريحة الرأسية. لا ميزات جديدة — تصحيح الثغرات فقط:
+
+### أمان المسارات (SECURITY/PATH)
+- **trace route**: كان يبني `projects/<params.id>/publications/vN` من param خام (يمكن `../..`). صار كل الوصول عبر مساعدات `lib/project.ts` المعقّمة (`projectDir` + `loadPublication`) — الـ id والـ version من الـ URL لا يستطيعان الهرب من مجلد projects. أضيف فحصان في e2e يثبتان الحجب.
+- استراتيجية المسار الآمن موحدة: `safeId` + فحص `startsWith(ROOT)` في كل العمليات، و`path.basename` لأسماء الملفات.
+
+### تضارب المصادر (SCHEMA, §6)
+- `frontmatter.theme` كان حقلاً إلزامياً ميتاً (presentation داخل content). صار **اختيارياً ملغى رسمياً (DEPRECATED)** — يقبل المحتوى القديم، ولا يقرؤه الـ renderer أبداً. `template.json` هو سلطة العرض الوحيدة.
+
+### دلالات provenance (§15/§16)
+- مرجع provenance بلا وثيقة مصدر مسموح فقط مع `kind` صريح (`<!-- source: (generated) -->` → `kind: generated` بلا صفحات مختلقة). refine في الـ schema: document أو kind — never neither.
+- فحوص e2e: generated marker، مراجع متعددة، لا اختراع صفحات، لا تسرب لـ app-content.
+
+### دورة الحياة (§7-§9)
+- **snapshot ≠ publication**: `metadata.currentVersion` (لقطات) و`metadata.publicationCount` (منشورات) مستقلان — لا خلط.
+- **سياسة اللقطات**: الحفظ عبر الـ API ينشئ snapshot افتراضياً (قرار منتج صريح)، والـ UI يوفر «حفظ» بدون snapshot و«حفظ + snapshot» للنقاط المهمة.
+- **قيود موثقة لا مبنية**: الحفظان المتزامنان last-write-wins (لا locking — أداة محلية لمستخدم واحد، §35).
+
+### كود ميت
+- `components/PdfPreview.tsx` أزيل (كان مستورداً في الستوديو بلا استخدام — الستوديو يعرض PDF عبر iframe مباشر).
+
+### قالب المكتبة (§27)
+- «تكرار القالب» لا يمكنه كتم قالب موجود — التسمية تُفرَّد تلقائياً.
+
+### reproduction (§14)
+- فحص عملي في e2e: رندر مزدوج لنفس المدخلات — النتيجة: الناتج قابل لإعادة الإنتاج بنيوياً، وعدم تطابق البايت-بايت متوقع وموثق (لا نطبّع الـ PDF مصطنعاً ليمرر الفحص).

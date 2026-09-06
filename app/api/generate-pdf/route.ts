@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
         title: ast.frontmatter.title,
         bytes: pdf.length,
         ms,
-        themeId: ast.frontmatter.theme ?? "default",
+        themeId: (body?.theme?.id as string) ?? "default",
         engine: "takumi-pdf",
         at: new Date().toISOString(),
       });

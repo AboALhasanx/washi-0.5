@@ -19,14 +19,14 @@ build/
 npm-debug.log*
 
 # washi studio runtime data (build history, saved themes, settings)
-.washi/
+/.washi/
 
 # local test artifacts
-content/
-output/
+/content/
+/output/
 
 # washi 0.5 runtime data (document projects live on the user's disk)
-projects/
+/projects/
 
 # ephemeral e2e test scratch
-.e2e/
+/.e2e/

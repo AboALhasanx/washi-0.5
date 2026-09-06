@@ -166,7 +166,7 @@ export default function TracePage() {
                         </span>
                         {showProvenance && n.provenance?.length ? (
                           <span className="font-mono text-[0.55rem] text-amber-700" dir="ltr" title="hidden provenance">
-                            ⌖ {n.provenance.map((p) => `${p.document}${p.pages ? ` p.${p.pages.join(",")}` : ""}${p.kind && p.kind !== "source-derived" ? ` [${p.kind}]` : ""}`).join(" | ")}
+                            ⌖ {n.provenance.map((p) => `${p.document ?? p.kind ?? "?"}${p.pages ? ` p.${p.pages.join(",")}` : ""}${p.kind && p.document ? ` [${p.kind}]` : ""}`).join(" | ")}
                           </span>
                         ) : null}
                       </li>

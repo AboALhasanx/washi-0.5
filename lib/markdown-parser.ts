@@ -345,19 +345,26 @@ export function parseMarkdown(md: string): ParseResult {
         nodes: [],
         source: pendingSource,
       };
+      // Clear pendingSource only — pendingProv must survive until a real
+      // node or section consumes it, otherwise a source comment before the
+      // first content silently loses its provenance ref (§15).
       if (pendingSource) {
-        pendingSource = undefined; pendingProv = [];
+        pendingSource = undefined;
         pendingSourceParsed = undefined;
       }
     }
   };
 
   const pushNode = (node: AstNode) => {
-    // Attach pending source if node doesn't have one
+    // §15: pending provenance refs attach to the NEXT meaningful node, then
+    // are consumed — always cleared here, even when the node literal already
+    // embedded source (otherwise refs leak onto every following node).
     attachProvenance(node);
+    pendingProv = [];
+    // Attach pending source if node doesn't have one
     if (pendingSource && !(node as any).source) {
       (node as any).source = pendingSource;
-      pendingSource = undefined; pendingProv = [];
+      pendingSource = undefined;
       pendingSourceParsed = undefined;
     }
     // Add paginationSafe flag (non-validated, for renderer)
@@ -385,10 +392,12 @@ export function parseMarkdown(md: string): ParseResult {
         document: parsedSrc.document,
         pages: parsedSrc.pages,
       } as AstNode;
-      // Washi 0.5 provenance: accumulate ref for the next content node
-      if (parsedSrc.document) {
+      // Washi 0.5 provenance: accumulate ref for the next content node.
+      // A source document, an explicit kind marker, or both — never neither,
+      // and pages are never fabricated when the comment carries none.
+      if (parsedSrc.document || parsedSrc.kind) {
         pendingProv.push({
-          document: parsedSrc.document,
+          ...(parsedSrc.document ? { document: parsedSrc.document } : {}),
           ...(parsedSrc.pages ? { pages: parsedSrc.pages } : {}),
           ...(parsedSrc.kind ? { kind: parsedSrc.kind } : {}),
         });
