@@ -193,3 +193,25 @@ exit "$__zcode_status"
 - الحذف يتطلب `--yes` (أو تأكيداً تفاعلياً) — لا حذف صامت في البيئات غير التفاعلية.
 - استدعاء الاختبار `node node_modules/tsx/dist/cli.mjs` مباشرة بلا shell — تجنب كسر الاقتباس لأسماء المشاريع العربية على Windows.
 - قبول آلي: `scripts/cli-test.mjs` — 22 فحصاً بعمليات حقيقية، يشمل كشف العبث (تعديل بايتات حزمة مجمّدة → verify exit 1 → استرجاع → exit 0).
+
+---
+
+## Phase 3.1 — Agent Integration: MCP + Skill (D-202، فرع cli_demo)
+
+بحث وتنفيذ تكامل الوكلاء فوق جوهر واشي — ثلاث طبقات بلا تكرار للدلالات.
+
+### البحث (قرارات مبنية على المصادر)
+- **SDK**: `@modelcontextprotocol/sdk` v1.30 (المستقر، متوافق مع zod 3 المثبت لدينا) وليس v2 (`@modelcontextprotocol/server`، يتطلب zod/v4) — الأنواع استُخرجت من `dist/esm/server/mcp.d.ts` الفعلي: `registerTool(name, {description, inputSchema, annotations}, cb)`.
+- **SKILL.md**: الصيغة مؤكدة من أمثلة حية في البيئة (frontmatter: name/description/metadata؛ description هو مفتاح التوجيه «Use when…»).
+
+### L3 — خادم MCP (mcp/)
+- 14 أداة فوق `lib/*` مباشرة (نفس الجوهر الثلاثي UI/CLI/MCP — صفر تباين دلالات).
+- **annotations عقد سلامة**: readOnlyHint للقراءة (7 أدوات)، destructiveHint للحذف فقط، openWorldHint:false عالمياً (كل شيء محلي)، publish يصرّح بالدوام ويمنع idempotentHint.
+- كل أداة تعيد ملخصاً عربياً + JSON مدمجاً؛ الأخطاء isError برسالة عربية + تلميح إصلاح (الوكيل يصحح ذاته بجولة واحدة).
+- الدخول stdio منفصل (mcp/stdio.ts) — فصل نظيف عن المكتبة، بلا hiles argv هشة.
+
+### L2 — السكيبل (.agents/skills/washi/SKILL.md)
+- **الـ SKILL قبل الأدوات**: أغلب إخفاق الوكلاء في أنظمة المحتوى هو توليد مخالف للعقد، لا خطأ استدعاء — السكيبل يمنع الخطأ من المصدر (عقد frontmatter/MCP، الوصفات، قواعد السلامة: النشر دائم والحذف يدمر — أكّد مع المستخدم).
+
+### الاختبار (بروتوكول حقيقي لا mock)
+- `scripts/mcp-test.mjs`: عميل MCP أصلي يولّد الخادم بـ stdio — اكتشاف 14 أداة، فحص annotations، دورة حياة كاملة عبر البروتوكول، رفض بوابة الاستيراد، عدم الوجود، الحذف — **17/17**.

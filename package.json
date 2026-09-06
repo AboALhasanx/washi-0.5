@@ -8,9 +8,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "washi": "tsx cli/washi.ts"
+    "washi": "tsx cli/washi.ts",
+    "washi:mcp": "tsx mcp/stdio.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
     "commander": "^15.0.0",
     "gray-matter": "^4.0.3",
     "mathjax-full": "^3.2.1",
