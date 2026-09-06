@@ -21,9 +21,18 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await req.json().catch(() => null);
-    const version = Number(body?.version);
-    if (!Number.isInteger(version) || version < 1) {
+    const raw = body?.version;
+    // Strict version grammar — same rule as publications (digits only)
+    if (typeof raw !== "string" && typeof raw !== "number") {
       return NextResponse.json({ error: "Missing 'version'" }, { status: 400 });
+    }
+    const versionStr = String(raw);
+    if (!/^\d+$/.test(versionStr)) {
+      return NextResponse.json({ error: "invalid snapshot version" }, { status: 400 });
+    }
+    const version = Number(versionStr);
+    if (!Number.isSafeInteger(version) || version < 1) {
+      return NextResponse.json({ error: "invalid snapshot version" }, { status: 400 });
     }
     const metadata = restoreSnapshot(params.id, version);
     return NextResponse.json({ project: metadata });

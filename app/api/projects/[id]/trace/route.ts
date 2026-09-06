@@ -22,9 +22,14 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const v = req.nextUrl.searchParams.get("v");
-    if (v) {
-      const version = parseInt(v, 10);
-      if (!Number.isInteger(version) || version < 1) {
+    if (v !== null) {
+      // Strict version grammar: digits only. parseInt would silently accept
+      // "1/../../x" as 1 — reject anything that is not a plain integer.
+      if (!/^\d+$/.test(v)) {
+        return NextResponse.json({ error: "invalid publication version" }, { status: 400 });
+      }
+      const version = Number(v);
+      if (!Number.isSafeInteger(version) || version < 1) {
         return NextResponse.json({ error: "invalid publication version" }, { status: 400 });
       }
       const { manifest, documentAst, appContent } = loadPublication(params.id, version);

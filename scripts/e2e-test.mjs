@@ -187,17 +187,27 @@ check("preview-pages: rasterized pages from takumi output", r.ok && r.body.pages
 r = await api("/api/projects/" + encodeURIComponent("../../.washi") + "/trace");
 check("path traversal via project id blocked", r.status === 404, `status ${r.status}`);
 r = await api("/api/projects/" + encodeURIComponent("شبكات") + "/trace?v=1%2F..%2F..");
-check("path traversal via publication version blocked", r.status === 404 || r.status === 400, `status ${r.status}`);
+check("traversal in version rejected (strict grammar, no parseInt)", r.status === 400, `status ${r.status}`);
+r = await api("/api/projects/" + encodeURIComponent("شبكات") + "/trace?v=abc");
+check("non-numeric version rejected", r.status === 400, `status ${r.status}`);
+r = await api("/api/projects/" + encodeURIComponent("شبكات") + "/trace?v=1.5");
+check("decimal version rejected", r.status === 400, `status ${r.status}`);
+r = await api("/api/projects/" + encodeURIComponent("شبكات") + "/trace?v=0");
+check("zero version rejected", r.status === 400, `status ${r.status}`);
 
-// ── 11. Asset lifecycle: publish → replace → republish → v1 unchanged ─────
+// ── 11. Asset lifecycle: publish → replace → republish → v1 bytes intact ──
 r = await api("/api/projects", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ markdown: regressionMd }),
 });
-const assetProjectId = encodeURIComponent(r.body.project.id);
+const assetProject = r.body.project;
+const assetProjectId = encodeURIComponent(assetProject.id);
+const assetOne = Buffer.from("asset-version-ONE");
+const assetTwo = Buffer.from("asset-version-TWO-changed");
+
 const form = new FormData();
-form.append("file", new Blob([Buffer.from("asset-version-ONE")], { type: "image/png" }), "fig.png");
+form.append("file", new Blob([assetOne], { type: "image/png" }), "fig.png");
 r = await api(`/api/projects/${assetProjectId}/assets`, { method: "POST", body: form });
 check("asset upload", r.ok && r.body.saved === "fig.png", JSON.stringify(r.body).slice(0, 120));
 
@@ -205,21 +215,26 @@ r = await api(`/api/projects/${assetProjectId}/publish`, { method: "POST" });
 check("asset project publishes v1", r.ok && r.body.version === 1);
 
 // replace the asset with different bytes
-form.append("file", new Blob([Buffer.from("asset-version-TWO-changed")], { type: "image/png" }), "fig.png");
-r = await api(`/api/projects/${assetProjectId}/assets`, { method: "POST", body: form });
+const form2 = new FormData();
+form2.append("file", new Blob([assetTwo], { type: "image/png" }), "fig.png");
+r = await api(`/api/projects/${assetProjectId}/assets`, { method: "POST", body: form2 });
 check("asset replaced", r.ok);
 
 r = await api(`/api/projects/${assetProjectId}/publish`, { method: "POST" });
 check("asset project publishes v2 after replacement", r.ok && r.body.version === 2);
 
-// v1 asset must still hold the original bytes
+// The publication is an immutable package: read the ACTUAL bytes frozen in
+// each publication's assets/ directory and compare them (local-first tool —
+// the repo acceptance test may read the project store directly).
+const pubAsset = (version) =>
+  fs.readFileSync(path.join("projects", assetProject.id, "publications", `v${version}`, "assets", "fig.png"));
+check("publication v1 asset bytes = original upload", pubAsset(1).equals(assetOne));
+check("publication v2 asset bytes = replaced upload", pubAsset(2).equals(assetTwo));
+
 r = await api(`/api/projects/${assetProjectId}/assets?file=fig.png`);
-const currentAsset = Buffer.from(r.body);
+check("current project asset = latest bytes", Buffer.from(r.body).equals(assetTwo));
+
 r = await api(`/api/projects/${assetProjectId}/trace?v=1`);
-// publication assets are on disk; compare through manifest hashes instead:
-check("v1 manifest content hash differs from v2 (distinct publications)", r.ok && r.body.manifest?.hashes?.contentSha256);
-// read v1 asset bytes via publication dir is not exposed over HTTP by design;
-// verify through the trace artifact that v1 is still loadable + complete
 check("v1 publication still loadable after asset replacement", r.ok && r.body.manifest.contents.length === 6);
 
 await api(`/api/projects/${assetProjectId}`, { method: "DELETE" });

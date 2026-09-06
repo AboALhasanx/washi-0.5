@@ -634,6 +634,7 @@ const FormulaCard: React.FC<{
   art?: { src: string; width: number; height: number };
 }> = ({ latex, caption, source, art }) =>
   KT(
+    <div style={{ margin: "0 0 10px 0" } as React.CSSProperties}>
     <div
       style={{
         background: "linear-gradient(135deg, #F8FAFC 0%, #FDFDFB 60%)",
@@ -641,7 +642,6 @@ const FormulaCard: React.FC<{
         borderRight: `4px solid #0F766E`,
         borderRadius: 12,
         padding: "14px 18px",
-        margin: "0 0 10px 0",
       } as React.CSSProperties}
     >
       <div style={{ marginBottom: 10 } as React.CSSProperties}>
@@ -694,19 +694,9 @@ const FormulaCard: React.FC<{
           {caption}
         </div>
       )}
+      </div>
       {source && (
-        <div
-          style={{
-            fontSize: 10,
-            color: palette.muted,
-            marginTop: 6,
-            fontFamily: FONT_MONO,
-            direction: "ltr",
-            textAlign: "right",
-          } as React.CSSProperties}
-        >
-          {source}
-        </div>
+        <SourceNote text={source} />
       )}
     </div>
   );
@@ -981,13 +971,11 @@ function CoverSection({
     ? `${toArabicDigits(pages[0])} – ${toArabicDigits(pages[pages.length - 1])}`
     : "—";
   const subjectAr = SUBJECT_AR[frontmatter.subject] ?? frontmatter.subject;
-  const sourceLabel =
-    frontmatter.sources
-      .map((s: any) => s.document)
-      .filter(Boolean)
-      .join(" — ") || "—";
+  const docs = frontmatter.sources.map((s: any) => s.document).filter(Boolean) as string[];
+  // Cover cards are narrow — a long filename clips. First document + count.
+  const sourceLabel = docs.length ? docs[0] + (docs.length > 1 ? ` +${docs.length - 1}` : "") : "—";
   const coverMetaLine = [
-    sourceLabel.toUpperCase(),
+    docs[0] ? docs[0].toUpperCase() : null,
     String(frontmatter.subject ?? "").toUpperCase(),
     frontmatter.sources[0]?.pages?.length ? `PP. ${frontmatter.sources[0].pages[0]}–${frontmatter.sources[0].pages[frontmatter.sources[0].pages.length - 1]}` : null,
   ]
@@ -1157,12 +1145,12 @@ function CoverSection({
                 <div
                   style={{
                     fontFamily: FONT_HEAD,
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: 700,
                     color: "#FFFFFF",
-                    direction: i === 1 ? "rtl" : "rtl",
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
+                    lineHeight: 1.6,
+                    whiteSpace: "normal",
+                    wordBreak: "break-word",
                   } as React.CSSProperties}
                 >
                   {v}
@@ -1181,7 +1169,7 @@ function CoverSection({
             } as React.CSSProperties}
           >
             <span>{THEME.cover.brand} · takumi-pdf engine</span>
-            <span>generated 2026-09-04</span>
+            <span>generated {new Date().toISOString().slice(0, 10)}</span>
           </div>
         </div>
       </div>

@@ -32,13 +32,33 @@ import type { PublicationManifest } from "./schemas";
 
 const ROOT = path.join(process.cwd(), "projects");
 
-const safeId = (s: string) =>
+// Grammar every persisted project id must satisfy — ids arriving from URLs
+// are validated against this, never sanitized/transformed.
+const PROJECT_ID_RE = /^[\p{L}\p{N}][\p{L}\p{N}_-]*$/u;
+
+/**
+ * Generate a slug for a NEW project from a title (creation-time only).
+ * Transformation is fine here; this is never a security boundary.
+ */
+const makeSafeId = (s: string) =>
   s
     .toLowerCase()
     .trim()
     .replace(/[^\p{L}\p{N}\s_-]/gu, "")
     .replace(/\s+/g, "-")
     .slice(0, 64) || "project";
+
+/**
+ * Strict validation for an id arriving from outside (URL/body): must already
+ * match the project-id grammar. Reject — never transform — so arbitrary
+ * input cannot be mutated into a different valid project path.
+ */
+function assertValidProjectId(id: string): string {
+  if (typeof id !== "string" || !PROJECT_ID_RE.test(id)) {
+    throw new Error("invalid project id");
+  }
+  return id;
+}
 
 function ensureRoot() {
   fs.mkdirSync(ROOT, { recursive: true });
@@ -57,8 +77,12 @@ function getTakumiVersion(): string {
 }
 
 function projectDir(id: string) {
-  const dir = path.join(ROOT, safeId(id));
-  if (!dir.startsWith(ROOT)) throw new Error("invalid project id");
+  const valid = assertValidProjectId(id);
+  const dir = path.resolve(ROOT, valid);
+  const rootResolved = path.resolve(ROOT);
+  if (dir !== rootResolved && !dir.startsWith(rootResolved + path.sep)) {
+    throw new Error("invalid project id");
+  }
   return dir;
 }
 
@@ -79,7 +103,7 @@ export function createProject(input: CreateProjectInput): DocumentMetadata {
   const { ast } = parseMarkdown(input.markdown);
   const fm = ast.frontmatter;
 
-  let id = safeId(input.title || fm.title || fm.subject);
+  let id = makeSafeId(input.title || fm.title || fm.subject);
   if (fs.existsSync(projectDir(id))) {
     id = `${id}-${Date.now().toString(36)}`;
   }
@@ -295,67 +319,95 @@ export async function publishProject(id: string): Promise<PublishResult> {
 
   const version = metadata.publicationCount + 1;
   const pubDir = path.join(dir, "publications", `v${version}`);
-  fs.mkdirSync(path.join(pubDir, "assets"), { recursive: true });
-  fs.mkdirSync(path.join(pubDir, "metadata"), { recursive: true });
-
-  fs.writeFileSync(path.join(pubDir, "content.md"), content, "utf8");
-  fs.writeFileSync(path.join(pubDir, "document.ast"), JSON.stringify(documentAst, null, 2), "utf8");
-  fs.writeFileSync(path.join(pubDir, "app-content.json"), JSON.stringify(appContent, null, 2), "utf8");
-  fs.writeFileSync(path.join(pubDir, "document.pdf"), pdf);
-
-  // assets snapshot — only files actually referenced stay honest; copy all
-  const assetsDir = path.join(dir, "assets");
-  if (fs.existsSync(assetsDir)) {
-    for (const f of fs.readdirSync(assetsDir)) {
-      fs.copyFileSync(path.join(assetsDir, f), path.join(pubDir, "assets", f));
-    }
+  if (fs.existsSync(pubDir)) {
+    throw new PublishError(`publication v${version} موجودة مسبقاً — لا يجوز الكتابة فوق منشور`);
   }
 
-  const manifest: PublicationManifest = {
-    version,
-    publishedAt: new Date().toISOString(),
-    title: metadata.title,
-    subject: metadata.subject,
-    language: metadata.language,
-    templateId: template.id,
-    contents: [
-      "content.md",
-      "document.ast",
-      "app-content.json",
-      "document.pdf",
-      "assets/",
-      "metadata/",
-    ],
-    validation: { ok: validation.ok, errors: validation.errors, warnings: validation.warnings },
-    hashes: {
-      contentSha256: crypto.createHash("sha256").update(content, "utf8").digest("hex"),
-      pdfSha256: crypto.createHash("sha256").update(pdf).digest("hex"),
-    },
-    toolchain: {
-      washi: "0.5.0",
-      schema: "washi.document-ast/0.5",
-      takumi: getTakumiVersion(),
-    },
-  };
-  fs.writeFileSync(path.join(pubDir, "manifest.json"), JSON.stringify(manifest, null, 2), "utf8");
-  fs.writeFileSync(
-    path.join(pubDir, "metadata", "metadata.json"),
-    JSON.stringify({ ...metadata, status: "published", publishedAt: manifest.publishedAt }, null, 2),
-    "utf8"
-  );
-  fs.writeFileSync(
-    path.join(pubDir, "metadata", "template.json"),
-    JSON.stringify(template, null, 2),
-    "utf8"
-  );
+  // Atomic publication (§ freeze): build the complete package in a temporary
+  // sibling directory, verify every declared artifact, then rename. A crash
+  // mid-publish can leave only a hidden temp dir — never a half publication.
+  const tmpDir = path.join(dir, "publications", `.tmp-v${version}-${Date.now().toString(36)}`);
+  try {
+    fs.mkdirSync(path.join(tmpDir, "assets"), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, "metadata"), { recursive: true });
 
-  metadata.status = "published";
-  metadata.publishedAt = manifest.publishedAt;
-  metadata.publicationCount = version;
-  metadata.updatedAt = manifest.publishedAt;
-  writeMetadata(dir, metadata);
+    fs.writeFileSync(path.join(tmpDir, "content.md"), content, "utf8");
+    fs.writeFileSync(path.join(tmpDir, "document.ast"), JSON.stringify(documentAst, null, 2), "utf8");
+    fs.writeFileSync(path.join(tmpDir, "app-content.json"), JSON.stringify(appContent, null, 2), "utf8");
+    fs.writeFileSync(path.join(tmpDir, "document.pdf"), pdf);
 
-  return { version, manifest, dir: pubDir };
+    // assets snapshot — only files actually referenced stay honest; copy all
+    const assetsDir = path.join(dir, "assets");
+    if (fs.existsSync(assetsDir)) {
+      for (const f of fs.readdirSync(assetsDir)) {
+        fs.copyFileSync(path.join(assetsDir, f), path.join(tmpDir, "assets", f));
+      }
+    }
+
+    const manifest: PublicationManifest = {
+      version,
+      publishedAt: new Date().toISOString(),
+      title: metadata.title,
+      subject: metadata.subject,
+      language: metadata.language,
+      templateId: template.id,
+      contents: [
+        "content.md",
+        "document.ast",
+        "app-content.json",
+        "document.pdf",
+        "assets/",
+        "metadata/",
+      ],
+      validation: { ok: validation.ok, errors: validation.errors, warnings: validation.warnings },
+      hashes: {
+        contentSha256: crypto.createHash("sha256").update(content, "utf8").digest("hex"),
+        pdfSha256: crypto.createHash("sha256").update(pdf).digest("hex"),
+      },
+      toolchain: {
+        washi: "0.5.0",
+        schema: "washi.document-ast/0.5",
+        takumi: getTakumiVersion(),
+      },
+    };
+    fs.writeFileSync(path.join(tmpDir, "manifest.json"), JSON.stringify(manifest, null, 2), "utf8");
+    fs.writeFileSync(
+      path.join(tmpDir, "metadata", "metadata.json"),
+      JSON.stringify({ ...metadata, status: "published", publishedAt: manifest.publishedAt }, null, 2),
+      "utf8"
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, "metadata", "template.json"),
+      JSON.stringify(template, null, 2),
+      "utf8"
+    );
+
+    // Package integrity gate (§11): every declared artifact must exist before
+    // the directory earns its immutable name.
+    const required = ["content.md", "document.ast", "app-content.json", "document.pdf", "manifest.json", "assets", "metadata"];
+    for (const f of required) {
+      if (!fs.existsSync(path.join(tmpDir, f))) {
+        throw new PublishError(`الحزمة غير مكتملة قبل التثبيت: ${f} مفقود`);
+      }
+    }
+
+    fs.renameSync(tmpDir, pubDir);
+
+    metadata.status = "published";
+    metadata.publishedAt = manifest.publishedAt;
+    metadata.publicationCount = version;
+    metadata.updatedAt = manifest.publishedAt;
+    writeMetadata(dir, metadata);
+
+    return { version, manifest, dir: pubDir };
+  } catch (e: any) {
+    // never leave a partial package behind under a real version name
+    try {
+      if (fs.existsSync(tmpDir)) fs.rmSync(tmpDir, { recursive: true, force: true });
+    } catch {}
+    if (e instanceof PublishError) throw e;
+    throw new PublishError(`فشل كتابة الحزمة: ${e?.message ?? String(e)}`);
+  }
 }
 
 export interface PublicationSummary {

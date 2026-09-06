@@ -22,32 +22,10 @@ interface ProjectMeta {
   lastValidation?: { at: string; ok: boolean; errors: number; warnings: number };
 }
 
-const SAMPLE = `---
-subject: computer-networks
-theme: default
-title: شبكات الحاسوب — الفصل الأول
-language: ar
-sources:
-  - document: Computer Networks.pdf
-    pages: [1, 2, 3]
----
-
-# شبكات الحاسوب — الفصل الأول
-
-<!-- source: Computer Networks.pdf p.1 -->
-## نظرة عامة
-
-تعريف الشبكة: مجموعة من الأجهزة المتصلة ببعضها لتبادل البيانات والموارد.
-
-<!-- source: Computer Networks.pdf p.2 -->
-## المفاهيم الأساسية
-
-> [!NOTE] **الخادم (Server):** جهاز يقدم خدمات للمستخدمين عبر الشبكة مثل تخزين الملفات واستضافة المواقع.
-
-$$B = W \\log_2(1 + S/N)$$
-
-سعة القناة وفق نظرية شانون.
-`;
+// The comprehensive sample chapter lives in public/samples/ — a real
+// repository artifact covering the full component vocabulary (definitions,
+// callout variants, block/inline math, tables, code, worked examples).
+const SAMPLE_URL = "/samples/computer-networks-ch1.md";
 
 const fmtDate = (iso: string) => {
   try {
@@ -147,8 +125,19 @@ export default function ProjectsPage() {
               <button onClick={create} disabled={busy || !markdown.trim()} className="btn-primary !py-2 !px-5 !text-xs">
                 {busy ? "جارٍ الإنشاء…" : "إنشاء المشروع"}
               </button>
-              <button onClick={() => setMarkdown(SAMPLE)} className="btn-ghost !py-2 !px-4 !text-xs">
-                إدراج نموذج تجريبي
+              <button
+                onClick={async () => {
+                  try {
+                    const res = await fetch(SAMPLE_URL);
+                    if (!res.ok) throw new Error(`فشل جلب النموذج (${res.status})`);
+                    setMarkdown(await res.text());
+                  } catch (e: any) {
+                    setError(e?.message ?? String(e));
+                  }
+                }}
+                className="btn-ghost !py-2 !px-4 !text-xs"
+              >
+                إدراج النموذج الشامل (فصل كامل)
               </button>
               {error && <span className="text-xs text-red-700">{error}</span>}
             </div>

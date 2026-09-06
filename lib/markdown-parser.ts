@@ -150,6 +150,28 @@ function isPaginationSafeType(type: AstNode["type"]): boolean {
   return ["definition", "callout", "formula", "figure", "code"].includes(type);
 }
 
+/**
+ * Split a list item into its plain text and any inline-math bodies. Math is
+ * hoisted out by the caller so raw LaTeX never reaches text rendering (§19 —
+ * real typeset math, never a text approximation).
+ */
+function extractListItem(node: any): { text: string; math: string[] } {
+  const math: string[] = [];
+  const walk = (n: any): string => {
+    if (!n) return "";
+    if (n.type === "inlineMath") {
+      math.push((n.value ?? "").trim());
+      return "";
+    }
+    if (typeof n.value === "string" && !n.children) return n.value;
+    if (n.type === "image") return n.alt ?? "";
+    if (Array.isArray(n.children)) return n.children.map(walk).join("");
+    return "";
+  };
+  const text = walk(node).replace(/\n+/g, " ").trim();
+  return { text, math };
+}
+
 // Extract blockquote variant and content
 function parseBlockquote(node: any): AstNode | null {
   // node.children are typically paragraph(s)
@@ -453,6 +475,17 @@ export function parseMarkdown(md: string): ParseResult {
           break;
         }
         if (level === 2) {
+          // §16: a source comment immediately before a heading belongs to the
+          // NEW section, not the previous one — trim trailing source-only
+          // nodes off the old section so they don't dangle under its content.
+          if (currentSection) {
+            while (
+              currentSection.nodes.length > 0 &&
+              currentSection.nodes[currentSection.nodes.length - 1].type === "source"
+            ) {
+              currentSection.nodes.pop();
+            }
+          }
           // flush previous section
           flushSection();
           const name = detectSectionName(text);
@@ -717,16 +750,22 @@ export function parseMarkdown(md: string): ParseResult {
       case "list": {
         const ordered = Boolean(child.ordered);
         const items: string[] = [];
+        const hoistedMath: string[] = [];
         for (const item of child.children ?? []) {
-          const txt = mdastText(item).trim();
+          // §13 constrained vocabulary: list items are text. Inline math must
+          // never leak into the PDF as raw LaTeX — hoist it into formula
+          // nodes rendered right after the list instead.
+          const { text: itemText, math: itemMath } = extractListItem(item);
+          hoistedMath.push(...itemMath);
+          const txt = itemText.trim();
           if (txt) items.push(txt);
         }
-        if (items.length === 0) break;
+        if (items.length === 0 && hoistedMath.length === 0) break;
         // Check if this list is under Summary section — keep as list, renderer will treat Summary as Card+List
         const lNode: AstNode = {
           type: "list",
           ordered,
-          items,
+          items: items.length ? items : ["—"],
           source: pendingSource,
         } as AstNode;
         // Lists are pagination-safe as Summary grouping? but spec says Summary => KeepTogether(Card(Heading+List))
@@ -734,6 +773,15 @@ export function parseMarkdown(md: string): ParseResult {
         const inSummary = currentSection?.name === "review" || currentSection?.name === "key-points" || currentSection?.name === "overview";
         (lNode as any).paginationSafe = inSummary ? true : false;
         pushNode(lNode);
+        for (const latex of hoistedMath) {
+          const fNode: AstNode = {
+            type: "formula",
+            latex,
+            displayMode: false,
+            source: undefined,
+          } as AstNode;
+          pushNode(fNode);
+        }
         break;
       }
 
