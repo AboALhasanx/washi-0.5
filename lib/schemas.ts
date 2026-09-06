@@ -28,16 +28,22 @@ export const frontmatterSchema = z.object({
   subject: z
     .string()
     .min(1)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "subject must be lowercase-hyphenated slug, e.g., computer-networks"),
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "subject يجب أن يكون slug بحروف صغيرة وأرقام، مثل computer-networks"
+    ),
   // DEPRECATED (§6 no competing presentation sources): kept optional so legacy
   // content still parses. The renderer never reads it — template.json is the
   // only presentation authority.
-  theme: z.literal("default").optional().describe("DEPRECATED — ignored; presentation lives in template.json"),
-  title: z.string().min(1, "chapter title required"),
+  theme: z
+    .literal("default", { errorMap: () => ({ message: "theme ملغى رسمياً — احذفه من الـ frontmatter (العرض من template.json)" }) })
+    .optional()
+    .describe("DEPRECATED — ignored; presentation lives in template.json"),
+  title: z.string().min(1, "عنوان الفصل مطلوب"),
   language: z.enum(["ar", "en"], {
-    errorMap: () => ({ message: "language must be ar or en" }),
+    errorMap: () => ({ message: "language يجب أن يكون ar أو en" }),
   }),
-  sources: z.array(sourceEntrySchema).min(1, "at least one source entry required"),
+  sources: z.array(sourceEntrySchema).min(1, "مطلوب مصدر واحد على الأقل — كل معلومة تُتتبع لوثيقة"),
 });
 
 export type Frontmatter = z.infer<typeof frontmatterSchema>;

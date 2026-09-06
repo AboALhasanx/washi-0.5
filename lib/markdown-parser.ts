@@ -306,14 +306,36 @@ export interface ParseResult {
   ast: ChapterAST;
 }
 
+/** Convert a ZodError into one readable Arabic line — "subject: مطلوب؛ …".
+ *  The raw issues array rides along (err.issues) for API/Admin debug output;
+ *  UI error states show the message only. */
+function safeParse<T>(fn: () => T, label: string): T {
+  try {
+    return fn();
+  } catch (e: any) {
+    if (e?.name !== "ZodError" || !Array.isArray(e.issues)) throw e;
+    const msg = e.issues
+      .map((i: any) => {
+        const p = Array.isArray(i.path) ? i.path.join(".") : "";
+        const what = i.code === "invalid_type" && i.received === "undefined" ? "مطلوب" : i.message;
+        return p ? `${p}: ${what}` : what;
+      })
+      .join("؛ ");
+    const err = new Error(`${label} — ${msg}`) as Error & { issues: unknown };
+    err.issues = e.issues;
+    throw err;
+  }
+}
+
 export function parseMarkdown(md: string): ParseResult {
   // 1. Frontmatter via gray-matter
   const parsed = matter(md);
   const rawFrontmatter = parsed.data;
   const body = parsed.content;
 
-  // Validate frontmatter — throw Zod error if invalid
-  const frontmatter = frontmatterSchema.parse(rawFrontmatter);
+  // Validate frontmatter — invalid input surfaces as a readable Arabic error
+  // (raw Zod issue JSON must never reach a UI error state)
+  const frontmatter = safeParse(() => frontmatterSchema.parse(rawFrontmatter), "الـ frontmatter ناقص أو غير صالح");
 
   // 2. Parse markdown body to mdast
   const tree = unified().use(remarkParse).use(remarkGfm).use(remarkMath).parse(body) as Root;
@@ -865,7 +887,10 @@ export function parseMarkdown(md: string): ParseResult {
   };
 
   // Validate via Zod
-  const validated = chapterASTSchema.parse(rawAST) as ChapterAST;
+  const validated = safeParse(
+    () => chapterASTSchema.parse(rawAST),
+    "بنية المستند غير مطابقة لمخطط ChapterAST",
+  ) as ChapterAST;
 
   // Re-attach paginationSafe and breakInside for renderer convenience (non-validated enrichment)
   const enrichedSections = validated.sections.map((sec: any, si: number) => ({

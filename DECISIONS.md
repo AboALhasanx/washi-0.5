@@ -136,3 +136,14 @@
 __zcode_status=$?
 if [ "$__zcode_status" -eq 0 ]; then pwd -P > '/c/Windows/TEMP/zcode-a0ee7515-ebb2-41e8-a958-c78a3cd2f115-cwd'; fi
 exit "$__zcode_status"
+
+---
+
+## Phase 2.3 — Human-Readable Parse Errors + Debug Tour (D-103)
+
+### تسرب Zod خام (تقرير مستخدم)
+- المعاينة الحية بالاستوديو كانت تعرض **JSON خام لأخطاء Zod** («خطأ تحليل: [{code: invalid_type…}]») عند لصق مستند بلا frontmatter — نفس الجذع لكن من مسار مختلف عن بوابة الإنشاء (`/api/preview` → `parseMarkdown` → `ZodError.message`).
+- الإصلاح من الجذر: `safeParse` في `lib/markdown-parser.ts` يحوّل ZodError إلى سطر عربي واحد («الـ frontmatter ناقص أو غير صالح — subject: مطلوب؛ …») مع إرفاق issues الأصلية للـ API/Admin. رسائل المخطط نفسها عُرّبت في `lib/schemas.ts` (subject/title/language/sources/theme). يغطي كل الأسطح: معاينة، توليد، تحقق، إنشاء، حفظ.
+
+### جلسة تشخيص تفاعلية (debug tour)
+- جولة Playwright بمراقبة كاملة: console.error/warn، pageerror، ردود 4xx/5xx، requestfailed — عبر كل الأسطح (استوديو/مشاريع/تتبع/dashboard/settings/prompts). النتيجة: 14/14 فحص، ولا خطأ كونسول غير متوقع — الأنماط الملتقطة كلها طبيعية (400 متعمّدة للسيناريوهات السالبة، إحباط prefetch (?_rsc=) عند التنقل، وإبطال blob بعد توليد PDF جديد).
