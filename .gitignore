@@ -30,3 +30,4 @@ npm-debug.log*
 
 # ephemeral e2e test scratch
 /.e2e/
+.uitest/

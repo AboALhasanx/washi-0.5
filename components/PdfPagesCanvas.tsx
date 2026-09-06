@@ -12,6 +12,13 @@
 
 import * as React from "react";
 
+/** Arabic numeral agreement: 1 صفحة واحدة، 2 صفحتان، 3–10 صفحات، 11+ صفحة. */
+function arabicPageCount(n: number): string {
+  if (n === 1) return "صفحة واحدة";
+  if (n === 2) return "صفحتان";
+  return `${n} ${n <= 10 ? "صفحات" : "صفحة"}`;
+}
+
 export function PdfPagesCanvas({
   pageImages,
   busy,
@@ -38,7 +45,7 @@ export function PdfPagesCanvas({
     <div className={className}>
       <div className="flex items-center justify-between px-4 py-2.5 border-b hairline bg-ink text-paper">
         <span className="font-mono text-[0.72rem] text-paper/60">
-          صفحات PDF المرسّمة — {pageImages.length} صفحة (pdfjs6 + takumi)
+          صفحات PDF المرسّمة — {arabicPageCount(pageImages.length)} (pdfjs6 + takumi)
         </span>
         <div className="flex items-center gap-2">
           <button onClick={() => setZoom((z) => Math.max(40, z - 15))} className="toolbar-btn !text-paper/80">−</button>

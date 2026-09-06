@@ -17,7 +17,7 @@ import { StudioTheme, DEFAULT_THEME, AVAILABLE_FONT_STACKS } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 type View = "preview" | "edit" | "pdf";
-type RailTab = "insert" | "outline" | "themes";
+type RailTab = "insert" | "outline" | "sources" | "themes";
 type UiTheme = "system" | "light" | "dark";
 
 const VIEW_TABS: Array<{ id: View; label: string }> = [
@@ -226,6 +226,19 @@ export default function StudioPage() {
   /* ─── Outline reorder ─── */
   const outline = React.useMemo(() => (markdown ? splitOutline(markdown) : []), [markdown]);
 
+  /* ─── Sources tab: unique provenance refs found in the manuscript ─── */
+  const sources = React.useMemo(() => {
+    const seen = new Map<string, { doc: string; detail: string }>();
+    for (const m of markdown.matchAll(/<!--\s*source:\s*(.+?)\s*-->/g)) {
+      const raw = m[1];
+      const generated = /^\(generated\)$/i.test(raw);
+      const doc = generated ? "(generated)" : raw.split(/\s+p\.\d+/)[0].trim();
+      const detail = generated ? "kind: generated" : raw.slice(doc.length).trim() || "—";
+      if (!seen.has(doc.toLowerCase())) seen.set(doc.toLowerCase(), { doc, detail });
+    }
+    return [...seen.values()];
+  }, [markdown]);
+
   const moveSection = (index: number, dir: -1 | 1) => {
     const target = index + dir;
     if (target < 0 || target >= outline.length) return;
@@ -349,6 +362,26 @@ export default function StudioPage() {
                     <span className="flex-1 truncate text-xs font-semibold text-ink">{sec.title}</span>
                     <button onClick={() => moveSection(i, -1)} disabled={i === 0} className="text-ink2 hover:text-accent disabled:opacity-30 px-1">↑</button>
                     <button onClick={() => moveSection(i, 1)} disabled={i === outline.length - 1} className="text-ink2 hover:text-accent disabled:opacity-30 px-1">↓</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {railTab === "sources" && (
+              <div className="space-y-1.5">
+                {sources.length === 0 && (
+                  <p className="text-xs text-ink2 p-2">
+                    لا مصادر بعد — أضف تعليق «source:» قبل الأقسام ليظهر هنا.
+                  </p>
+                )}
+                {sources.map((s, i) => (
+                  <div key={i} className="border hairline rounded-lg px-2.5 py-1.5">
+                    <p className="text-xs font-semibold text-ink truncate" dir="auto" title={s.doc}>
+                      {s.doc}
+                    </p>
+                    <p className="text-[0.6rem] font-mono text-ink2" dir="ltr">
+                      {s.detail}
+                    </p>
                   </div>
                 ))}
               </div>

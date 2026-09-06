@@ -18,8 +18,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import { execSync } from "node:child_process";
+import matter from "gray-matter";
 import {
   documentMetadataSchema,
+  frontmatterSchema,
   type DocumentMetadata,
   type DocumentStatus,
 } from "./schemas";
@@ -98,6 +101,16 @@ export interface CreateProjectInput {
 
 export function createProject(input: CreateProjectInput): DocumentMetadata {
   ensureRoot();
+  // Friendly import gate: the parser's frontmatter contract is strict by
+  // design (provenance core — every chapter traces to a source), so surface
+  // violations as actionable Arabic instead of raw Zod issue JSON.
+  const fmCheck = frontmatterSchema.safeParse(matter(input.markdown).data);
+  if (!fmCheck.success) {
+    const bad = [...new Set(fmCheck.error.issues.map((i) => String(i.path[0] ?? "?")))];
+    throw new Error(
+      `استيراد مرفوض — الـ frontmatter ناقص أو غير صالح (${bad.join("، ")}). أضف subject/title/language/sources أعلى المستند.`
+    );
+  }
   // Parse up-front: a project cannot exist without structurally parseable
   // frontmatter (title/subject/language come from frontmatter when present).
   const { ast } = parseMarkdown(input.markdown);
@@ -143,7 +156,7 @@ export function listProjects(): DocumentMetadata[] {
   ensureRoot();
   return fs
     .readdirSync(ROOT, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
+    .filter((d) => d.isDirectory() && !d.name.startsWith(".trash-"))
     .map((d) => {
       try {
         return documentMetadataSchema.parse(
@@ -164,6 +177,11 @@ export interface LoadedProject {
 
 export function loadProject(id: string): LoadedProject {
   const dir = projectDir(id);
+  // Check existence explicitly: the raw ENOENT message would leak server
+  // filesystem paths into API error bodies and the UI error state.
+  if (!fs.existsSync(path.join(dir, "metadata.json"))) {
+    throw new Error("لا يوجد مشروع بهذا المعرف");
+  }
   const metadata = documentMetadataSchema.parse(
     JSON.parse(fs.readFileSync(path.join(dir, "metadata.json"), "utf8"))
   );
@@ -440,6 +458,9 @@ export function listPublications(id: string): PublicationSummary[] {
 
 export function loadPublication(id: string, version: number) {
   const pubDir = path.join(projectDir(id), "publications", `v${version}`);
+  if (!fs.existsSync(path.join(pubDir, "manifest.json"))) {
+    throw new Error("لا توجد حزمة نشر بهذا الإصدار");
+  }
   const read = (f: string) => fs.readFileSync(path.join(pubDir, f), "utf8");
   return {
     manifest: JSON.parse(read("manifest.json")) as PublicationManifest,
@@ -474,9 +495,31 @@ export function readAsset(id: string, filename: string): Buffer | null {
 
 export function deleteProject(id: string): boolean {
   const dir = projectDir(id);
-  if (fs.existsSync(dir)) {
-    fs.rmSync(dir, { recursive: true, force: true });
-    return true;
+  if (!fs.existsSync(dir)) return false;
+  // 1) Rename the tree out of its Unicode path first: rename works even
+  //    while the OS holds open handles, and the ASCII tombstone name dodges
+  //    the win32 rmSync silent no-op on non-ASCII paths.
+  const tombstone = path.join(ROOT, `.trash-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`);
+  let renamed = false;
+  try {
+    fs.renameSync(dir, tombstone);
+    renamed = true;
+  } catch {
+    /* fall through to in-place removal */
   }
-  return false;
+  // 2) Remove the (possibly renamed) tree, retrying via the shell.
+  const target = renamed ? tombstone : dir;
+  for (let attempt = 0; attempt < 4 && fs.existsSync(target); attempt++) {
+    fs.rmSync(target, { recursive: true, force: true });
+    if (fs.existsSync(target)) {
+      try {
+        execSync(`cmd /c rmdir /s /q "${target}"`, { stdio: "ignore" });
+      } catch {
+        /* best effort — the final check reports the truth */
+      }
+    }
+  }
+  // Success = the project is gone from its id. A .trash-* husk that the OS
+  // still holds open is invisible to the projects list and not a project.
+  return !fs.existsSync(dir);
 }

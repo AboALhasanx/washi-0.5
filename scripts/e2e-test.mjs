@@ -47,6 +47,19 @@ const samplePath = path.join(process.cwd(), "samples", "software-engineering", "
 check("regression sample exists", fs.existsSync(samplePath));
 const regressionMd = fs.readFileSync(samplePath, "utf8");
 
+// Pre-clean: projects from earlier aborted runs share this sample's derived
+// id (createProject appends collision suffixes). Delete only the suffixed
+// leftovers — never the exact base id, which may be a real project.
+const fmTitle = (regressionMd.match(/^title:\s*"?([^"\n]+)"?\s*$/m) ?? [])[1] ?? "";
+const baseSlug = fmTitle.toLowerCase().trim().replace(/[^\p{L}\p{N}\s_-]/gu, "").replace(/\s+/g, "-").slice(0, 64);
+const isLeftover = (id) => id.startsWith(baseSlug + "-");
+let pre = await api("/api/projects");
+for (const p of pre.body.projects ?? []) {
+  if (isLeftover(p.id)) await api(`/api/projects/${encodeURIComponent(p.id)}`, { method: "DELETE" });
+}
+pre = await api("/api/projects");
+check("pre-clean removed stale test projects", !(pre.body.projects ?? []).some((p) => isLeftover(p.id)));
+
 // ── 1. Create project ──────────────────────────────────────────────────────
 let r = await api("/api/projects", {
   method: "POST",
@@ -237,7 +250,8 @@ check("current project asset = latest bytes", Buffer.from(r.body).equals(assetTw
 r = await api(`/api/projects/${assetProjectId}/trace?v=1`);
 check("v1 publication still loadable after asset replacement", r.ok && r.body.manifest.contents.length === 6);
 
-await api(`/api/projects/${assetProjectId}`, { method: "DELETE" });
+r = await api(`/api/projects/${assetProjectId}`, { method: "DELETE" });
+check("asset test project cleaned up", r.ok);
 
 // ── 12. Publication reproduction (§14): same inputs → equivalent document ─
 let pdfHashes = new Set();
@@ -259,9 +273,11 @@ if (pdfHashes.size === 1) {
   console.log("  ℹ PDF bytes differ across renders (expected: toolchain does not guarantee byte-identity; document is reproducible)");
 }
 
-// ── cleanup: remove test project ───────────────────────────────────────────
+// ── cleanup: remove test projects ──────────────────────────────────────────
 r = await api(`/api/projects/${id}`, { method: "DELETE" });
 check("test project cleaned up", r.ok);
+r = await api("/api/projects");
+check("no test leftovers remain", !(r.body.projects ?? []).some((p) => isLeftover(p.id)));
 
 console.log(`\n═══ ${passed} passed, ${failed} failed ═══\n`);
 process.exit(failed > 0 ? 1 : 0);

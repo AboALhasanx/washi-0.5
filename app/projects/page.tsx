@@ -8,6 +8,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Logo } from "@/components/studio/Logo";
 
 interface ProjectMeta {
@@ -48,6 +49,7 @@ export default function ProjectsPage() {
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [showCreate, setShowCreate] = React.useState(false);
+  const router = useRouter();
 
   const load = React.useCallback(async () => {
     const res = await fetch("/api/projects");
@@ -70,10 +72,9 @@ export default function ProjectsPage() {
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.message ?? json.error ?? "خطأ");
-      setMarkdown("");
-      setTitle("");
-      setShowCreate(false);
-      load();
+      // Land the author directly in the new workspace — creating a project
+      // is only ever the first step of an authoring session.
+      router.push(`/projects/${json.project.id}`);
     } catch (e: any) {
       setError(e?.message ?? String(e));
     } finally {
