@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Newsreader, Merriweather, Source_Sans_3, JetBrains_Mono, Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 
@@ -52,10 +52,18 @@ export const metadata: Metadata = {
     "Local-first manuscript compositor. One chapter PDF → structured Markdown → polished paginated PDF via takumi-pdf and pdfcn. No data leaves the browser.",
 };
 
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FFFCF8" },
+    { media: "(prefers-color-scheme: dark)", color: "#0E1116" },
+  ],
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
-      lang="en"
+      lang="ar"
+      dir="rtl"
       className={`${newsreader.variable} ${merriweather.variable} ${sourceSans.variable} ${jetbrains.variable} ${notoArabic.variable}`}
     >
       <body className="min-h-screen bg-paper text-ink font-sans antialiased">

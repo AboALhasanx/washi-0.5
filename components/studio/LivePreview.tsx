@@ -9,6 +9,7 @@
  */
 
 import * as React from "react";
+import { Logo } from "@/components/studio/Logo";
 import type { StudioTheme } from "@/lib/theme";
 
 type AstNode = any;
@@ -193,8 +194,14 @@ function PreviewNode({ node, theme }: { node: AstNode; theme: StudioTheme }) {
 export function LivePreview({ markdown, theme }: { markdown: string; theme: StudioTheme }) {
   const [ast, setAst] = React.useState<Ast | null>(null);
   const [err, setErr] = React.useState<string | null>(null);
+  const empty = !markdown.trim();
 
   React.useEffect(() => {
+    if (!markdown.trim()) {
+      setAst(null);
+      setErr(null);
+      return;
+    }
     const t = setTimeout(async () => {
       try {
         const res = await fetch("/api/preview", {
@@ -217,6 +224,35 @@ export function LivePreview({ markdown, theme }: { markdown: string; theme: Stud
   const pages = fm?.sources?.[0]?.pages ?? [];
   const pagesLabel = pages.length ? `${toAr(pages[0])} – ${toAr(pages[pages.length - 1])}` : "—";
   const subjectAr = SUBJECT_AR[fm?.subject ?? ""] ?? fm?.subject ?? "—";
+
+  // Welcoming blank canvas — a fresh studio shows an invitation, not a parser error
+  if (empty) {
+    return (
+      <div className="p-6 overflow-auto" style={{ background: "var(--paper-2)" }}>
+        <div
+          className="flex flex-col items-center justify-center text-center"
+          style={{
+            width: 794, margin: "0 auto", background: theme.page.background,
+            padding: `${theme.page.marginTop}px ${theme.page.marginSide}px`,
+            borderRadius: 6, boxShadow: "0 8px 40px rgba(0,0,0,0.35)",
+            fontFamily: theme.fonts.body, color: theme.colors.ink,
+            direction: "rtl", minHeight: 620,
+          }}
+        >
+          <Logo size={56} />
+          <p className="font-serif font-semibold text-xl mt-6" style={{ color: theme.colors.ink }}>
+            لوحتك جاهزة
+          </p>
+          <p className="text-sm mt-3 max-w-sm leading-relaxed" style={{ color: theme.colors.ink2 }}>
+            اضغط «تحرير» واكتب أو الصق ملخصاً من الـ AI الخارجي — وهنا تُعرض المعاينة الحية كما سيُطبع تماماً: الغلاف، الكروت، المعادلات، والجداول.
+          </p>
+          <p className="font-mono text-[0.65rem] mt-6 tracking-wide-cap" style={{ color: theme.colors.muted }} dir="ltr">
+            # heading · ## section · $$ math · &gt; [!NOTE]
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 overflow-auto" style={{ background: "var(--paper-2)" }}>

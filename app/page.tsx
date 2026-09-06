@@ -305,9 +305,9 @@ export default function StudioPage() {
           <button
             onClick={handleGeneratePdf}
             disabled={generateLoading || !markdown.trim()}
-            className="btn-primary !py-2 !px-5 !text-sm"
+            className="btn-primary !py-2 !px-5 !text-xs"
           >
-            {generateLoading ? "…يولّد" : "توليد PDF ↓"}
+            {generateLoading ? (<span><span className="spinner" />…يولّد</span>) : "توليد PDF ↓"}
           </button>
         </div>
       </header>
@@ -344,7 +344,7 @@ export default function StudioPage() {
                     key={tool.label}
                     title={tool.hint}
                     onClick={() => { insertSnippet(tool.snippet); setView("edit"); }}
-                    className="border hairline rounded-xl p-2.5 text-center hover:border-accent hover:bg-accentSoft/40 transition-colors"
+                    className="card-lift border hairline rounded-xl p-2.5 text-center hover:border-accent hover:bg-accentSoft/40 transition-colors"
                   >
                     <div className="text-accent font-black text-base leading-none mb-1.5">{tool.icon}</div>
                     <div className="text-[0.68rem] font-bold text-ink">{tool.label}</div>
@@ -358,10 +358,10 @@ export default function StudioPage() {
                 {outline.length === 0 && <p className="text-xs text-ink2 p-2">لا أقسام بعد — أضف «## عنوان» من إدراج.</p>}
                 {outline.map((sec, i) => (
                   <div key={i} className="flex items-center gap-1 border hairline rounded-lg px-2 py-1.5">
-                    <span className="text-[0.65rem] font-mono text-ink2 w-5">{i + 1}</span>
+                    <span className="text-[0.65rem] font-mono text-ink2 w-5 tabular">{i + 1}</span>
                     <span className="flex-1 truncate text-xs font-semibold text-ink">{sec.title}</span>
-                    <button onClick={() => moveSection(i, -1)} disabled={i === 0} className="text-ink2 hover:text-accent disabled:opacity-30 px-1">↑</button>
-                    <button onClick={() => moveSection(i, 1)} disabled={i === outline.length - 1} className="text-ink2 hover:text-accent disabled:opacity-30 px-1">↓</button>
+                    <button onClick={() => moveSection(i, -1)} disabled={i === 0} aria-label={`انقل «${sec.title}» أعلى`} className="text-ink2 hover:text-accent disabled:opacity-30 px-1">↑</button>
+                    <button onClick={() => moveSection(i, 1)} disabled={i === outline.length - 1} aria-label={`انقل «${sec.title}» أسفل`} className="text-ink2 hover:text-accent disabled:opacity-30 px-1">↓</button>
                   </div>
                 ))}
               </div>
@@ -394,7 +394,7 @@ export default function StudioPage() {
                     key={t.id}
                     onClick={() => { setStudioTheme(t); setActiveThemeId(t.id); }}
                     className={cn(
-                      "w-full text-right border rounded-xl px-3 py-2.5 flex items-center gap-2 transition-colors",
+                      "card-lift w-full text-right border rounded-xl px-3 py-2.5 flex items-center gap-2",
                       activeThemeId === t.id ? "border-accent bg-accentSoft/40" : "hairline hover:border-accent"
                     )}
                   >
@@ -408,7 +408,11 @@ export default function StudioPage() {
                     {t.id !== "default" && (
                       <span
                         onClick={(e) => { e.stopPropagation(); handleDeleteTheme(t.id); }}
-                        className="text-ink2 hover:text-err text-xs px-1"
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`حذف الثيم ${t.name}`}
+                        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); handleDeleteTheme(t.id); } }}
+                        className="text-ink2 hover:text-err text-xs px-1 cursor-pointer"
                         title="حذف"
                       >
                         ✕
@@ -424,7 +428,7 @@ export default function StudioPage() {
                     className="w-full border hairline rounded-lg px-2.5 py-1.5 text-xs bg-paper text-ink"
                   />
                   <button onClick={handleSaveTheme} className="btn-primary w-full !py-2 !text-xs">حفظ الثيم الحالي</button>
-                  {themesMsg && <p className="text-[0.68rem] text-ok">{themesMsg}</p>}
+                  {themesMsg && <p className="text-[0.68rem] text-ok" aria-live="polite">{themesMsg}</p>}
                 </div>
               </div>
             )}

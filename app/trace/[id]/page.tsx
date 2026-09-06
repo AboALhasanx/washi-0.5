@@ -132,9 +132,9 @@ export default function TracePage() {
             ["مفاهيم للمنصة", appContent.stats.concepts],
             ["أسئلة مرشحة", appContent.stats.questionCandidates],
           ] as Array<[string, number]>).map(([label, value]) => (
-            <div key={label} className="border hairline rounded-2xl p-4 bg-paper">
+            <div key={label} className="card-lift border hairline rounded-2xl p-4 bg-paper">
               <p className="kicker text-[0.58rem] text-ink2 mb-1.5">{label}</p>
-              <p className="font-display font-black text-2xl text-ink leading-none">{value}</p>
+              <p className="font-display font-black text-2xl text-ink leading-none tabular">{value}</p>
             </div>
           ))}
         </section>

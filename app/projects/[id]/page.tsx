@@ -369,7 +369,7 @@ export default function ProjectWorkspace() {
       </nav>
 
       {notice && (
-        <div className={`max-w-7xl mx-auto mt-2 px-5`}>
+        <div className={`max-w-7xl mx-auto mt-2 px-5`} aria-live="polite">
           <div className={`rounded-xl px-4 py-2.5 text-xs ${notice.kind === "ok" ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-red-50 text-red-800 border border-red-200"}`}>
             {notice.text}
           </div>

@@ -140,7 +140,7 @@ export default function ProjectsPage() {
               >
                 إدراج النموذج الشامل (فصل كامل)
               </button>
-              {error && <span className="text-xs text-red-700">{error}</span>}
+              {error && <span className="text-xs text-red-700" role="alert">{error}</span>}
             </div>
           </section>
         )}
@@ -155,9 +155,9 @@ export default function ProjectsPage() {
           </div>
         ) : (
           <section className="border hairline rounded-2xl bg-paper overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-4 border-b hairline">
-              <p className="font-bold text-ink">المشاريع</p>
-              <span className="text-xs text-ink2 font-mono">{projects.length}</span>
+              <div className="flex items-center justify-between px-5 py-4 border-b hairline">
+                <p className="font-bold text-ink">المشاريع</p>
+                <span className="text-xs text-ink2 font-mono tabular" aria-label={`عدد المشاريع ${projects.length}`}>{projects.length}</span>
             </div>
             <table className="w-full text-sm">
               <thead>
@@ -173,7 +173,7 @@ export default function ProjectsPage() {
               </thead>
               <tbody>
                 {projects.map((p) => (
-                  <tr key={p.id} className="border-b hairline last:border-0">
+                  <tr key={p.id} className="group border-b hairline last:border-0 transition-colors duration-150 hover:bg-paper-2/60">
                     <td className="px-5 py-3 font-semibold text-ink max-w-[240px] truncate">{p.title}</td>
                     <td className="px-3 py-3 text-ink2 text-xs font-mono">{p.subject}</td>
                     <td className="px-3 py-3">
@@ -181,11 +181,13 @@ export default function ProjectsPage() {
                         {statusLabel[p.status]}
                       </span>
                     </td>
-                    <td className="px-3 py-3 text-ink2 text-xs font-mono">v{p.currentVersion}</td>
-                    <td className="px-3 py-3 text-ink2 text-xs font-mono">{p.publicationCount}</td>
+                    <td className="px-3 py-3 text-ink2 text-xs font-mono tabular">v{p.currentVersion}</td>
+                    <td className="px-3 py-3 text-ink2 text-xs font-mono tabular">{p.publicationCount}</td>
                     <td className="px-3 py-3 text-ink2 text-xs">{fmtDate(p.updatedAt)}</td>
                     <td className="px-5 py-3">
-                      <Link href={`/projects/${p.id}`} className="btn-primary !py-1.5 !px-4 !text-xs">فتح</Link>
+                      <Link href={`/projects/${p.id}`} className="btn-primary !py-1.5 !px-4 !text-xs opacity-80 group-hover:opacity-100 transition-opacity duration-150">
+                        فتح <span aria-hidden="true">←</span>
+                      </Link>
                     </td>
                   </tr>
                 ))}

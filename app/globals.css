@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    color-scheme: light;
     /* Editorial palette — light theme (default) */
     --paper: #FFFCF8;
     --paper-2: #F7F2EA;
@@ -62,6 +63,7 @@
 
   /* Dark theme — high-contrast editorial, no neon */
   [data-theme="dark"] {
+    color-scheme: dark;
     --paper: #0E1116;
     --paper-2: #161A22;
     --ink: #ECE6D8;
@@ -161,6 +163,8 @@
   ::selection { background: var(--selection-bg); color: var(--selection-fg); }
   :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
 
+  h1, h2, h3, h4 { text-wrap: balance; }
+
   .keep-together { break-inside: avoid; }
   thead { display: table-header-group; }
   h2, h3 { break-after: avoid; break-inside: avoid; orphans: 3; widows: 3; }
@@ -196,6 +200,45 @@
   /* ─── Editorial shadows ─── */
   .editorial-shadow { box-shadow: var(--shadow-1); }
   .editorial-shadow-lg { box-shadow: var(--shadow-2); }
+
+  /* ─── Card lift: quiet resting state, alive on hover ───
+     Only transform/box-shadow/border-color transition (never `all`). */
+  .card-lift {
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background-color .18s ease;
+    will-change: transform;
+  }
+  .card-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-1);
+  }
+  .card-lift:active { transform: translateY(0); }
+
+  /* ─── Numeric alignment for counts/versions ─── */
+  .tabular { font-variant-numeric: tabular-nums; }
+
+  /* ─── Inline spinner (currentColor) for busy buttons ─── */
+  .spinner {
+    display: inline-block;
+    width: 0.85em;
+    height: 0.85em;
+    border: 2px solid currentColor;
+    border-inline-end-color: transparent;
+    border-radius: 999px;
+    animation: washi-spin .7s linear infinite;
+    vertical-align: -0.12em;
+    margin-inline-end: 0.4em;
+  }
+  @keyframes washi-spin { to { transform: rotate(360deg); } }
+
+  /* ─── Honor reduced motion: keep state changes, drop the movement ─── */
+  @media (prefers-reduced-motion: reduce) {
+    .card-lift, .card-lift:hover, .card-lift:active { transform: none; transition: none; }
+    .spinner { animation-duration: 1.6s; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 
   /* ─── Rule dividers ─── */
   .rule { height: 1px; background: var(--rule); }
@@ -268,8 +311,8 @@
     justify-content: center;
     border: 1px solid var(--ink);
   }
-  .btn-primary:hover { background: var(--accent); border-color: var(--accent); }
-  .btn-primary:active { transform: translateY(1px); }
+  .btn-primary:hover { background: var(--accent); border-color: var(--accent); box-shadow: var(--shadow-1); }
+  .btn-primary:active { transform: translateY(1px); box-shadow: none; }
   .btn-primary:disabled { opacity: 0.5; pointer-events: none; }
 
   .btn-ghost {
