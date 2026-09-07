@@ -242,17 +242,44 @@ export default function StudioPage() {
   const moveSection = (index: number, dir: -1 | 1) => {
     const target = index + dir;
     if (target < 0 || target >= outline.length) return;
-    const lines = markdown.split("\n");
-    const a = outline[index];
-    const b = outline[target];
-    const aBlock = lines.slice(a.start, a.end + 1);
-    const bBlock = lines.slice(b.start, b.end + 1);
-    const before = lines.slice(0, Math.min(a.start, b.start));
-    const after = lines.slice(Math.max(a.end, b.end) + 1);
-    const reordered = dir === -1 ? [...bBlock, ...aBlock] : [...bBlock, ...aBlock];
-    const next = [...before, ...reordered, ...after].join("\n");
-    setMarkdown(next);
+    reorderSections(index, target);
   };
+
+  /** Rebuild the markdown with section `from` moved to position `to`
+   *  (content before the first ## — frontmatter/h1 — stays untouched). */
+  const reorderSections = (from: number, to: number) => {
+    if (from === to || from < 0 || to < 0 || from >= outline.length || to >= outline.length) return;
+    const lines = markdown.split("\n");
+    const starts = outline.map((o) => o.start);
+    const lastEnd = lines.length - 1;
+    const preamble = lines.slice(0, starts[0]);
+    const blocks = outline.map((sec, i) =>
+      lines.slice(sec.start, (i + 1 < outline.length ? outline[i + 1].start : lastEnd + 1))
+    );
+    const [moved] = blocks.splice(from, 1);
+    blocks.splice(to, 0, moved);
+    setMarkdown([...preamble, ...blocks.flat()].join("\n"));
+  };
+
+  /* ─── Outline drag state (pointer-based, keyboard alternatives kept) ───
+     Logic lives in a ref (mouseup must read the latest values synchronously);
+     state mirrors it purely for the drop-target visuals. */
+  const dragState = React.useRef<{ from: number | null; over: number | null }>({ from: null, over: null });
+  const [dragFrom, setDragFrom] = React.useState<number | null>(null);
+  const [dragOver, setDragOver] = React.useState<number | null>(null);
+
+  React.useEffect(() => {
+    const onUp = () => {
+      const { from, over } = dragState.current;
+      if (from !== null && over !== null && from !== over) reorderSections(from, over);
+      dragState.current = { from: null, over: null };
+      setDragFrom(null);
+      setDragOver(null);
+    };
+    window.addEventListener("mouseup", onUp);
+    return () => window.removeEventListener("mouseup", onUp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [markdown]);
 
   /* ─── Render ─── */
   return (
@@ -354,12 +381,47 @@ export default function StudioPage() {
             )}
 
             {railTab === "outline" && (
-              <div className="space-y-1">
+              <div className="space-y-1 select-none">
                 {outline.length === 0 && <p className="text-xs text-ink2 p-2">لا أقسام بعد — أضف «## عنوان» من إدراج.</p>}
+                {outline.length > 1 && (
+                  <p className="text-[0.62rem] text-ink2 px-2 pb-1">اسحب ⠿ لإعادة الترتيب — ينعكس فوراً في المعاينة.</p>
+                )}
                 {outline.map((sec, i) => (
-                  <div key={i} className="flex items-center gap-1 border hairline rounded-lg px-2 py-1.5">
+                  <div
+                    key={i}
+                    data-outline-row={i}
+                    onMouseEnter={() => {
+                      if (dragState.current.from !== null) {
+                        dragState.current.over = i;
+                        setDragOver(i);
+                      }
+                    }}
+                    className={cn(
+                      "flex items-center gap-1 border rounded-lg px-2 py-1.5",
+                      dragOver === i && dragFrom !== null && dragFrom !== i
+                        ? "border-accent bg-accentSoft/60 shadow-sm"
+                        : "hairline",
+                      dragFrom === i && "opacity-40 border-dashed border-accent",
+                    )}
+                  >
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`اسحب لترتيب القسم «${sec.title}»`}
+                      title="اسحب لإعادة الترتيب"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        dragState.current = { from: i, over: i };
+                        setDragFrom(i);
+                        setDragOver(i);
+                      }}
+                      onKeyDown={(e) => { if (e.key === "ArrowUp") moveSection(i, -1); if (e.key === "ArrowDown") moveSection(i, 1); }}
+                      className="cursor-grab active:cursor-grabbing text-ink-3 hover:text-accent font-bold leading-none px-0.5 select-none"
+                    >
+                      ⠿
+                    </span>
                     <span className="text-[0.65rem] font-mono text-ink2 w-5 tabular">{i + 1}</span>
-                    <span className="flex-1 truncate text-xs font-semibold text-ink">{sec.title}</span>
+                    <span className="flex-1 min-w-0 truncate text-xs font-semibold text-ink" title={sec.title}>{sec.title}</span>
                     <button onClick={() => moveSection(i, -1)} disabled={i === 0} aria-label={`انقل «${sec.title}» أعلى`} className="text-ink2 hover:text-accent disabled:opacity-30 px-1">↑</button>
                     <button onClick={() => moveSection(i, 1)} disabled={i === outline.length - 1} aria-label={`انقل «${sec.title}» أسفل`} className="text-ink2 hover:text-accent disabled:opacity-30 px-1">↓</button>
                   </div>
