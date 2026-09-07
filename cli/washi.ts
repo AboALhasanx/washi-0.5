@@ -25,7 +25,6 @@ import { deleteCommand } from "./commands/delete";
 import { editCommand } from "./commands/edit";
 import { serveCommand } from "./commands/serve";
 import { demoCommand } from "./commands/demo";
-import { setColorEnabled } from "./ui";
 
 const program = new Command();
 

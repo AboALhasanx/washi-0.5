@@ -19,19 +19,24 @@ export const traceCommand = new Command("trace")
   .action((id: string, opts: { version?: string; json?: boolean }) => {
     let source: string;
     let documentAst: unknown;
-    let appContent: { stats: Record<string, number>; concepts: Array<{ term: string }>; flashcards: unknown[]; questionCandidates: unknown[] };
+    let appContent: {
+      stats: Record<string, number>;
+      concepts: Array<{ term: string }>;
+      flashcards: unknown[];
+      questionCandidates: unknown[];
+    };
 
     if (opts.version) {
       const pub = loadPublication(id, Number(opts.version));
       source = `publication v${opts.version}`;
       documentAst = pub.documentAst;
-      appContent = pub.appContent as typeof appContent;
+      appContent = pub.appContent as unknown as typeof appContent;
     } else {
       const project = loadProject(id);
       const { ast } = parseMarkdown(project.content);
       source = "live (current draft)";
       documentAst = buildDocumentAst(ast);
-      appContent = buildAppContent(ast) as typeof appContent;
+      appContent = buildAppContent(ast) as unknown as typeof appContent;
     }
 
     if (opts.json) {

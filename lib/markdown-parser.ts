@@ -177,7 +177,7 @@ function parseBlockquote(node: any): AstNode | null {
   // node.children are typically paragraph(s)
   const rawText = mdastText(node).trim();
   // Detect [!TYPE]
-  const variantMatch = rawText.match(/^\s*\[!(NOTE|IMPORTANT|WARNING|EXAMPLE)\]/i);
+  const variantMatch = rawText.match(/^\s*\[!(NOTE|IMPORTANT|WARNING|EXAMPLE|TIP)\]/i);
   if (!variantMatch) {
     // Plain blockquote fallback -> callout note
     const content = rawText || extractText(node.children ?? []);
@@ -188,9 +188,9 @@ function parseBlockquote(node: any): AstNode | null {
       content: content.replace(/^\s*>\s*/gm, "").trim(),
     } as AstNode;
   }
-  const variant = variantMatch[1].toUpperCase() as "NOTE" | "IMPORTANT" | "WARNING" | "EXAMPLE";
+  const variant = variantMatch[1].toUpperCase() as "NOTE" | "IMPORTANT" | "WARNING" | "EXAMPLE" | "TIP";
   // Remove the marker line from content
-  let content = rawText.replace(/^\s*\[!(NOTE|IMPORTANT|WARNING|EXAMPLE)\]\s*/i, "").trim();
+  let content = rawText.replace(/^\s*\[!(NOTE|IMPORTANT|WARNING|EXAMPLE|TIP)\]\s*/i, "").trim();
   // Also handle case where marker on its own paragraph and content next
   // If rawText starts with marker and content is empty, try next children
   if (!content) {

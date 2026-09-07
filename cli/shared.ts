@@ -44,9 +44,9 @@ export function sha256File(p: string): string {
 }
 
 /** Human summary of structural issues (shared by validate + publish refusal). */
-export function printIssues(issues: Array<{ kind: string; message: string; where?: string }>): void {
+export function printIssues(issues: Array<{ severity: string; message: string; line?: number }>): void {
   for (const i of issues) {
-    log(`  ${i.kind === "error" ? "✗" : "▲"} ${i.where ? i.where + " — " : ""}${i.message}`);
+    log(`  ${i.severity === "error" ? "✗" : "▲"} ${i.line ? `سطر ${i.line} — ` : ""}${i.message}`);
   }
 }
 

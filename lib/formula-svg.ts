@@ -19,6 +19,15 @@ import { createRequire } from "node:module";
 // this works both in Next's server runtime and under tsx (ESM has no require).
 const req = createRequire(import.meta.url);
 
+// Extension packages must be imported for side effects BEFORE creating the
+// TeX input — the `packages` option only references registered handlers.
+// Without these, \binom / pmatrix / cases emit merror → black boxes in resvg.
+req("mathjax-full/js/input/tex/ams/AmsConfiguration.js");
+req("mathjax-full/js/input/tex/mathtools/MathtoolsConfiguration.js");
+req("mathjax-full/js/input/tex/newcommand/NewcommandConfiguration.js");
+req("mathjax-full/js/input/tex/color/ColorConfiguration.js");
+req("mathjax-full/js/input/tex/cancel/CancelConfiguration.js");
+
 let doc: any = null;
 
 function getDoc() {
@@ -31,7 +40,11 @@ function getDoc() {
 
     const adaptor = liteAdaptor();
     RegisterHTMLHandler(adaptor);
-    const tex = new TeX({ packages: ["base", "ams"] });
+    // Package coverage matters: missing packages (cases, pmatrix, binom…)
+    // make TeX emit an merror node that resvg paints as a SOLID BLACK BOX.
+    const tex = new TeX({
+      packages: ["base", "ams", "mathtools", "newcommand", "color", "cancel", "noundefined"],
+    });
     const svg = new SVG({ fontCache: "none" });
     doc = mathjax.document("", { InputJax: tex, OutputJax: svg });
     (doc as any).__adaptor = adaptor;
@@ -48,12 +61,15 @@ export interface FormulaSvg {
 }
 
 /** Scales MathJax's internal units so a typical display equation lands
- *  around 44-52px tall next to 13.5px body text. */
-const DISPLAY_SCALE = 0.052;
+ *  around 40-48px tall next to 13.5px body text. */
+const DISPLAY_SCALE = 0.048;
 
-/** Content width inside a formula card: A4 595 - 2×56 margins - card
- *  padding/borders (~40). SVGs wider than this are scaled down to fit. */
+/** Content caps inside a formula card: A4 595 - 2×56 margins - card
+ *  padding/borders (~40). Both dimensions are capped — width for long
+ *  expressions, height for fractions/matrices/cases that would otherwise
+ *  explode vertically next to the body text. */
 const MAX_FORMULA_W = 438;
+const MAX_FORMULA_H = 84;
 
 export function texToSvg(latex: string): FormulaSvg | null {
   try {
@@ -61,16 +77,23 @@ export function texToSvg(latex: string): FormulaSvg | null {
     const node = d.convert(latex, { display: true });
     const html: string = d.__adaptor.outerHTML(node);
     const start = html.indexOf("<svg");
-    const end = html.indexOf("</svg>");
+    // Slice to the LAST closing tag: stretchy delimiters (cases/pmatrix) nest
+    // inner <svg> elements — closing at the FIRST </svg> truncates the root
+    // and resvg rejects the image ("root node never closed").
+    const end = html.lastIndexOf("</svg>");
     if (start < 0 || end < 0) return null;
     let markup = html.slice(start, end + 6);
+
+    // TeX errors surface as an merror node (black box after resvg) — reject
+    // so the renderer falls back to the LaTeX-lite text card instead.
+    if (markup.includes("data-mjx-error") || markup.includes("merror")) return null;
 
     // Pull the viewBox, drop ex-unit dimensions, rewrite in px.
     const vb = markup.match(/viewBox="([\d.\-+\s]+)"/);
     if (!vb) return null;
     const [minX, minY, w, h] = vb[1].trim().split(/\s+/).map(Number);
     const viewBox = `${minX} ${minY} ${w} ${h}`;
-    const scale = Math.min(DISPLAY_SCALE, MAX_FORMULA_W / w);
+    const scale = Math.min(DISPLAY_SCALE, MAX_FORMULA_W / w, MAX_FORMULA_H / h);
     const width = Math.max(24, Math.round(w * scale));
     const height = Math.max(16, Math.round(h * scale));
     markup = markup

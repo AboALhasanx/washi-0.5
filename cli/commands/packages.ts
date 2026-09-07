@@ -20,8 +20,12 @@ export const packagesCommand = new Command("packages")
       try {
         const { manifest } = loadPublication(id, v);
         json.push(manifest);
-        const contentHash = manifest.hashes?.contentSha256?.slice(0, 12) + "…" ?? "قديمة بلا هاشات";
-        const pdfHash = manifest.hashes?.pdfSha256?.slice(0, 12) + "…" ?? "—";
+        const contentHash = manifest.hashes
+          ? manifest.hashes.contentSha256.slice(0, 12) + "…"
+          : "قديمة بلا هاشات";
+        const pdfHash = manifest.hashes
+          ? manifest.hashes.pdfSha256.slice(0, 12) + "…"
+          : "—";
         rows.push([
           `v${v}`,
           manifest.publishedAt.slice(0, 16).replace("T", " "),

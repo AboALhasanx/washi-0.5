@@ -19,7 +19,7 @@ export const validateCommand = new Command("validate")
       out(JSON.stringify(result));
     } else if (result.ok) {
       okLine(`صالح هيكلياً (${result.warnings} تحذير)`);
-      if (result.issues.some((i) => i.kind === "warning")) printIssues(result.issues);
+      if (result.issues.some((i) => i.severity === "warning")) printIssues(result.issues);
     } else {
       failLine(`${result.errors} خطأ هيكلي — ${result.warnings} تحذير`);
       printIssues(result.issues);

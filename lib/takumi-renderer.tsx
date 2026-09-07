@@ -713,7 +713,10 @@ const CodeCard: React.FC<{ code: string; language?: string; source?: string }> =
   KT(
     <div
       style={{
-        background: "linear-gradient(160deg, #1C1917 0%, #292524 100%)",
+        // Light editor card — same card family as FormulaCard (no black boxes)
+        background: palette.surface,
+        border: "1px solid #E2E8F0",
+        borderRight: `4px solid ${palette.accent}`,
         borderRadius: 12,
         padding: "13px 17px",
         margin: "0 0 10px 0",
@@ -726,9 +729,9 @@ const CodeCard: React.FC<{ code: string; language?: string; source?: string }> =
               fontFamily: FONT_MONO,
               fontSize: 10,
               fontWeight: 700,
-              color: "#FCD34D",
-              background: "rgba(251,191,36,0.12)",
-              border: "1px solid rgba(251,191,36,0.3)",
+              color: palette.accentDeep,
+              background: palette.accentSoft,
+              border: `1px solid ${palette.accent}55`,
               borderRadius: 6,
               padding: "2px 9px",
               direction: "ltr",
@@ -743,7 +746,7 @@ const CodeCard: React.FC<{ code: string; language?: string; source?: string }> =
           fontFamily: FONT_MONO,
           fontSize: 11.5,
           lineHeight: 1.75,
-          color: "#E7E5E4",
+          color: palette.ink,
           direction: "ltr",
           textAlign: "left",
           whiteSpace: "pre-wrap",
@@ -753,7 +756,7 @@ const CodeCard: React.FC<{ code: string; language?: string; source?: string }> =
       </div>
       {source && (
         <div
-          style={{ fontSize: 10, color: "#78716C", marginTop: 6, direction: "ltr", textAlign: "left" } as React.CSSProperties}
+          style={{ fontSize: 10, color: palette.muted, marginTop: 6, direction: "ltr", textAlign: "left" } as React.CSSProperties}
         >
           {source}
         </div>

@@ -51,7 +51,7 @@ export type Frontmatter = z.infer<typeof frontmatterSchema>;
 // ── ChapterAST — finite vocabulary → pdfcn composition ────────────────────
 // See specs/pdfcn-components-catalog.md (corrected) and markdown-schema-spec.md
 
-export const calloutVariantSchema = z.enum(["NOTE", "IMPORTANT", "WARNING", "EXAMPLE"]);
+export const calloutVariantSchema = z.enum(["NOTE", "IMPORTANT", "WARNING", "EXAMPLE", "TIP"]);
 
 // ── Provenance (Washi 0.5) ──────────────────────────────────────────────────
 // Hidden per-block source tracing, Admin/Debug views only. Derived from
