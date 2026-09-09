@@ -215,3 +215,30 @@ exit "$__zcode_status"
 
 ### الاختبار (بروتوكول حقيقي لا mock)
 - `scripts/mcp-test.mjs`: عميل MCP أصلي يولّد الخادم بـ stdio — اكتشاف 14 أداة، فحص annotations، دورة حياة كاملة عبر البروتوكول، رفض بوابة الاستيراد، عدم الوجود، الحذف — **17/17**.
+
+---
+
+## Phase 3.2 — CLI & MCP Stabilization & Architecture Unification (D-203, cli_demo branch)
+
+Deep architecture audit and stabilization pass prior to merging CLI/MCP into `main`.
+
+### Core Boundary Unification
+- **Eliminated Semantic Duplication**: Centralized 4 domain operations previously reimplemented separately across CLI, MCP, and Studio into `lib/project.ts`:
+  1. `buildTraceModel(id, version?)`: Platform read-model combining DocumentAST and app-content (concepts, flashcards, questions) with source provenance.
+  2. `verifyPublication(id, version)`: Recomputes sha256 checksums of `content.md` and `document.pdf` against frozen publication manifests. Handles legacy packages gracefully.
+  3. `listPublicationManifests(id)`: Enumerates frozen package manifests using `metadata.publicationCount` as the authority.
+  4. `renderPreviewToDir(id, outDir?)`: Renders preview PDF via Takumi and writes `document.ast` and `app-content.json` to target output folder.
+- **Zero Internal HTTP Loops**: CLI and MCP continue to invoke Core domain logic directly without Next.js route dependencies or subprocess hops.
+
+### Contract & Command Classification
+- **Command Tiers Established**:
+  - *Public/Stable*: `new`, `validate`, `render`, `publish`, `verify`, `trace`.
+  - *Management*: `list`, `show`, `packages`, `snapshot`, `restore`, `delete`.
+  - *Dev/Demo*: `edit`, `serve`, `demo`.
+- **Exit Code Contract**: Enforced deterministic 5-code contract (`0` OK, `1` Refusal/Validation failure, `2` Not found, `3` Usage error, `4` Unexpected).
+- **Input Hardening**: Gated `--version` in CLI `trace` and `verify` with `/^\d+$/` validation; invalid non-numeric inputs immediately exit 3 instead of 2.
+- **Stream Hygiene**: `stdout` strictly isolated for machine data in `--json` mode; all log diagnostics, banners, and spinners routed to `stderr`.
+
+### Test Matrix Expansion
+- `scripts/cli-test.mjs`: Expanded from 22 to 27 automated checks, validating invalid version arguments, multi-package publication, full verification, and `--json` stdout purity.
+- `scripts/mcp-test.mjs`: Expanded to 18 checks, adding schema rejection validation.

@@ -7,14 +7,14 @@
  *
  * All filesystem access goes through lib/project helpers so the project id
  * and publication version from the URL can never escape the projects root.
+ * The read model itself is built by Core (buildTraceModel) — the same
+ * function the CLI `trace` command and the MCP washi_trace tool call.
  *
  * The educational platform consumes (display/link/analyze); it never authors.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { parseMarkdown } from "@/lib/markdown-parser";
-import { buildDocumentAst, buildAppContent } from "@/lib/artifacts";
-import { loadProject, loadPublication } from "@/lib/project";
+import { buildTraceModel } from "@/lib/project";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,23 +32,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       if (!Number.isSafeInteger(version) || version < 1) {
         return NextResponse.json({ error: "invalid publication version" }, { status: 400 });
       }
-      const { manifest, documentAst, appContent } = loadPublication(params.id, version);
-      return NextResponse.json({
-        source: `publication v${version}`,
-        manifest,
-        documentAst,
-        appContent,
-      });
+      const model = buildTraceModel(params.id, version);
+      return NextResponse.json({ source: model.source, manifest: model.manifest, documentAst: model.documentAst, appContent: model.appContent });
     }
 
     // live simulation from the current draft
-    const project = loadProject(params.id);
-    const { ast } = parseMarkdown(project.content);
+    const model = buildTraceModel(params.id);
     return NextResponse.json({
-      source: "live (current draft)",
-      manifest: null,
-      documentAst: buildDocumentAst(ast),
-      appContent: buildAppContent(ast),
+      source: model.source,
+      manifest: model.manifest,
+      documentAst: model.documentAst,
+      appContent: model.appContent,
     });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message ?? "فشل التتبع" }, { status: 404 });

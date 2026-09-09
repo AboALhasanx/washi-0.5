@@ -523,3 +523,94 @@ export function deleteProject(id: string): boolean {
   // still holds open is invisible to the projects list and not a project.
   return !fs.existsSync(dir);
 }
+
+/* ─── Interface-facing read/audit operations ─────────────────────────────────
+ * The Studio (trace route), CLI, and MCP must all expose THE SAME semantics
+ * for these — they live here once, and every interface calls them. */
+
+export interface TraceModel {
+  source: string;
+  manifest: PublicationManifest | null;
+  documentAst: DocumentAst;
+  appContent: AppContent;
+}
+
+/** The platform-consumer read model: live draft by default, frozen
+ *  publication vN when a version is given. */
+export function buildTraceModel(id: string, version?: number): TraceModel {
+  if (version !== undefined) {
+    const { manifest, documentAst, appContent } = loadPublication(id, version);
+    return { source: `publication v${version}`, manifest, documentAst, appContent };
+  }
+  const project = loadProject(id);
+  const { ast } = parseMarkdown(project.content);
+  return {
+    source: "live (current draft)",
+    manifest: null,
+    documentAst: buildDocumentAst(ast),
+    appContent: buildAppContent(ast),
+  };
+}
+
+export type VerifyStatus = "ok" | "mismatch" | "legacy" | "missing";
+export interface VerifyResult {
+  version: number;
+  status: VerifyStatus;
+  contentOk?: boolean;
+  pdfOk?: boolean;
+  error?: string;
+}
+
+/** Integrity audit of one frozen package: recompute sha256 of content.md and
+ *  document.pdf against the manifest recorded at publish time. "legacy" = a
+ *  package published before hashes existed — unverifiable, not tampered. */
+export function verifyPublication(id: string, version: number): VerifyResult {
+  try {
+    const { manifest } = loadPublication(id, version);
+    const hashes = (manifest as Partial<PublicationManifest>).hashes;
+    if (!hashes?.contentSha256) return { version, status: "legacy" };
+    const sha = (p: string) =>
+      crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
+    const pubDir = path.join(projectDir(id), "publications", `v${version}`);
+    const contentOk = sha(path.join(pubDir, "content.md")) === hashes.contentSha256;
+    const pdfPath = path.join(pubDir, "document.pdf");
+    const pdfOk = fs.existsSync(pdfPath) && sha(pdfPath) === hashes.pdfSha256;
+    return { version, status: contentOk && pdfOk ? "ok" : "mismatch", contentOk, pdfOk };
+  } catch (e: any) {
+    return { version, status: "missing", error: e?.message };
+  }
+}
+
+/** Manifests of every frozen publication (metadata.publicationCount is the
+ *  authority; gaps in numbering are skipped). */
+export function listPublicationManifests(id: string): PublicationManifest[] {
+  const project = loadProject(id);
+  const manifests: PublicationManifest[] = [];
+  for (let v = 1; v <= project.metadata.publicationCount; v++) {
+    try {
+      manifests.push(loadPublication(id, v).manifest);
+    } catch {
+      /* gap in numbering — skip */
+    }
+  }
+  return manifests;
+}
+
+/** Fresh preview render of the current draft: document.pdf + document.ast +
+ *  app-content.json into an output dir. Preview artifact — publish is the
+ *  freeze, these files are rewritten on every call. */
+export async function renderPreviewToDir(
+  id: string,
+  outDir?: string
+): Promise<{ dir: string; pdfPath: string; ms: number }> {
+  const project = loadProject(id);
+  const dir = path.resolve(outDir ?? path.join("output", project.metadata.id));
+  fs.mkdirSync(dir, { recursive: true });
+  const { pdf, ms } = await renderChapterPdf(project.content, project.template);
+  const pdfPath = path.join(dir, "document.pdf");
+  fs.writeFileSync(pdfPath, pdf);
+  const { ast } = parseMarkdown(project.content);
+  fs.writeFileSync(path.join(dir, "document.ast"), JSON.stringify(buildDocumentAst(ast), null, 2));
+  fs.writeFileSync(path.join(dir, "app-content.json"), JSON.stringify(buildAppContent(ast), null, 2));
+  return { dir, pdfPath, ms };
+}

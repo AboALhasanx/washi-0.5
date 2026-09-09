@@ -97,6 +97,20 @@ const trace = json(WASHI(["trace", id, "--version", "1", "--json"]));
 check("trace --json has concepts + flashcards", (trace.appContent?.concepts?.length ?? 0) > 0 && (trace.appContent?.flashcards?.length ?? 0) > 0);
 check("trace from publication carries source marker", trace.source === "publication v1");
 
+/* 9b. semantic exit code on invalid numeric flags (exit 3) */
+check("trace with invalid non-numeric version exits 3", WASHI_CODE(["trace", id, "--version", "abc"]).code === 3);
+check("verify with invalid non-numeric version exits 3", WASHI_CODE(["verify", id, "--version", "abc"]).code === 3);
+
+/* 9c. stdout stream purity in --json mode */
+const rawTrace = WASHI(["trace", id, "--version", "1", "--json"]);
+check("trace --json stdout is pure JSON without diagnostics", rawTrace.trim().startsWith("{") && !rawTrace.includes("تتبع"));
+
+/* 9d. multi-package publish and all-package verification */
+const pub2 = json(WASHI(["publish", id, "--yes", "--json"]));
+check("publish freezes v2", pub2.version === 2 && !!pub2.manifest?.hashes?.contentSha256);
+const verAll = WASHI_CODE(["verify", id, "--json"]);
+const verResults = json(verAll.out).results;
+check("verify without version audits both v1 and v2", verAll.code === 0 && verResults.length === 2 && verResults.every((r) => r.status === "ok"));
 /* 10. not found → exit 2 */
 check("show nonexistent exits 2", WASHI_CODE(["show", "لا-يوجد-مطلقاً-xyz"]).code === 2);
 

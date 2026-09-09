@@ -91,6 +91,9 @@ check("washi_delete removes project", data(del)?.deleted === true);
 
 const gone = await client.callTool({ name: "washi_show", arguments: { id } });
 check("deleted project is gone", gone.isError === true);
+/* 6. invalid input schema rejection */
+const badSchema = await client.callTool({ name: "washi_show", arguments: { id: "" } });
+check("empty id fails schema validation with isError", badSchema.isError === true);
 
 await client.close();
 

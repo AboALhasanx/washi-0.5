@@ -19,19 +19,21 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import {
+  buildTraceModel,
   createProject,
   deleteProject,
   listProjects,
   loadProject,
-  loadPublication,
+  listPublicationManifests,
   publishProject,
+  renderPreviewToDir,
   restoreSnapshot,
   saveProject,
   validateProject,
+  verifyPublication,
 } from "../lib/project";
 import { parseMarkdown } from "../lib/markdown-parser";
-import { buildDocumentAst, buildAppContent } from "../lib/artifacts";
-import { renderChapterPdf } from "../lib/render-pdf";
+import { buildDocumentAst } from "../lib/artifacts";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -208,15 +210,9 @@ export function createServer(): McpServer {
     },
     async ({ id, out }) => {
       try {
-        const project = loadProject(id);
-        const dir = path.resolve(out ?? path.join("output", project.metadata.id));
-        fs.mkdirSync(dir, { recursive: true });
-        const { pdf, ms } = await renderChapterPdf(project.content, project.template);
-        fs.writeFileSync(path.join(dir, "document.pdf"), pdf);
-        const { ast } = parseMarkdown(project.content);
-        fs.writeFileSync(path.join(dir, "document.ast"), JSON.stringify(buildDocumentAst(ast), null, 2));
-        fs.writeFileSync(path.join(dir, "app-content.json"), JSON.stringify(buildAppContent(ast), null, 2));
-        return result(`تم الرندر في ${ms}ms → ${dir}`, { dir, pdfKb: +(pdf.length / 1024).toFixed(1), ms });
+        const { dir, pdfPath, ms } = await renderPreviewToDir(id, out);
+        const pdfKb = +(fs.statSync(pdfPath).size / 1024).toFixed(1);
+        return result(`تم الرندر في ${ms}ms → ${dir}`, { dir, pdfPath, pdfKb, ms });
       } catch (e) {
         return failure(e);
       }
@@ -295,17 +291,8 @@ export function createServer(): McpServer {
     },
     async ({ id }) => {
       try {
-        const project = loadProject(id);
-        const pubs = [];
-        for (let v = 1; v <= project.metadata.publicationCount; v++) {
-          try {
-            const { manifest } = loadPublication(id, v);
-            pubs.push(manifest);
-          } catch {
-            pubs.push({ version: v, missing: true });
-          }
-        }
-        return result(`${pubs.length} حزمة`, { publications: pubs });
+        const manifests = listPublicationManifests(id);
+        return result(`${manifests.length} حزمة`, { publications: manifests });
       } catch (e) {
         return failure(e);
       }
@@ -326,25 +313,7 @@ export function createServer(): McpServer {
         const project = loadProject(id);
         const results = [];
         for (let v = 1; v <= project.metadata.publicationCount; v++) {
-          try {
-            const { manifest } = loadPublication(id, v);
-            const { createHash } = await import("node:crypto");
-            const pubDir = path.join("projects", id, "publications", `v${v}`);
-            if (!manifest.hashes?.contentSha256) {
-              results.push({ version: v, status: "legacy" });
-              continue;
-            }
-            const contentOk =
-              createHash("sha256").update(fs.readFileSync(path.join(pubDir, "content.md"))).digest("hex") ===
-              manifest.hashes.contentSha256;
-            const pdfPath = path.join(pubDir, "document.pdf");
-            const pdfOk =
-              fs.existsSync(pdfPath) &&
-              createHash("sha256").update(fs.readFileSync(pdfPath)).digest("hex") === manifest.hashes.pdfSha256;
-            results.push({ version: v, status: contentOk && pdfOk ? "ok" : "mismatch" });
-          } catch (e: any) {
-            results.push({ version: v, status: "mismatch", error: e?.message });
-          }
+          results.push(verifyPublication(id, v));
         }
         const ok = results.every((r) => r.status !== "mismatch");
         return result(
@@ -369,25 +338,11 @@ export function createServer(): McpServer {
     },
     async ({ id, version }) => {
       try {
-        let source: string;
-        let documentAst: unknown;
-        let appContent: unknown;
-        if (version) {
-          const pub = loadPublication(id, version);
-          source = `publication v${version}`;
-          documentAst = pub.documentAst;
-          appContent = pub.appContent;
-        } else {
-          const project = loadProject(id);
-          const { ast } = parseMarkdown(project.content);
-          source = "live (current draft)";
-          documentAst = buildDocumentAst(ast);
-          appContent = buildAppContent(ast);
-        }
-        const ac = appContent as { stats: Record<string, number>; concepts: Array<{ term: string }> };
+        const model = buildTraceModel(id, version);
+        const ac = model.appContent;
         return result(
-          `تتبع (${source}) — مفاهيم: ${ac.concepts.map((c) => c.term).join("، ")}`,
-          { source, documentAst, appContent },
+          `تتبع (${model.source}) — مفاهيم: ${ac.concepts.map((c) => c.term).join("، ")}`,
+          { source: model.source, documentAst: model.documentAst, appContent: model.appContent },
         );
       } catch (e) {
         return failure(e);

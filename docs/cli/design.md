@@ -131,3 +131,37 @@ washi -V | --help                      # إصدار الـ CLI نفسه / الم
 - سكربت قبول (`scripts/cli-test.mjs`) يقود الـ CLI كعملية حقيقية (spawn) ويمرر: إنشاء من stdin، list، validate فاشل (exit 1)، رندر، لقطة/استعادة، نشر، verify ناجح، تلاعب بملف مجمد → verify يكشفه (exit 1)، trace --json يحوي المفاهيم.
 - كل أمر موثق في README يعمل فعلاً بنفس الأمثلة المكتوبة (الأمثلة تُختبر لا تُروى).
 - الـ main لم يُلمس: كل الالتزامات على `cli_demo`.
+
+---
+
+## 11. Stabilized CLI v0.1 Surface & Core Unification (D-203)
+
+Following the architecture audit, the 15 CLI commands are classified into 3 distinct operational tiers:
+
+### Tier 1: Public / Stable (The Core Authoring & Consumption Pipeline)
+- `new <title>`: AI/script entry point. Reads manuscript via stdin or `--file`. Enforces frontmatter gate via Core parser; exits 1 on validation refusal.
+- `validate <id>`: Structural validation report with line numbers; exits 1 on validation failure.
+- `render <id>`: Generates preview PDF via Takumi along with `document.ast` and `app-content.json`. Deterministic output.
+- `publish <id>`: Atomic package freeze via `publishProject`. Supports non-interactive `--yes` flag; exits 1 on refusal.
+- `verify <id>`: Recomputes sha256 hashes against frozen publication manifest; exits 0 on match, 1 on tamper.
+- `trace <id>`: Emits platform-consumer read model (DocumentAST + app-content with source provenance).
+
+### Tier 2: Management / Inspection
+- `list`: Disk project inventory with clean `--json` mode.
+- `show <id>`: Project metadata, parser statistics, and publication count.
+- `packages <id>`: Lists frozen publication manifests and SHA256 hashes via `listPublicationManifests`.
+- `snapshot <id>`: Explicit version checkpoint before major edits.
+- `restore <id> <version>`: Reverts to an earlier snapshot as a new append-only head version.
+- `delete <id>`: Destructive project deletion. Requires interactive prompt or `--yes` in non-interactive/CI runs.
+
+### Tier 3: Dev / Demo (Non-contract utilities)
+- `edit <id>`: Opens manuscript in `$EDITOR`. Human convenience utility.
+- `serve`: Starts Next.js Web Studio (`next start` or `next dev`).
+- `demo`: End-to-end automated walkthrough exercising the entire Washi lifecycle.
+
+### Unified Core Operations (`lib/project.ts`)
+The CLI imports domain operations directly from Washi Core, eliminating cross-interface drift:
+1. `buildTraceModel(id, version?)`: Read model for draft or publication.
+2. `verifyPublication(id, version)`: Hash verification against publication manifest.
+3. `listPublicationManifests(id)`: Frozen publication manifest enumeration.
+4. `renderPreviewToDir(id, outDir?)`: Preview artifact generation.

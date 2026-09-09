@@ -97,3 +97,38 @@ $$
 ```
 
 التفاصيل الكاملة: `docs/cli/design.md` (التصميم العميق) و`WASHI_0.5_CODEX_BOOTSTRAP.md` (قواعد المحتوى).
+
+---
+
+## CLI v0.1 Quick Reference (English)
+
+### Command Tiers
+- **Public / Stable**:
+  - `new <title>`: Create a new project from file (`--file`) or stdin. Enforces frontmatter gate.
+  - `validate <id>`: Structural validation with line-numbered issues (exits 1 on failure).
+  - `render <id>`: Render preview PDF + AST + app-content into `output/<id>/`.
+  - `publish <id>`: Freeze immutable publication vN (use `--yes` in automation).
+  - `verify <id>`: Recompute sha256 checksums against manifest (exits 1 on tampering).
+  - `trace <id>`: Output platform-consumer read model (`--version N` for frozen package).
+- **Management**:
+  - `list`: Show all projects (`--json` supported).
+  - `show <id>`: Show project metadata and parser stats.
+  - `packages <id>`: List all publication packages with hashes.
+  - `snapshot <id>`: Save manual snapshot version.
+  - `restore <id> <v>`: Restore snapshot version as a new current version.
+  - `delete <id>`: Delete project and all snapshots (requires `--yes` in automation).
+- **Dev / Utilities**:
+  - `edit <id>`: Open manuscript in `$EDITOR`.
+  - `serve`: Start local Next.js Web Studio.
+  - `demo`: Run full lifecycle demonstration.
+
+### Exit Codes
+- `0`: Success
+- `1`: Refusal / Validation failure
+- `2`: Not found
+- `3`: Invalid usage
+- `4`: Unexpected error
+
+### Stream Separation
+- `stdout`: Machine output only in `--json` mode.
+- `stderr`: Diagnostics, banners, spinners, and error messages.

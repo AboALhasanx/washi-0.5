@@ -5,8 +5,6 @@
  * touches the filesystem except through lib/*.
  */
 
-import fs from "node:fs";
-import { createHash } from "node:crypto";
 import * as process from "node:process";
 import { EXIT, failLine, log } from "./ui";
 import { loadProject } from "../lib/project";
@@ -38,11 +36,6 @@ export function wantsJson(opts: Record<string, unknown>): boolean {
   return Boolean(opts.json);
 }
 
-/** sha256 of a file on disk — used by `verify` against the frozen manifest. */
-export function sha256File(p: string): string {
-  return createHash("sha256").update(fs.readFileSync(p)).digest("hex");
-}
-
 /** Human summary of structural issues (shared by validate + publish refusal). */
 export function printIssues(issues: Array<{ severity: string; message: string; line?: number }>): void {
   for (const i of issues) {
@@ -53,5 +46,3 @@ export function printIssues(issues: Array<{ severity: string; message: string; l
 export function hint(s: string): void {
   log(`  ${"↳"} ${s}`);
 }
-
-export { log };

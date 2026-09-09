@@ -89,3 +89,31 @@ node scripts/mcp-test.mjs
 2. **annotations عقد سلامة**: الوكيل يقرأ `readOnlyHint`/`destructiveHint` قبل الاستدعاء — الحذف والنشر يعلنان عن نفسيهما.
 3. **الأخطاء تعليمية**: كل فشل يعود `isError` برسالة عربية + تلميح — الوكيل يصحح ذاته في جولة واحدة بدل التخمين.
 4. **الـ SKILL قبل الأدوات**: أغلب إخفاقات الوكلاء مع أنظمة المحتوى ليست في الاستدعاء بل في **توليد محتوى مخالف للعقد** — السكيبل يمنع الخطأ من المصدر.
+
+---
+
+## Agent Architecture Summary (English)
+
+### Three-Tier Agent Model
+1. **L1 (CLI)**: Shell invocation target for scripts, CI, and CLI-based agents.
+2. **L2 (Skill - `.agents/skills/washi/SKILL.md`)**: Knowledge contract guiding agent behavior, mandatory frontmatter schema, and safety boundaries.
+3. **L3 (MCP - `mcp/stdio.ts`)**: 14 typed tools over Stdio transport with runtime schema validation and MCP safety annotations.
+
+### MCP Tool Inventory
+- `washi_list`: List all projects (`readOnly: true`).
+- `washi_show`: Project metadata, statistics, and publication count (`readOnly: true`).
+- `washi_content_get`: Read manuscript content (`readOnly: true`).
+- `washi_content_set`: Update manuscript (runs parser gate).
+- `washi_validate`: Structural validation report (`readOnly: true`).
+- `washi_render`: Render preview PDF and artifacts.
+- `washi_snapshot`: Create manual snapshot.
+- `washi_restore`: Restore prior snapshot to a new version.
+- `washi_publish`: Immutable publication freeze (permanent append-only).
+- `washi_packages`: List frozen publication manifests (`readOnly: true`).
+- `washi_verify`: Integrity audit of publication checksums (`readOnly: true`).
+- `washi_trace`: Extract platform-facing DocumentAST and app-content (`readOnly: true`).
+- `washi_new`: Ingest full chapter from markdown.
+- `washi_delete`: Irreversible project removal (`destructive: true`).
+
+### Unified Domain Invariant
+Every tool invokes Washi Core functions in `lib/*` directly. No CLI subprocess spawns, no internal HTTP requests, and identical domain semantics across Web Studio, CLI, and MCP.
