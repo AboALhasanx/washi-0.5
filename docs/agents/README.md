@@ -1,31 +1,41 @@
-# واشي × الوكلاء — تكامل ثلاثي الطبقات
+# Washi × AI Agents — Three-Tier Integration Guide
 
-> الهدف: أي وكيل AI (ZCode، Claude، Cursor، سكربت) يستطيع **إنتاج فصل تعليمي، التحقق منه، تجميده، واستهلاكه** — دون لمس واجهة.
-> ثلاث طبقات فوق **نفس الجوهر** (`lib/*`): واجهة للبشر، طرفية للقوياء، بروتوكول للوكلاء.
+> **Target**: Enable any autonomous agent (Claude Desktop, Cursor, ZCode, LangChain, CLI scripts) to **author, validate, publish, and ingest educational packages** without browser interaction.
 
 ---
 
-## الطبقات
+## The Three-Tier Architecture
 
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ Tier 1: CLI (`cli/`)                                                        │
+│   Lowest denominator invocation target for shell execution & CI pipelines. │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Tier 2: Skill (`.agents/skills/washi/SKILL.md`)                             │
+│   Knowledge context informing the agent of content contracts & workflows.  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Tier 3: Model Context Protocol (`mcp/stdio.ts`)                             │
+│   14 typed tools with runtime Zod schemas and safety annotations.          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ UNIFIED CORE (`lib/*`)                                                      │
+│   Same atomic publication, same cryptographic hashing, same AST engine.     │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
-┌─ L1: CLI (cli/) ──────────── أي وكيل يشغّل shell ──────────┐
-├─ L2: SKILL (‎.agents/skills/washi/SKILL.md) ── أي وكيل يفهم المهارات ─┤
-│        يعلم الوكيل: عقد المحتوى، الوصفات، متى ينشر ومتى يتوقف      │
-├─ L3: MCP (mcp/stdio.ts) ──── أي مضيف يدعم MCP ─────────────┤
-│        14 أداة مكتوبة بالأنواع مع annotations أمان                  │
-└──────────────── نفس الجوهر: نفس النشر الذري، نفس الحزمة المجمّدة ────────┘
-```
 
-**لماذا ثلاث طبقات؟** الـ CLI هو النقل الأدنى (كل شيء يشغّله)، والـ SKILL هو **المعرفة** (متى وكيف — عقد المحتوى ووصفات الأنابيب)، والـ MCP هو **التنفيذ المكتوب** (أدوات بمعاملات مدققة zod وannotations تُخبر الوكيل عن أمان كل أداة قبل استدعائها). الطبقات لا تتنافس — الـ SKILL يوجّه الوكيل إلى الأدوات الصحيحة سواء عبر MCP أو عبر الطرفية.
+The layers do not compete:
+- **Skill** provides the **intelligence**: when to use Washi, required frontmatter structure, and safe publishing workflows.
+- **MCP** provides the **typed execution**: structured tools with argument validation and self-correcting error hints.
+- **CLI** provides the **headless fallback**: universal invocation via standard shell commands.
 
-## L3 — خادم MCP
+---
 
-**التشغيل:** `npm run washi:mcp` (stdio — المضيف يولّد العملية بنفسه).
+## MCP Server Setup
 
-### ربطه بمضيفك
+The MCP server runs over Stdio transport via `npm run washi:mcp` (or `tsx mcp/stdio.ts`).
 
-Claude Desktop / ZCode / Cursor — أضف إلى إعدادات MCP:
+### Host Configuration
 
+#### Claude Desktop (`claude_desktop_config.json`)
 ```json
 {
   "mcpServers": {
@@ -38,82 +48,74 @@ Claude Desktop / ZCode / Cursor — أضف إلى إعدادات MCP:
 }
 ```
 
-### الأدوات الـ14
+#### Cursor / ZCode
+Add as an MCP server with `command: "npx"`, `args: ["tsx", "mcp/stdio.ts"]`, and working directory pointed to the repository root.
 
-| الأداة | الغرض | readOnly | destructive |
+---
+
+## Tool Catalog & Safety Annotations
+
+Washi registers 14 tools under the `washi_` namespace.
+
+| Tool | Purpose | Schema Summary | Safety Annotations |
 |---|---|---|---|
-| `washi_list` | سرد المشاريع | ✓ | |
-| `washi_show` | ميتاداتا + إحصاءات | ✓ | |
-| `washi_content_get` | قراءة المسودة (اقرأ قبل أن تعدل) | ✓ | |
-| `washi_content_set` | استبدال المحتوى (بوابة المحلل) | | |
-| `washi_validate` | التحقق الهيكلي | ✓ | |
-| `washi_render` | PDF معاينة + artifacts | | |
-| `washi_snapshot` / `washi_restore` | النسخ | | |
-| `washi_publish` | **نشر = تجميد دائم** | | (append-only) |
-| `washi_packages` | الحزم + الهاشات | ✓ | |
-| `washi_verify` | تدقيق سلامة sha256 | ✓ | |
-| `washi_trace` | نموذج استهلاك المنصة (AST + مفاهيم) | ✓ | |
-| `washi_new` | إنشاء من نص كامل | | |
-| `washi_delete` | **حذف شامل** | | ✓ |
+| `washi_list` | Enumerate all projects on disk | `{}` | `readOnly: true`, `openWorld: false` |
+| `washi_show` | Project metadata & parser statistics | `{ id: string }` | `readOnly: true`, `openWorld: false` |
+| `washi_content_get` | Read manuscript text (Read before editing) | `{ id: string }` | `readOnly: true`, `openWorld: false` |
+| `washi_content_set` | Update manuscript draft (runs parser gate) | `{ id: string, markdown: string }` | `readOnly: false`, `openWorld: false` |
+| `washi_validate` | Run structural validation report | `{ id: string }` | `readOnly: true`, `openWorld: false` |
+| `washi_render` | Compile preview PDF and AST artifacts | `{ id: string, out?: string }` | `readOnly: false`, `openWorld: false` |
+| `washi_snapshot` | Create version snapshot checkpoint | `{ id: string }` | `readOnly: false`, `openWorld: false` |
+| `washi_restore` | Revert to a previous snapshot | `{ id: string, version: number }` | `readOnly: false`, `openWorld: false` |
+| `washi_publish` | **Freeze immutable publication package** | `{ id: string }` | `readOnly: false`, `openWorld: false` |
+| `washi_packages` | List frozen publication packages & hashes | `{ id: string }` | `readOnly: true`, `openWorld: false` |
+| `washi_verify` | Audit SHA-256 integrity of frozen packages | `{ id: string }` | `readOnly: true`, `openWorld: false` |
+| `washi_trace` | Extract consumer read model (AST + concepts) | `{ id: string, version?: number }` | `readOnly: true`, `openWorld: false` |
+| `washi_new` | Ingest complete manuscript draft | `{ title: string, markdown: string, subject?: string, language?: string }` | `readOnly: false`, `openWorld: false` |
+| `washi_delete` | **Permanently delete project and packages** | `{ id: string }` | `destructive: true`, `openWorld: false` |
 
-كل أداة تعيد: ملخص عربي للبشر + **JSON مدمج** للآلة. الأخطاء تعود `isError: true` برسالة عربية + تلميح إصلاح (لا stack traces ولا مسارات قرص).
+### Safety Invariants
+1. **`readOnlyHint: true`**: Guaranteed non-mutating operations.
+2. **`destructiveHint: true`**: Only assigned to `washi_delete`. Agents are advised to confirm with users before invoking.
+3. **`openWorldHint: false`**: Universal invariant; all operations operate strictly on local disk state.
+4. **Permanent Append-Only**: `washi_publish` declares that publishing is permanent and sealed.
 
-### نموذج الأمان (annotations)
+---
 
-- `readOnlyHint: true` — لا يغير شيئاً (list/show/validate/trace/verify/packages/content_get)
-- `destructiveHint: true` — يدمّر بلا تراجع (`washi_delete` فقط) — **أكد مع المستخدم قبل الاستدعاء**
-- `openWorldHint: false` — كل الأدوات محلية صرفة، لا شبكة ولا خدمات خارجية
-- `publish` ليس destructive (append-only) لكنه **دائم** — يمنع idempotentHint ويصرّح بذلك في وصفه
+## Error Handling & Self-Correction
 
-## L2 — سكيبل الوكيل
+Errors returned by MCP tools set `isError: true` and include human-readable guidance:
+- **Gate Refusal**: `«Import rejected — missing frontmatter: subject, title, language, sources»`
+- **Validation Failure**: `«1 structural error — line 12: unbalanced $$ math delimiters»`
+- **Not Found**: `«No project found with identifier: xyz»`
 
-`‎.agents/skills/washi/SKILL.md` — حزمة معرفة يحملها الوكيل معه:
-- **متى** يستخدم واشي (محفزات: «فصل تعليمي»، «ملخص مادة»، «publish educational content»…)
-- **عقد المحتوى** الكامل: frontmatter الإلزامي، تعليقات المصدر، المكونات — السبب الأول لرفض الاستيراد
-- **وصفة الأنابيب القياسية**: اكتب ← أنشئ ← تحقق ← أصلح ← رندر ← **أكد مع المستخدم** ← انشر ← تتبع
-- **قواعد السلامة**: النشر دائم، الحذف يدمر، لا اختراع أرقام صفحات
+Agents inspect the error text and can self-correct in the subsequent turn without guessing.
 
-ثبّته عالمياً: انسخ المجلد إلى `~/.agents/skills/` أو أشر إليه في إعداد المهارات لديك.
+---
 
-## اختبار التكامل
+## Agent Skill (`.agents/skills/washi/SKILL.md`)
 
-`scripts/mcp-test.mjs` — عميل MCP **حقيقي** يولّد الخادم، يكتشف الأدوات، ويقود دورة الحياة عبر البروتوكول: 17 فحصاً (اكتشاف، annotations، إنشاء، تحقق، رندر، لقطة، نشر، تدقيق، تتبع، رفض بوابة، عدم وجود، حذف).
+The agent skill instructs the model on:
+- **Triggers**: Recognizing requests like "author a chapter", "prepare study notes", "extract concepts", or "verify publication".
+- **The Content Contract**: Mandatory frontmatter, math formatting, blockquote callouts, and question candidates.
+- **Workflow Order**:
+  ```text
+  1. Author Markdown following the Content Contract.
+  2. Ingest via washi_new.
+  3. Validate via washi_validate -> fix any reported issues via washi_content_set.
+  4. Preview via washi_render.
+  5. Confirm with the user -> washi_publish (permanent freeze).
+  6. Ingest into platform via washi_trace.
+  ```
+
+---
+
+## Protocol Verification Suite
+
+Run the end-to-end MCP protocol suite:
 
 ```bash
 node scripts/mcp-test.mjs
 ```
 
-## لماذا هذا التصميم؟ (D-202)
-
-1. **نفس الجوهر**: أدوات MCP تستدعي `lib/*` مباشرة — مستحيل أن تتباعد دلالات الوكيل عن دلالات الاستوديو (نفس بوابة النشر، نفس الحزم المجمّدة).
-2. **annotations عقد سلامة**: الوكيل يقرأ `readOnlyHint`/`destructiveHint` قبل الاستدعاء — الحذف والنشر يعلنان عن نفسيهما.
-3. **الأخطاء تعليمية**: كل فشل يعود `isError` برسالة عربية + تلميح — الوكيل يصحح ذاته في جولة واحدة بدل التخمين.
-4. **الـ SKILL قبل الأدوات**: أغلب إخفاقات الوكلاء مع أنظمة المحتوى ليست في الاستدعاء بل في **توليد محتوى مخالف للعقد** — السكيبل يمنع الخطأ من المصدر.
-
----
-
-## Agent Architecture Summary (English)
-
-### Three-Tier Agent Model
-1. **L1 (CLI)**: Shell invocation target for scripts, CI, and CLI-based agents.
-2. **L2 (Skill - `.agents/skills/washi/SKILL.md`)**: Knowledge contract guiding agent behavior, mandatory frontmatter schema, and safety boundaries.
-3. **L3 (MCP - `mcp/stdio.ts`)**: 14 typed tools over Stdio transport with runtime schema validation and MCP safety annotations.
-
-### MCP Tool Inventory
-- `washi_list`: List all projects (`readOnly: true`).
-- `washi_show`: Project metadata, statistics, and publication count (`readOnly: true`).
-- `washi_content_get`: Read manuscript content (`readOnly: true`).
-- `washi_content_set`: Update manuscript (runs parser gate).
-- `washi_validate`: Structural validation report (`readOnly: true`).
-- `washi_render`: Render preview PDF and artifacts.
-- `washi_snapshot`: Create manual snapshot.
-- `washi_restore`: Restore prior snapshot to a new version.
-- `washi_publish`: Immutable publication freeze (permanent append-only).
-- `washi_packages`: List frozen publication manifests (`readOnly: true`).
-- `washi_verify`: Integrity audit of publication checksums (`readOnly: true`).
-- `washi_trace`: Extract platform-facing DocumentAST and app-content (`readOnly: true`).
-- `washi_new`: Ingest full chapter from markdown.
-- `washi_delete`: Irreversible project removal (`destructive: true`).
-
-### Unified Domain Invariant
-Every tool invokes Washi Core functions in `lib/*` directly. No CLI subprocess spawns, no internal HTTP requests, and identical domain semantics across Web Studio, CLI, and MCP.
+This starts `mcp/stdio.ts` as a subprocess, connects a real MCP client over stdio, verifies tool discovery and annotations, exercises the entire authoring and publishing lifecycle, audits packages, and confirms schema validation rejections.

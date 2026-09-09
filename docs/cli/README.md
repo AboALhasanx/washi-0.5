@@ -1,134 +1,200 @@
-# Washi CLI — التوثيق البدئي
+# Washi CLI Reference Guide
 
-> أداة الطرفية لنشر المحتوى التعليمي: من Markdown إلى **حزمة نشر مجمّدة قابلة للتتبع** — بلا متصفح.
-> النسخة التجريبية تعمل داخل المستودع عبر `npm run washi -- <command>`.
+> **The terminal interface for local-first educational content publishing.**  
+> Transform Markdown manuscripts into **frozen, traceable educational packages** directly from the command line — without launching a browser.
 
 ---
 
-## البدء السريع
+## Quick Start
 
 ```bash
-# من ملف جاهز (مثل مخرجات الـ AI الخارجي)
-npm run washi -- new "شبكات الحاسوب — الفصل الأول" --file ch1.md
+# 1. Ingest from file
+npm run washi -- new "Computer Networks — Chapter 1" --file ch1.md
 
-# أو عبر stdin مباشرة (أسلوب الـ AI والسكربتات)
-cat ch1.md | npm run washi -- new "الفصل الأول" --subject computer-networks
+# 2. Ingest via stdin (standard AI agent workflow)
+cat ch1.md | npm run washi -- new "Introduction to Networks" --subject computer-networks
 
-npm run washi -- list                # كل المشاريع
-npm run washi -- validate <id>       # فحص هيكلي (exit 1 عند أخطاء)
-npm run washi -- render <id>         # رندر PDF + artifacts إلى output/<id>/
-npm run washi -- publish <id>        # نشر = تجميد حزمة v1 غير قابلة للتعديل
-npm run washi -- verify <id>         # تدقيق سلامة الهاشات
-npm run washi -- trace <id> --json   # نموذج استهلاك المنصة (AST + مفاهيم + بطاقات)
+# 3. Inspect projects
+npm run washi -- list
+npm run washi -- show computer-networks-ch1
+
+# 4. Validate manuscript syntax and structure
+npm run washi -- validate computer-networks-ch1
+
+# 5. Render preview PDF (output/computer-networks-ch1/document.pdf)
+npm run washi -- render computer-networks-ch1
+
+# 6. Publish = Freeze immutable package v1
+npm run washi -- publish computer-networks-ch1 --yes
+
+# 7. Audit package cryptographic hashes
+npm run washi -- verify computer-networks-ch1
+
+# 8. Extract consumer read model (DocumentAST + concepts + flashcards + questions)
+npm run washi -- trace computer-networks-ch1 --version 1 --json
 ```
 
-## أوامر دورة الحياة
+---
 
-| الأمر | ماذا يفعل | ملاحظات |
-|---|---|---|
-| `new <title>` | إنشاء مشروع من ملف أو stdin | `--subject` · `--lang ar\|en` · `--file` |
-| `list` | جدول كل المشاريع | id، الحالة، النسخة، المنشورات |
-| `show <id>` | تفاصيل مشروع واحد | ميتاداتا + إحصاءات المحلل |
-| `edit <id>` | فتح `content.md` في `$EDITOR` | الحفظ يمر ببوابة المحلل |
-| `validate <id>` | تحقق هيكلي | ✗ مع الأخطاء وتفاصيلها |
-| `render <id>` | رندر PDF حديث | `--out DIR` (افتراضي `output/<id>/`) |
-| `snapshot <id>` | حفظ نسخة جديدة | زيادة `currentVersion` |
-| `restore <id> <v>` | استعادة نسخة | تنشئ نسخة حالية جديدة |
-| `publish <id>` | **نشر = تجميد** | يرفض عند أخطاء هيكلية؛ `--yes` للتأكيد الآلي |
-| `packages <id>` | سرد الحزم المجمدة | مع sha256 للمحتوى والـ PDF |
-| `verify <id>` | تدقيق سلامة الحزمة | يعيد حساب الهاشات ويقارن الـ manifest |
-| `trace <id>` | ما ستستهلكه المنصة | `--version N` لحزمة مجمّدة بدل المسودة |
-| `delete <id>` | حذف مشروع | يتطلب `--yes` |
-| `serve` | تشغيل الاستوديو | `--port 3000` |
-| `demo` | دورة كاملة على الفصل الشامل | أفضل مقدمة للمنتج |
+## Command Classification (v0.1 Contract)
 
-## عقد المخرجات
+Commands are divided into three operational tiers:
 
-- **رموز الخروج**: `0` نجاح · `1` رفض/فشل تحقق · `2` غير موجود · `3` استخدام خاطئ · `4` خطأ غير متوقع.
-- **`--json`** (على أوامر القراءة والكتابة): كائن JSON واحد على stdout، واللوج على stderr — جاهز للأنابيب:
+```text
+┌─────────────────────────────────────────────────────────────────────────┐
+│ Tier 1: Public / Stable (Core Authoring & Publishing Pipeline)          │
+│   new · validate · render · publish · verify · trace                    │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Tier 2: Management / Inspection                                         │
+│   list · show · packages · snapshot · restore · delete                  │
+├─────────────────────────────────────────────────────────────────────────┤
+│ Tier 3: Dev / Demo (Utilities)                                          │
+│   edit · serve · demo                                                   │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### 1. Public / Stable Commands
+
+#### `washi new <title>`
+Creates a new project from a file or standard input.
+* **Flags**:
+  * `--subject <slug>`: Subject identifier (e.g. `computer-networks`).
+  * `--lang <ar|en>`: Chapter language (default: `ar`).
+  * `--file <path>`: Source Markdown file path (omit to read from stdin).
+  * `--json`: Emits `{ project: { id, title, currentVersion } }`.
+* **Exit Codes**: `0` on success, `1` on invalid frontmatter, `3` on missing title.
+
+#### `washi validate <id>`
+Performs a deep structural validation pass on the project draft using `validateProject`.
+* **Checks**: Unbalanced math (`$$`), unknown callout components, missing assets, broken frontmatter.
+* **Flags**: `--json` emits `{ ok, errors, warnings, issues: [...] }`.
+* **Exit Codes**: `0` if valid, `1` if structural errors exist, `2` if project not found.
+
+#### `washi render <id>`
+Generates fresh preview artifacts via Takumi PDF and Washi Core.
+* **Output Artifacts**: `document.pdf`, `document.ast`, and `app-content.json`.
+* **Flags**:
+  * `--out <dir>`: Custom destination directory (default: `output/<id>/`).
+  * `--json`: Emits `{ dir, pdfPath, ms }`.
+* **Exit Codes**: `0` on success, `1` on parser failure, `2` if project not found.
+
+#### `washi publish <id>`
+Atomically freezes the current draft into an immutable publication package (`publications/vN/`).
+* **Flags**:
+  * `--yes`: Skips interactive confirmation (mandatory in CI / headless agent runs).
+  * `--json`: Emits `{ version, dir, manifest }`.
+* **Exit Codes**: `0` on success, `1` on validation refusal (cannot publish invalid drafts), `2` if not found.
+
+#### `washi verify <id>`
+Audits the cryptographic integrity of frozen publication packages by recalculating SHA-256 hashes against `manifest.json`.
+* **Flags**:
+  * `--version <n>`: Audits a specific publication version (e.g. `--version 1`). Omit to audit all versions.
+  * `--json`: Emits `{ id, results: [{ version, status: "ok"|"mismatch"|"legacy"|"missing" }] }`.
+* **Exit Codes**: `0` on match, `1` on checksum mismatch/tamper, `2` if project/version not found, `3` on invalid numeric version.
+
+#### `washi trace <id>`
+Extracts the platform-consumer read model: DocumentAST, concepts, flashcards, and review questions.
+* **Flags**:
+  * `--version <n>`: Reads a frozen publication package instead of the current draft.
+  * `--json`: Emits the full `{ source, manifest, documentAst, appContent }` payload.
+* **Exit Codes**: `0` on success, `2` if project/version not found, `3` on non-numeric version string.
+
+---
+
+### 2. Management Commands
+
+#### `washi list`
+Displays a tabular list of all projects stored in `projects/`.
+* **Flags**: `--json` emits `{ projects: [{ id, title, currentVersion, publicationCount }] }`.
+
+#### `washi show <id>`
+Displays detailed project statistics (section counts, word counts, block counts, versions).
+* **Flags**: `--json` emits `{ metadata, stats: { blocks, concepts, flashcards, questions } }`.
+
+#### `washi packages <id>`
+Lists all frozen publication packages for a project with their creation timestamps and SHA-256 checksums.
+* **Flags**: `--json` emits `{ publications: [PublicationManifest] }`.
+
+#### `washi snapshot <id>`
+Creates a manual version snapshot checkpoint (`snapshots/vN.md`) of the current manuscript.
+* **Flags**: `--json` emits `{ currentVersion: number }`.
+
+#### `washi restore <id> <version>`
+Restores an earlier snapshot as a brand new current version (append-only history; historical revisions are never overwritten).
+* **Flags**: `--json` emits `{ currentVersion: number }`.
+
+#### `washi delete <id>`
+Permanently deletes a project and all associated snapshots and publication packages.
+* **Flags**: `--yes` confirms deletion (mandatory in headless environments).
+* **Exit Codes**: `0` on deletion, `1` if `--yes` was omitted in non-TTY mode.
+
+---
+
+### 3. Dev / Utility Commands
+
+* `washi edit <id>`: Launches `$EDITOR` (or `nano`/`vim`) on `content.md`.
+* `washi serve [--port 3000]`: Starts the local Next.js Web Studio server.
+* `washi demo [--json]`: Executes an automated end-to-end walkthrough using the bundled sample chapter.
+
+---
+
+## Exit Code Contract
+
+Automation scripts and AI agents must rely on semantic exit codes:
+
+```text
+0 = OK / SUCCESS
+1 = LOGICAL REFUSAL / VALIDATION ERROR
+    - Malformed frontmatter
+    - Structural syntax errors (unclosed $$, invalid callouts)
+    - Publication refused due to errors
+    - Hash mismatch during verification (tampered package)
+2 = NOT FOUND
+    - Unknown project ID
+    - Publication package version does not exist
+3 = USAGE ERROR
+    - Missing required command arguments
+    - Unknown flags or options
+    - Invalid numeric values (e.g. washi trace <id> --version abc)
+4 = UNEXPECTED ERROR
+    - Unhandled exceptions, filesystem permission failures
+```
+
+---
+
+## JSON Output & Pipe Hygiene
+
+In `--json` mode, Washi strictly enforces stream separation:
+* **`stdout`**: Clean, machine-readable JSON only.
+* **`stderr`**: Diagnostic logs, banners, spinners, and progress indicators.
+
+This ensures flawless pipeline composition:
 
 ```bash
-npm run washi -- trace شبكات-الحاسوب --json | jq '.appContent.concepts[].term'
-npm run washi -- list --json | jq '.projects[].id'
+# Extract all indexed concept terms
+npm run washi -- trace computer-networks --version 1 --json | jq '.appContent.concepts[].term'
+
+# Count review question candidates
+npm run washi -- trace computer-networks --json | jq '.appContent.questionCandidates | length'
 ```
 
-- **الألوان**: تلقائية عند الطرفية التفاعلية، وتُعطّل بـ `--no-color` أو `NO_COLOR`.
+---
 
-## سير عمل وكلاء الـ AI (النموذج المقصود)
+## AI Agent Integration Recipe
 
 ```bash
-# 1) الـ AI يكتب الفصل بصيغة واشي (frontmatter + أقسام + مصادر)
-chatgpt "اكتب فصل الذاكرة…" > ch-memory.md
+# 1. AI agent generates structured chapter with valid frontmatter
+generate_chapter_content > draft.md
 
-# 2) واشي يستلم ويتحقق ويجمّد
-npm run washi -- new "الذاكرة والذاكرة الافتراضية" --file ch-memory.md
-npm run washi -- validate الذاكرة-والذاكرة-الافتراضية || true
-npm run washi -- publish الذاكرة-والذاكرة-الافتراضية --yes
+# 2. Ingest chapter via stdin
+cat draft.md | npm run washi -- new "Introduction to Databases" --subject db-systems --json
 
-# 3) المنصة تستهلك النموذج الجاهز
-npm run washi -- trace الذاكرة-والذاكرة-الافتراضية --version 1 --json > platform.json
+# 3. Validate manuscript structure
+npm run washi -- validate introduction-to-databases --json
+
+# 4. Freeze immutable package
+npm run washi -- publish introduction-to-databases --yes --json
+
+# 5. Extract platform read model with verified source provenance
+npm run washi -- trace introduction-to-databases --version 1 --json > platform-payload.json
 ```
-
-كل مفهوم، بطاقة فلاش، وسؤال مرشح في `platform.json` يحمل **مرجع provenance مخفي** يصل إلى صفحة الـ PDF الأصلية — لا اختراع ولا تزييف مصادر.
-
-## قواعد المحتوى (تذكير سريع)
-
-```markdown
----
-subject: computer-networks      # slug بحروف صغيرة
-title: "عنوان الفصل"
-language: ar
-sources:
-  - document: Lecture Notes.pdf # مطلوب مصدر واحد على الأقل
-    pages: [1, 2, 3]
----
-
-# عنوان الفصل
-
-<!-- source: Lecture Notes.pdf p.1 -->
-## نظرة عامة
-
-> [!NOTE]
-> **مصطلح:** التعريف هنا.
-
-$$
-E = mc^2
-$$
-```
-
-التفاصيل الكاملة: `docs/cli/design.md` (التصميم العميق) و`WASHI_0.5_CODEX_BOOTSTRAP.md` (قواعد المحتوى).
-
----
-
-## CLI v0.1 Quick Reference (English)
-
-### Command Tiers
-- **Public / Stable**:
-  - `new <title>`: Create a new project from file (`--file`) or stdin. Enforces frontmatter gate.
-  - `validate <id>`: Structural validation with line-numbered issues (exits 1 on failure).
-  - `render <id>`: Render preview PDF + AST + app-content into `output/<id>/`.
-  - `publish <id>`: Freeze immutable publication vN (use `--yes` in automation).
-  - `verify <id>`: Recompute sha256 checksums against manifest (exits 1 on tampering).
-  - `trace <id>`: Output platform-consumer read model (`--version N` for frozen package).
-- **Management**:
-  - `list`: Show all projects (`--json` supported).
-  - `show <id>`: Show project metadata and parser stats.
-  - `packages <id>`: List all publication packages with hashes.
-  - `snapshot <id>`: Save manual snapshot version.
-  - `restore <id> <v>`: Restore snapshot version as a new current version.
-  - `delete <id>`: Delete project and all snapshots (requires `--yes` in automation).
-- **Dev / Utilities**:
-  - `edit <id>`: Open manuscript in `$EDITOR`.
-  - `serve`: Start local Next.js Web Studio.
-  - `demo`: Run full lifecycle demonstration.
-
-### Exit Codes
-- `0`: Success
-- `1`: Refusal / Validation failure
-- `2`: Not found
-- `3`: Invalid usage
-- `4`: Unexpected error
-
-### Stream Separation
-- `stdout`: Machine output only in `--json` mode.
-- `stderr`: Diagnostics, banners, spinners, and error messages.
