@@ -45,7 +45,7 @@ describe("prompt package wizard", () => {
   });
 
   test("slug is download-safe", () => {
-    assert.equal(packageSlug("فصل: شبكات?"), "فصل-شبكات-");
+    assert.equal(packageSlug("فصل: شبكات?"), "فصل-شبكات");
     assert.ok(packageSlug("").length > 0);
   });
 });
