@@ -26,7 +26,12 @@ export interface AssembleInput {
 /** Filename-safe slug for downloads. */
 export function packageSlug(title: string): string {
   const t = (title || "washi-chapter").trim().slice(0, 48);
-  return t.replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, "-") || "washi-chapter";
+  const s = t
+    .replace(/[\\/:*?"<>|]+/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-{2,}/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return s || "washi-chapter";
 }
 
 /** One .md handoff package: instructions stack + source payload. */
