@@ -45,8 +45,27 @@ export interface RenderChapterResult {
 
 export class RenderError extends Error {}
 
+/**
+ * Process-local serial queue. applyStudioTheme() mutates module-level state in
+ * takumi-renderer; concurrent renders would interleave and leak themes.
+ * M3.1 removes that state; this queue is the containment until then.
+ */
+let renderChain: Promise<void> = Promise.resolve();
+
 /** Parse + render one chapter through the intended Takumi path. */
-export async function renderChapterPdf(
+export function renderChapterPdf(
+  markdown: string,
+  themeInput?: unknown
+): Promise<RenderChapterResult> {
+  const run = renderChain.then(() => renderChapterPdfUnqueued(markdown, themeInput));
+  renderChain = run.then(
+    () => undefined,
+    () => undefined
+  );
+  return run;
+}
+
+async function renderChapterPdfUnqueued(
   markdown: string,
   themeInput?: unknown
 ): Promise<RenderChapterResult> {
