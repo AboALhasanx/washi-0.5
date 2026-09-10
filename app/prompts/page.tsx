@@ -36,6 +36,7 @@ export default function PromptsPage() {
   const [documentName, setDocumentName] = React.useState("");
   const [sourceText, setSourceText] = React.useState("");
   const [fileName, setFileName] = React.useState<string | null>(null);
+  const [extracting, setExtracting] = React.useState(false);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
   const flash = (t: string) => {
@@ -75,11 +76,38 @@ export default function PromptsPage() {
   ]);
 
   const onFile = async (file: File) => {
-    const text = await file.text();
-    setSourceText(text);
-    setFileName(file.name);
-    if (!documentName) setDocumentName(file.name.replace(/\.(md|txt)$/i, ".pdf"));
-    flash(`رُفع ${file.name} (${text.length} حرف)`);
+    setExtracting(true);
+    try {
+      const isPdf =
+        file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+      if (isPdf) {
+        flash(`أستخرج نص من ${file.name}…`);
+        const fd = new FormData();
+        fd.append("file", file);
+        const res = await fetch("/api/extract-text", { method: "POST", body: fd });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          flash(json.error || "فشل استخراج النص من الـPDF");
+          return;
+        }
+        setSourceText(json.text || "");
+        setFileName(file.name);
+        if (!documentName) setDocumentName(file.name);
+        flash(
+          `استُخرج ${json.text?.length ?? 0} حرف من ${json.pages ?? "?"} صفحة`
+        );
+        return;
+      }
+      const text = await file.text();
+      setSourceText(text);
+      setFileName(file.name);
+      if (!documentName) setDocumentName(file.name.replace(/\.(md|txt|markdown)$/i, ".pdf"));
+      flash(`رُفع ${file.name} (${text.length} حرف)`);
+    } catch (e: any) {
+      flash(e?.message || "فشل رفع الملف");
+    } finally {
+      setExtracting(false);
+    }
   };
 
   const download = (text: string, name: string) => {
@@ -193,22 +221,24 @@ export default function PromptsPage() {
                 />
               </label>
             </div>
-            <p className="text-[0.65rem] text-ink2">
-              المصدر <b>كامل</b> — بلا تحديد صفحات. ألصق/ارفع كل نص الفصل.
+            <p className="text-[0.65rem] text-ink2 leading-relaxed">
+              المصدر = <b>النص</b> اللي يقراه الـAI (مستخرج من الـPDF أو ملصوق).
+              الملف كله — بلا تحديد صفحات.
             </p>
 
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                className="btn-primary !py-2 !px-4 !text-xs"
+                className="btn-primary !py-2 !px-4 !text-xs disabled:opacity-50"
+                disabled={extracting}
                 onClick={() => fileRef.current?.click()}
               >
-                رفع ملف
+                {extracting ? "جاري الاستخراج…" : "رفع PDF / MD / TXT"}
               </button>
               <input
                 ref={fileRef}
                 type="file"
-                accept=".md,.txt,.markdown,text/plain,text/markdown"
+                accept=".pdf,.md,.txt,.markdown,application/pdf,text/plain,text/markdown"
                 className="hidden"
                 onChange={(e) => {
                   const f = e.target.files?.[0];
@@ -240,7 +270,9 @@ export default function PromptsPage() {
               onChange={(e) => setSourceText(e.target.value)}
               dir="auto"
               rows={16}
-              placeholder="ألصق هنا نص المصدر من المحاضرة / الـPDF…"
+              placeholder={
+                "الصق هنا نص المحاضرة…\n\nأو اضغط «رفع PDF» ويستخرج النص تلقائياً من الملف."
+              }
               className="w-full border hairline rounded-xl p-3 font-mono text-[0.75rem] leading-relaxed bg-paper-2 outline-none resize-y"
               spellCheck={false}
             />
