@@ -9,7 +9,9 @@
     "start": "next start",
     "lint": "next lint",
     "washi": "tsx cli/washi.ts",
-    "washi:mcp": "tsx mcp/stdio.ts"
+    "washi:mcp": "tsx mcp/stdio.ts",
+    "test": "node --import tsx --test --test-concurrency=1 --test-timeout=600000 --test-force-exit \"tests/*.test.mjs\"",
+    "test:golden": "node -e \"require('fs').rmSync('tests/fixtures/computer-networks-ch1.artifacts.json',{force:true})\" && npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.30.0",

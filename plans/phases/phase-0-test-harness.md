@@ -1,6 +1,6 @@
 # المرحلة 0 — شبكة الاختبار (Test Harness)
 
-**الأولوية:** P0 · **الحالة:** جارية · **تاريخ البدء:** 2026-09-10
+**الأولوية:** P0 · **الحالة:** ✅ مكتملة 2026-09-10 · **النتيجة:** `npm test` → 74/74، exit 0
 
 ---
 
@@ -100,7 +100,42 @@ npm test     # يمر بالكامل، exit 0 عند النجاح، exit 1 عن�
 | الاختبارات تلوّث مجلد `projects/` | مجلد مؤقت + تنظيف في `after()` |
 | بطء spawn الـ CLI (tsx) | timeout 300s + تجميع الاختبارات في ملف واحد |
 
+## النتيجة (2026-09-10)
+
+```text
+# tests 74
+# suites 8
+# pass 74
+# fail 0
+# duration_ms 87641
+```
+
+| الملف | الاختبارات | يغطّي |
+|-------|-----------|-------|
+| `tests/helpers.mjs` | — | spawn حقيقي للـ CLI، تنظيف المشاريع، تطبيع golden |
+| `tests/artifacts.test.mjs` | 14 | invariants + golden snapshot لـ document.ast و app-content |
+| `tests/lifecycle.test.mjs` | 14 | create / save / publish / verify عبر `lib/project.ts` |
+| `tests/cli.test.mjs` | 26 | عقد الـ CLI: رموز الخروج، نقاء stdout، النشر والتلاشي |
+| `tests/mcp.test.mjs` | 18 | بروتوكول MCP الحقيقي: 14 أداة + دورة الحياة |
+
+**السكربت:** `node --import tsx --test --test-concurrency=1 --test-timeout=600000 --test-force-exit "tests/*.test.mjs"`
+
 ## ملاحظات مكتشفة
+
+حلولٌ لمشكلات واجهت التنفيذ (مهمة لتشغيل `npm test` لاحقًا):
+
+- **العملية لا تخرج بعد نجاح الاختبارات.** كل الاختبارات تمر لكن العملية تتجمّد
+  (handle عالق — يُشتبه بـ takumi/MathJax). الحل: `--test-force-exit`.
+  بدونه يبدو التشغيل وكأنه علِق إلى ما لا نهاية.
+- **tsx يعترض مسار المجلد.** `node --test tests/` يفشل بـ
+  `ERR_UNSUPPORTED_DIR_IMPORT` لأن مُحمّل tsx يحاول استيراد `tests` كوحدة.
+  الحل: glob صريح `"tests/*.test.mjs"`.
+- **`--test-concurrency=1` إلزامي.** الرندرر يستخدم حالة عالمية (M3)؛
+  أي تشغيل متوازٍ قد يُنتج خرجًا خاطئًا.
+- **تكلفة spawn الـ CLI ~4 ثوانٍ** لكل استدعاء (بداية tsx الباردة) —
+  هذا مصدر البطء الأساسي في `cli.test.mjs`، لا منطق الاختبار.
+- **التنظيف الذاتي:** كل ملف يستأصل مشاريعه في `before()` ويحذفها في `after()`،
+  فلا يتراكم شيء في `projects/`.
 
 - `content/` **مُهمَل في `.gitignore`** — أي مادة خام فيه غير مُودَعة.
   يجب معالجة هذا في M5 عند إنشاء fixtures.
