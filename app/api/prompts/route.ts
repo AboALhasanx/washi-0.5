@@ -21,11 +21,14 @@ import {
   importPrompts,
   type PromptCategory,
 } from "@/lib/prompts";
+import { ensurePromptLibrary } from "@/lib/prompt-seed";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
+  // First-run: empty library is useless — seed the default Washi prompts once.
+  ensurePromptLibrary();
   const sp = req.nextUrl.searchParams;
   const q = sp.get("q") ?? undefined;
   const category = (sp.get("category") as PromptCategory | null) ?? undefined;

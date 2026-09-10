@@ -19,6 +19,7 @@ import {
   checkOutputContract,
   type PromptSpec,
 } from "../../lib/prompt-spec";
+import { seedDefaultPrompts, ensurePromptLibrary } from "../../lib/prompt-seed";
 import { EXIT, bold, dim, failLine, log, okLine, out } from "../ui";
 
 function loadSpec(id: number, file?: string): PromptSpec {
@@ -35,12 +36,33 @@ export const promptCommand = new Command("prompt")
   .description("مكتبة البرومبت — list/show/validate/render (بدون استدعاء LLM)");
 
 promptCommand
+  .command("seed")
+  .description("تعبئة المكتبة بالبرومبتات الافتراضية (idempotent)")
+  .option("--force-if-empty", "شغّل فقط إذا كانت المكتبة فارغة")
+  .option("--json", "JSON")
+  .action((opts: { forceIfEmpty?: boolean; json?: boolean }) => {
+    const result = opts.forceIfEmpty ? ensurePromptLibrary() : seedDefaultPrompts();
+    if (opts.json) {
+      out(JSON.stringify(result));
+      return;
+    }
+    if (result.added === 0) {
+      okLine(`لا جديد — المكتبة فيها ${listPrompts().length} prompts (تخطّي ${result.skipped})`);
+      return;
+    }
+    okLine(`أُضيف ${result.added} prompts (تخطّي ${result.skipped})`);
+    for (const t of result.titles) log(`  + ${t}`);
+    log(dim("التالي: washi prompt list"));
+  });
+
+promptCommand
   .command("list")
   .option("--json", "JSON")
   .option("--q <q>", "بحث نصي")
   .option("--category <c>", "global|subject|chapter|formatting")
   .option("--tag <t>", "وسم")
   .action((opts: { json?: boolean; q?: string; category?: string; tag?: string }) => {
+    ensurePromptLibrary();
     const prompts =
       opts.q || opts.category || opts.tag
         ? searchPrompts({
