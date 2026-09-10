@@ -186,3 +186,4 @@ detected» → «is detected».
 | 2026-09-10 | M1 | ختم كل artifact بـ sha256؛ كاشف التغيير انقلب؛ 79/79 تمر |
 | 2026-09-10 | M2 | عقود Zod لكل artifact؛ `suggestedConceptIds` يُطابق نص السؤال؛ 79/79 تمر |
 | 2026-09-10 | M3.2 | `renderQueue` تسلسلي في `render-pdf.ts` + اختبار عزل الثيمات المتزامنة؛ 3/3 جدد |
+| 2026-09-10 | M3.1 | `RenderEnv`/`RenderProvider` بدل الحالة العالمية؛ KD-2 اختبار محذوف مُصلَّح؛ **82/82** |
