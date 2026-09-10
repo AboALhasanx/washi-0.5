@@ -53,8 +53,9 @@ describe("unified prompt package", () => {
       ],
       sourceText: "src",
     });
-    assert.match(md, /أسئلة مراجعة\*\* — \*\*مطلوب/);
-    assert.match(md, /بطاقات المراجعة/);
+    assert.match(md, /## أسئلة مراجعة/);
+    assert.match(md, /\*\*مطلوب\*\*/);
+    assert.match(md, /## بطاقات المراجعة/);
     assert.doesNotMatch(md, /ignored body/);
     assert.match(md, /أمر الختام/);
   });
