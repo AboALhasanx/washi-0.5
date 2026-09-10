@@ -110,15 +110,18 @@ detected» → «is detected».
 
 ---
 
-## M3 — الحدود المعمارية · P1 · *جارية — M3.2 مكتملة، التالية M3.1*
+## M3 — الحدود المعمارية · P1 · *M3.1+M3.2 مكتملتان*
 
-> نقطة البداية: `lib/render-pdf.ts` — `applyStudioTheme(theme)` يُعدّل حالة
-> عالمية ويتبعه 3 `await` بدون قفل. **M3.2 أغلق التلاشي بـ `renderQueue`.**
+> **M3.2** أغلق التلاشي بـ `renderQueue`. **M3.1** أزال الحالة العالمية
+> (`RenderEnv` / `RenderProvider`).
+>
+> **قبل M3.3/M3.4:** audit صغير — هل يُزال الـqueue؟ `formula-svg.ts` لسه
+> عنده `let doc` module-level. لا تُفتح M3.3/M3.4 قبل هذا الـaudit.
 
 | حالة | المهمة | الملف |
 |------|--------|-------|
 | [x] | M3.2 `renderQueue` تسلسلي (إصلاح فوري للتلاشي) | `lib/render-pdf.ts` |
-| [ ] | M3.1 `RenderContext` بدل الحالة العالمية | `lib/takumi-renderer.tsx:36` |
+| [x] | M3.1 `RenderContext` بدل الحالة العالمية | `lib/takumi-renderer.tsx` |
 | [ ] | M3.3 تفكيك `project.ts` إلى 5 وحدات | `lib/project.ts` (616 سطر) |
 | [ ] | M3.4 `lib/index.ts` — canonical domain API | جديد |
 

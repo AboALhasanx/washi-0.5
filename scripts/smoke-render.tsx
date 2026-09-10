@@ -11,7 +11,13 @@ import path from "node:path";
 import React from "react";
 import { render, measure } from "takumi-pdf";
 import { parseMarkdown } from "../lib/markdown-parser";
-import { ChapterDoc, PageFooterBand, baseCss } from "../lib/takumi-renderer";
+import {
+  ChapterDoc,
+  PageFooterBand,
+  RenderProvider,
+  baseCss,
+  makeRenderEnv,
+} from "../lib/takumi-renderer";
 import { buildFormulaArt } from "../lib/formula-svg";
 
 async function loadFonts() {
@@ -50,11 +56,17 @@ async function main() {
   const fonts = await loadFonts();
   const fontFamilies = ["Noto Naskh Arabic", "Noto Sans Arabic", "Noto Sans", "JetBrains Mono"];
 
+  // DEFAULT_THEME env; arBodyMode from AST language.
+  const env = makeRenderEnv(undefined, ast.frontmatter.language);
+
   // Page geometry (A4 = 595×1123 px @96dpi): measure the footer band first,
   // reserve its margin exactly, and let the cover fill page 1 (see route.ts).
   const PAGE_H = 1123;
   const TOP = 56;
-  const footer = React.createElement(PageFooterBand, { ast });
+  const footer = React.createElement(RenderProvider, {
+    env,
+    children: React.createElement(PageFooterBand, { ast }),
+  });
   const band = await measure(footer, { size: "a4", fonts, fontFamilies, css: baseCss });
   const bottom = Math.max(48, Math.ceil(band.height) + 20);
   const coverHeight = PAGE_H - TOP - bottom - 3;
@@ -62,7 +74,14 @@ async function main() {
   const formulaArt = await buildFormulaArt(ast);
   console.log("formula SVGs:", formulaArt.images.length);
 
-  const element = React.createElement(ChapterDoc, { ast, coverHeight, formulaArt: formulaArt.map });
+  const element = React.createElement(RenderProvider, {
+    env,
+    children: React.createElement(ChapterDoc, {
+      ast,
+      coverHeight,
+      formulaArt: formulaArt.map,
+    }),
+  });
 
   const t0 = Date.now();
   const pdf = await render(element, {

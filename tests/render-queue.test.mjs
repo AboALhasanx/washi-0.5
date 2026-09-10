@@ -1,9 +1,9 @@
 /**
- * tests/render-queue.test.mjs — M3.2 acceptance.
+ * tests/render-queue.test.mjs — M3.2 acceptance (queue still relevant after M3.1).
  *
- * applyStudioTheme() mutates module-level renderer state. Without a serial
- * queue, two renderChapterPdf() calls in flight can leak themes into each
- * other. These tests pin the containment.
+ * M3.1 removed module-level theme state from the renderer. The queue remains
+ * as belt-and-suspenders; these tests pin concurrent isolation of the public
+ * renderChapterPdf() API.
  */
 
 import { test, describe } from "node:test";

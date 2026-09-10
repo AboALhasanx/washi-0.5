@@ -12,7 +12,13 @@ import fs from "node:fs";
 import path from "node:path";
 import React from "react";
 import { parseMarkdown } from "@/lib/markdown-parser";
-import { ChapterDoc, PageFooterBand, baseCss, applyStudioTheme } from "@/lib/takumi-renderer";
+import {
+  ChapterDoc,
+  PageFooterBand,
+  RenderProvider,
+  baseCss,
+  makeRenderEnv,
+} from "@/lib/takumi-renderer";
 import { buildFormulaArt } from "@/lib/formula-svg";
 import { StudioTheme, mergeTheme } from "@/lib/theme";
 import type { ChapterAST } from "@/lib/schemas";
@@ -46,9 +52,8 @@ export interface RenderChapterResult {
 export class RenderError extends Error {}
 
 /**
- * Process-local serial queue. applyStudioTheme() mutates module-level state in
- * takumi-renderer; concurrent renders would interleave and leak themes.
- * M3.1 removes that state; this queue is the containment until then.
+ * Process-local serial queue (M3.2). Renderer module state is gone (M3.1);
+ * the queue remains as belt-and-suspenders until a post-M3.1 audit removes it.
  */
 let renderChain: Promise<void> = Promise.resolve();
 
@@ -79,7 +84,7 @@ async function renderChapterPdfUnqueued(
   }
 
   const theme: StudioTheme = mergeTheme(themeInput);
-  applyStudioTheme(theme);
+  const env = makeRenderEnv(theme, ast.frontmatter.language);
 
   const PAGE_SIZES: Record<string, { w: number; h: number }> = {
     a4: { w: 595, h: 1123 },
@@ -88,7 +93,10 @@ async function renderChapterPdfUnqueued(
   const pageSize = PAGE_SIZES[theme.page.size] ?? PAGE_SIZES.a4;
   const TOP = theme.page.marginTop;
   const SIDE = theme.page.marginSide;
-  const footer = React.createElement(PageFooterBand, { ast });
+  const footer = React.createElement(RenderProvider, {
+    env,
+    children: React.createElement(PageFooterBand, { ast }),
+  });
   let bottom = 48;
   let coverHeight = 946;
   if (typeof measureFn === "function") {
@@ -104,7 +112,14 @@ async function renderChapterPdfUnqueued(
 
   const formulaArt = await buildFormulaArt(ast);
 
-  const element = React.createElement(ChapterDoc, { ast, coverHeight, formulaArt: formulaArt.map });
+  const element = React.createElement(RenderProvider, {
+    env,
+    children: React.createElement(ChapterDoc, {
+      ast,
+      coverHeight,
+      formulaArt: formulaArt.map,
+    }),
+  });
 
   const t0 = Date.now();
   const pdfBytes: Uint8Array = await renderFn(element, {

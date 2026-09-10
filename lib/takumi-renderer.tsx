@@ -20,6 +20,9 @@
  *   - section headings + first block glued (no orphan headings)
  *   - thead repeats on every page (takumi-pdf native)
  *   - header/footer/page numbers come from render options, not in-flow nodes
+ *
+ * Render environment (M3.1): theme/palette/fonts/arBodyMode are explicit
+ * per-render values threaded via React context — no module-level mutable state.
  */
 
 import React from "react";
@@ -27,27 +30,42 @@ import type { ChapterAST, AstNode } from "./schemas";
 import { norm } from "./formula-svg";
 
 // ---------------------------------------------------------------------------
-// Palette — Studio theme (lib/theme.ts). applyStudioTheme() swaps this before
-// each render, so themes are editable/savable/switchable (WordPress-style).
+// Render environment — one per render, threaded via context.
 // ---------------------------------------------------------------------------
 
 import { StudioTheme, DEFAULT_THEME, mergeTheme } from "./theme";
 
-let THEME: StudioTheme = DEFAULT_THEME;
+export type RenderEnv = {
+  theme: StudioTheme;
+  palette: StudioTheme["colors"] & StudioTheme["callouts"];
+  fontBody: string;
+  fontHead: string;
+  fontMono: string;
+  arBodyMode: boolean;
+};
 
-let palette = { ...DEFAULT_THEME.colors, ...DEFAULT_THEME.callouts } as any;
-let FONT_BODY = DEFAULT_THEME.fonts.body;
-let FONT_HEAD = DEFAULT_THEME.fonts.heading;
-let FONT_MONO = DEFAULT_THEME.fonts.mono;
+/** Builds an immutable render environment from an optional theme and language. */
+export function makeRenderEnv(themeInput?: unknown, language?: string): RenderEnv {
+  const theme = themeInput ? mergeTheme(themeInput) : DEFAULT_THEME;
+  return {
+    theme,
+    palette: { ...theme.colors, ...theme.callouts },
+    fontBody: theme.fonts.body,
+    fontHead: theme.fonts.heading,
+    fontMono: theme.fonts.mono,
+    arBodyMode: language === "ar",
+  };
+}
 
-/** Applies a Studio theme to every component in this module. Called once per
- *  render (route/smoke) — the element tree is built synchronously afterwards. */
-export function applyStudioTheme(theme?: StudioTheme | null) {
-  THEME = theme ? mergeTheme(theme) : DEFAULT_THEME;
-  palette = { ...THEME.colors, ...THEME.callouts };
-  FONT_BODY = THEME.fonts.body;
-  FONT_HEAD = THEME.fonts.heading;
-  FONT_MONO = THEME.fonts.mono;
+export const RenderCtx: React.Context<RenderEnv> = React.createContext<RenderEnv>(
+  makeRenderEnv(DEFAULT_THEME)
+);
+
+export function RenderProvider(props: {
+  env: RenderEnv;
+  children: React.ReactNode;
+}): JSX.Element {
+  return <RenderCtx.Provider value={props.env}>{props.children}</RenderCtx.Provider>;
 }
 
 const AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
@@ -60,8 +78,7 @@ const toArabicDigits = (n: number | string) =>
 /** Body-text digit unification: Arabic-Indic numerals inside Arabic prose.
  *  Skips digits glued to Latin words (HTML5, T9) and never applies to LTR
  *  islands (formulas, source lines, code) which keep Western digits. */
-let arBodyMode = false;
-const arabicize = (s: string): string =>
+const arabicize = (s: string, arBodyMode: boolean): string =>
   arBodyMode ? s.replace(/(?<![A-Za-z])\d+(?![A-Za-z])/g, (d) => toArabicDigits(d)) : s;
 
 /** Subject slug -> Arabic display name (small catalog, falls back to slug). */
@@ -76,22 +93,12 @@ const SUBJECT_AR: Record<string, string> = {
 // ---------------------------------------------------------------------------
 // KeepTogether glue (single-level avoid — nested avoid makes takumi split at
 // the outer boundary, re-creating the orphan-heading problem).
+// glueDepth is a per-call parameter, not module state.
 // ---------------------------------------------------------------------------
 
-let glueDepth = 0;
-
-function KT(children: React.ReactNode): React.ReactNode {
+function KT(children: React.ReactNode, glueDepth: number): React.ReactNode {
   if (glueDepth > 0) return <>{children}</>;
   return <div style={{ breakInside: "avoid" } as React.CSSProperties}>{children}</div>;
-}
-
-function glued(build: () => React.ReactNode): React.ReactNode {
-  glueDepth += 1;
-  try {
-    return build();
-  } finally {
-    glueDepth -= 1;
-  }
 }
 
 // ---------------------------------------------------------------------------
@@ -102,25 +109,28 @@ const Chip: React.FC<{ label: string; colors: [string, string]; size?: number }>
   label,
   colors,
   size = 10.5,
-}) => (
-  <span
-    style={{
-      display: "inline-block",
-      background: `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)`,
-      color: "#FFFFFF",
-      fontFamily: FONT_HEAD,
-      fontSize: size,
-      fontWeight: 700,
-      lineHeight: 1,
-      padding: "4px 11px",
-      borderRadius: 999,
-      letterSpacing: 0.2,
-      flexShrink: 0,
-    } as React.CSSProperties}
-  >
-    {label}
-  </span>
-);
+}) => {
+  const env = React.useContext(RenderCtx);
+  return (
+    <span
+      style={{
+        display: "inline-block",
+        background: `linear-gradient(135deg, ${colors[0]} 0%, ${colors[1]} 100%)`,
+        color: "#FFFFFF",
+        fontFamily: env.fontHead,
+        fontSize: size,
+        fontWeight: 700,
+        lineHeight: 1,
+        padding: "4px 11px",
+        borderRadius: 999,
+        letterSpacing: 0.2,
+        flexShrink: 0,
+      } as React.CSSProperties}
+    >
+      {label}
+    </span>
+  );
+};
 
 const cleanSource = (s?: string) =>
   s
@@ -140,36 +150,42 @@ const sourceLine = (n: { raw?: string; document?: string; pages?: number[] }) =>
   return cleaned ? `Source: ${cleaned}` : "";
 };
 
-const SourceNote: React.FC<{ text: string }> = ({ text }) => (
-  <div
-    style={{
-      fontSize: 10,
-      lineHeight: 1.6,
-      color: palette.muted,
-      fontFamily: FONT_MONO,
-      direction: "ltr",
-      textAlign: "right",
-      margin: "-2px 0 12px 0",
-    } as React.CSSProperties}
-  >
-    {text}
-  </div>
-);
+const SourceNote: React.FC<{ text: string }> = ({ text }) => {
+  const env = React.useContext(RenderCtx);
+  return (
+    <div
+      style={{
+        fontSize: 10,
+        lineHeight: 1.6,
+        color: env.palette.muted,
+        fontFamily: env.fontMono,
+        direction: "ltr",
+        textAlign: "right",
+        margin: "-2px 0 12px 0",
+      } as React.CSSProperties}
+    >
+      {text}
+    </div>
+  );
+};
 
-const Para: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <p
-    style={{
-      fontSize: THEME.fonts.bodySize,
-      lineHeight: THEME.fonts.lineHeight,
-      color: palette.ink,
-      margin: "0 0 10px 0",
-      textAlign: "start",
-      textAlignLast: "right",
-    } as React.CSSProperties}
-  >
-    {typeof children === "string" ? arabicize(children) : children}
-  </p>
-);
+const Para: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const env = React.useContext(RenderCtx);
+  return (
+    <p
+      style={{
+        fontSize: env.theme.fonts.bodySize,
+        lineHeight: env.theme.fonts.lineHeight,
+        color: env.palette.ink,
+        margin: "0 0 10px 0",
+        textAlign: "start",
+        textAlignLast: "right",
+      } as React.CSSProperties}
+    >
+      {typeof children === "string" ? arabicize(children, env.arBodyMode) : children}
+    </p>
+  );
+};
 
 // ---------------------------------------------------------------------------
 // Section heading — numbered gradient badge + title + gradient rule
@@ -180,6 +196,7 @@ const SectionHeading: React.FC<{ level: 2 | 3; num?: number; children: React.Rea
   num,
   children,
 }) => {
+  const env = React.useContext(RenderCtx);
   if (level === 2) {
     return (
       <div
@@ -196,9 +213,9 @@ const SectionHeading: React.FC<{ level: 2 | 3; num?: number; children: React.Rea
               width: 34,
               height: 34,
               borderRadius: 11,
-              background: `linear-gradient(135deg, ${palette.accent} 0%, ${palette.accentDeep} 100%)`,
+              background: `linear-gradient(135deg, ${env.palette.accent} 0%, ${env.palette.accentDeep} 100%)`,
               color: "#FFFFFF",
-              fontFamily: FONT_HEAD,
+              fontFamily: env.fontHead,
               fontSize: 16,
               fontWeight: 700,
               display: "flex",
@@ -212,11 +229,11 @@ const SectionHeading: React.FC<{ level: 2 | 3; num?: number; children: React.Rea
         )}
         <h2
           style={{
-            fontFamily: FONT_HEAD,
+            fontFamily: env.fontHead,
             fontSize: 20,
             fontWeight: 700,
             lineHeight: 1.5,
-            color: palette.ink,
+            color: env.palette.ink,
             margin: 0,
             flexShrink: 0,
           } as React.CSSProperties}
@@ -228,7 +245,7 @@ const SectionHeading: React.FC<{ level: 2 | 3; num?: number; children: React.Rea
             flex: 1,
             height: 3,
             borderRadius: 999,
-            background: `linear-gradient(-90deg, ${palette.accent} 0%, rgba(194,65,12,0.08) 100%)`,
+            background: `linear-gradient(-90deg, ${env.palette.accent} 0%, rgba(194,65,12,0.08) 100%)`,
             marginTop: 4,
           } as React.CSSProperties}
         />
@@ -242,18 +259,18 @@ const SectionHeading: React.FC<{ level: 2 | 3; num?: number; children: React.Rea
           width: 8,
           height: 8,
           borderRadius: 3,
-          background: `linear-gradient(135deg, ${palette.gold}, ${palette.accent})`,
+          background: `linear-gradient(135deg, ${env.palette.gold}, ${env.palette.accent})`,
           flexShrink: 0,
           transform: "rotate(45deg)",
         } as React.CSSProperties}
       />
       <h3
         style={{
-          fontFamily: FONT_HEAD,
+          fontFamily: env.fontHead,
           fontSize: 15.5,
           fontWeight: 700,
           lineHeight: 1.55,
-          color: palette.accentDeep,
+          color: env.palette.accentDeep,
           margin: 0,
         } as React.CSSProperties}
       >
@@ -265,47 +282,59 @@ const SectionHeading: React.FC<{ level: 2 | 3; num?: number; children: React.Rea
 
 // ---------------------------------------------------------------------------
 // DefinitionCard — gradient tint, chip, accent spine (RTL: right edge)
+// Plain-function builder: takes env + glueDepth; must not call hooks.
 // ---------------------------------------------------------------------------
 
-const DefinitionCard: React.FC<{ term: string; definition: string; source?: string }> = ({
+type CardEnvProps = {
+  env: RenderEnv;
+  glueDepth: number;
+};
+
+const DefinitionCard = ({
   term,
   definition,
   source,
-}) =>
+  env,
+  glueDepth,
+}: {
+  term: string;
+  definition: string;
+  source?: string;
+} & CardEnvProps): React.ReactNode =>
   KT(
     <div
       style={{
-        background: `linear-gradient(135deg, ${palette.accentSoft} 0%, #FFFBF7 70%)`,
+        background: `linear-gradient(135deg, ${env.palette.accentSoft} 0%, #FFFBF7 70%)`,
         border: "1px solid #FED7AA",
-        borderRight: `4px solid ${palette.accent}`,
+        borderRight: `4px solid ${env.palette.accent}`,
         borderRadius: 12,
         padding: "13px 16px",
         margin: "0 0 10px 0",
       } as React.CSSProperties}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 7 } as React.CSSProperties}>
-        <Chip label="تعريف" colors={[palette.accent, palette.accentDeep]} />
+        <Chip label="تعريف" colors={[env.palette.accent, env.palette.accentDeep]} />
         <span
           style={{
-            fontFamily: FONT_HEAD,
+            fontFamily: env.fontHead,
             fontSize: 14.5,
             fontWeight: 700,
-            color: palette.accentDeep,
+            color: env.palette.accentDeep,
           } as React.CSSProperties}
         >
           {term}
         </span>
       </div>
-      <div style={{ fontSize: 13, lineHeight: 2, color: palette.ink2 } as React.CSSProperties}>
-        {arabicize(definition)}
+      <div style={{ fontSize: 13, lineHeight: 2, color: env.palette.ink2 } as React.CSSProperties}>
+        {arabicize(definition, env.arBodyMode)}
       </div>
       {source && (
         <div
           style={{
             fontSize: 10,
-            color: palette.muted,
+            color: env.palette.muted,
             marginTop: 6,
-            fontFamily: FONT_MONO,
+            fontFamily: env.fontMono,
             direction: "ltr",
             textAlign: "right",
           } as React.CSSProperties}
@@ -313,7 +342,8 @@ const DefinitionCard: React.FC<{ term: string; definition: string; source?: stri
           {source}
         </div>
       )}
-    </div>
+    </div>,
+    glueDepth
   );
 
 // ---------------------------------------------------------------------------
@@ -328,15 +358,21 @@ const calloutLabel: Record<string, string> = {
   tip: "نصيحة",
 };
 
-const CalloutBox: React.FC<{ variant: string; content: string; source?: string }> = ({
+const CalloutBox = ({
   variant,
   content,
   source,
-}) => {
-  const v = palette[(variant || "note").toLowerCase() as keyof typeof palette] as
+  env,
+  glueDepth,
+}: {
+  variant: string;
+  content: string;
+  source?: string;
+} & CardEnvProps): React.ReactNode => {
+  const v = env.palette[(variant || "note").toLowerCase() as keyof typeof env.palette] as
     | { bg: string; border: string; text: string; chip: [string, string] }
     | undefined;
-  const c = v ?? palette.note;
+  const c = v ?? env.palette.note;
   const label = calloutLabel[(variant || "note").toLowerCase()] ?? variant.toUpperCase();
   const lines = content
     .split(/\n+/)
@@ -380,16 +416,16 @@ const CalloutBox: React.FC<{ variant: string; content: string; source?: string }
               } as React.CSSProperties}
             />
           )}
-          <span style={{ flex: 1 } as React.CSSProperties}>{arabicize(line)}</span>
+          <span style={{ flex: 1 } as React.CSSProperties}>{arabicize(line, env.arBodyMode)}</span>
         </div>
       ))}
       {source && (
         <div
           style={{
             fontSize: 10,
-            color: palette.muted,
+            color: env.palette.muted,
             marginTop: 7,
-            fontFamily: FONT_MONO,
+            fontFamily: env.fontMono,
             direction: "ltr",
             textAlign: "right",
           } as React.CSSProperties}
@@ -397,7 +433,8 @@ const CalloutBox: React.FC<{ variant: string; content: string; source?: string }
           {source}
         </div>
       )}
-    </div>
+    </div>,
+    glueDepth
   );
 };
 
@@ -407,11 +444,17 @@ const CalloutBox: React.FC<{ variant: string; content: string; source?: string }
 
 const isPct = (s: string) => /^\s*\d+(\.\d+)?\s*%\s*$/.test(s);
 
-const StatBars: React.FC<{ headers: string[]; rows: string[][]; source?: string }> = ({
+const StatBars = ({
   headers,
   rows,
   source,
-}) => {
+  env,
+  glueDepth,
+}: {
+  headers: string[];
+  rows: string[][];
+  source?: string;
+} & CardEnvProps): React.ReactNode => {
   // find the column holding the percentages (first column with any % cell)
   let pctCol = -1;
   for (let c = 0; c < headers.length; c++) {
@@ -447,15 +490,15 @@ const StatBars: React.FC<{ headers: string[]; rows: string[][]; source?: string 
                 style={{
                   fontSize: 13,
                   fontWeight: 700,
-                  fontFamily: FONT_HEAD,
-                  color: palette.ink,
+                  fontFamily: env.fontHead,
+                  color: env.palette.ink,
                   lineHeight: 1.6,
                 } as React.CSSProperties}
               >
                 {label}
               </div>
               {note && (
-                <div style={{ fontSize: 10.5, color: palette.muted, lineHeight: 1.6 } as React.CSSProperties}>
+                <div style={{ fontSize: 10.5, color: env.palette.muted, lineHeight: 1.6 } as React.CSSProperties}>
                   {note}
                 </div>
               )}
@@ -474,7 +517,7 @@ const StatBars: React.FC<{ headers: string[]; rows: string[][]; source?: string 
                   width: `${widthPct}%`,
                   height: 20,
                   borderRadius: 999,
-                  background: `linear-gradient(-90deg, ${palette.gold} 0%, ${palette.accent} 55%, ${palette.accentDeep} 100%)`,
+                  background: `linear-gradient(-90deg, ${env.palette.gold} 0%, ${env.palette.accent} 55%, ${env.palette.accentDeep} 100%)`,
                 } as React.CSSProperties}
               />
             </div>
@@ -482,10 +525,10 @@ const StatBars: React.FC<{ headers: string[]; rows: string[][]; source?: string 
               style={{
                 width: 44,
                 textAlign: "center",
-                fontFamily: FONT_HEAD,
+                fontFamily: env.fontHead,
                 fontSize: 14,
                 fontWeight: 700,
-                color: palette.accentDeep,
+                color: env.palette.accentDeep,
                 flexShrink: 0,
               } as React.CSSProperties}
             >
@@ -503,12 +546,19 @@ const StatBars: React.FC<{ headers: string[]; rows: string[][]; source?: string 
 // ComparisonTable — dark gradient head, zebra body, RTL aware
 // ---------------------------------------------------------------------------
 
-const ComparisonTable: React.FC<{
+const ComparisonTable = ({
+  headers,
+  rows,
+  caption,
+  source,
+  env,
+  glueDepth,
+}: {
   headers: string[];
   rows: string[][];
   caption?: string;
   source?: string;
-}> = ({ headers, rows, caption, source }) => (
+} & CardEnvProps): React.ReactNode =>
   KT(
     <>
       <table
@@ -526,9 +576,9 @@ const ComparisonTable: React.FC<{
               <th
                 key={i}
                 style={{
-                  background: `linear-gradient(135deg, ${palette.ink} 0%, #44403C 100%)`,
+                  background: `linear-gradient(135deg, ${env.palette.ink} 0%, #44403C 100%)`,
                   color: "#FFFBF5",
-                  fontFamily: FONT_HEAD,
+                  fontFamily: env.fontHead,
                   fontWeight: 700,
                   fontSize: 12.5,
                   textAlign: "start",
@@ -549,7 +599,7 @@ const ComparisonTable: React.FC<{
                 <td
                   key={ci}
                   style={{
-                    color: ci === 0 ? palette.ink : palette.ink2,
+                    color: ci === 0 ? env.palette.ink : env.palette.ink2,
                     fontWeight: ci === 0 ? 700 : 400,
                     textAlign: "start",
                     padding: "9px 13px",
@@ -558,7 +608,7 @@ const ComparisonTable: React.FC<{
                   lineHeight: 1.85,
                 } as React.CSSProperties}
               >
-                {arabicize(cell)}
+                {arabicize(cell, env.arBodyMode)}
               </td>
               ))}
             </tr>
@@ -566,14 +616,14 @@ const ComparisonTable: React.FC<{
         </tbody>
       </table>
       {caption && (
-        <div style={{ fontSize: 11, color: palette.muted, marginBottom: 8 } as React.CSSProperties}>
+        <div style={{ fontSize: 11, color: env.palette.muted, marginBottom: 8 } as React.CSSProperties}>
           {caption}
         </div>
       )}
       {source && <SourceNote text={source} />}
-    </>
-  )
-);
+    </>,
+    glueDepth
+  );
 
 // ---------------------------------------------------------------------------
 // FormulaCard — cool-tinted math card with chip
@@ -627,12 +677,19 @@ function latexToSpans(latex: string): React.ReactNode[] {
  *  Formulas absent from the map fall back to the LaTeX-lite text card. */
 export type FormulaArtMap = Map<string, { src: string; width: number; height: number }>;
 
-const FormulaCard: React.FC<{
+const FormulaCard = ({
+  latex,
+  caption,
+  source,
+  art,
+  env,
+  glueDepth,
+}: {
   latex: string;
   caption?: string;
   source?: string;
   art?: { src: string; width: number; height: number };
-}> = ({ latex, caption, source, art }) =>
+} & CardEnvProps): React.ReactNode =>
   KT(
     <div style={{ margin: "0 0 10px 0" } as React.CSSProperties}>
     <div
@@ -668,10 +725,10 @@ const FormulaCard: React.FC<{
       ) : (
         <div
           style={{
-            fontFamily: FONT_MONO,
+            fontFamily: env.fontMono,
             fontSize: 13.5,
             lineHeight: 1.9,
-            color: palette.ink,
+            color: env.palette.ink,
             direction: "ltr",
             textAlign: "center",
             whiteSpace: "pre-wrap",
@@ -685,7 +742,7 @@ const FormulaCard: React.FC<{
           style={{
             fontSize: 12.5,
             lineHeight: 1.95,
-            color: palette.ink2,
+            color: env.palette.ink2,
             marginTop: 10,
             paddingTop: 9,
             borderTop: "1px dashed #E2E8F0",
@@ -698,25 +755,32 @@ const FormulaCard: React.FC<{
       {source && (
         <SourceNote text={source} />
       )}
-    </div>
+    </div>,
+    glueDepth
   );
 
 // ---------------------------------------------------------------------------
 // CodeCard — dark editor card
 // ---------------------------------------------------------------------------
 
-const CodeCard: React.FC<{ code: string; language?: string; source?: string }> = ({
+const CodeCard = ({
   code,
   language,
   source,
-}) =>
+  env,
+  glueDepth,
+}: {
+  code: string;
+  language?: string;
+  source?: string;
+} & CardEnvProps): React.ReactNode =>
   KT(
     <div
       style={{
         // Light editor card — same card family as FormulaCard (no black boxes)
-        background: palette.surface,
+        background: env.palette.surface,
         border: "1px solid #E2E8F0",
-        borderRight: `4px solid ${palette.accent}`,
+        borderRight: `4px solid ${env.palette.accent}`,
         borderRadius: 12,
         padding: "13px 17px",
         margin: "0 0 10px 0",
@@ -726,12 +790,12 @@ const CodeCard: React.FC<{ code: string; language?: string; source?: string }> =
         <div style={{ marginBottom: 8 } as React.CSSProperties}>
           <span
             style={{
-              fontFamily: FONT_MONO,
+              fontFamily: env.fontMono,
               fontSize: 10,
               fontWeight: 700,
-              color: palette.accentDeep,
-              background: palette.accentSoft,
-              border: `1px solid ${palette.accent}55`,
+              color: env.palette.accentDeep,
+              background: env.palette.accentSoft,
+              border: `1px solid ${env.palette.accent}55`,
               borderRadius: 6,
               padding: "2px 9px",
               direction: "ltr",
@@ -743,10 +807,10 @@ const CodeCard: React.FC<{ code: string; language?: string; source?: string }> =
       )}
       <div
         style={{
-          fontFamily: FONT_MONO,
+          fontFamily: env.fontMono,
           fontSize: 11.5,
           lineHeight: 1.75,
-          color: palette.ink,
+          color: env.palette.ink,
           direction: "ltr",
           textAlign: "left",
           whiteSpace: "pre-wrap",
@@ -756,12 +820,13 @@ const CodeCard: React.FC<{ code: string; language?: string; source?: string }> =
       </div>
       {source && (
         <div
-          style={{ fontSize: 10, color: palette.muted, marginTop: 6, direction: "ltr", textAlign: "left" } as React.CSSProperties}
+          style={{ fontSize: 10, color: env.palette.muted, marginTop: 6, direction: "ltr", textAlign: "left" } as React.CSSProperties}
         >
           {source}
         </div>
       )}
-    </div>
+    </div>,
+    glueDepth
   );
 
 // ---------------------------------------------------------------------------
@@ -772,99 +837,107 @@ const ListBlock: React.FC<{ items: string[]; ordered?: boolean; variant?: "plain
   items,
   ordered,
   variant = "plain",
-}) => (
-  <div style={{ margin: "2px 0 12px 0" } as React.CSSProperties}>
-    {items.map((item, i) => {
-      const num = toArabicDigits(i + 1);
-      const chip =
-        variant === "review" ? (
-          <span
+}) => {
+  const env = React.useContext(RenderCtx);
+  return (
+    <div style={{ margin: "2px 0 12px 0" } as React.CSSProperties}>
+      {items.map((item, i) => {
+        const num = toArabicDigits(i + 1);
+        const chip =
+          variant === "review" ? (
+            <span
+              style={{
+                minWidth: 26,
+                height: 26,
+                borderRadius: 9,
+                border: `1.5px solid ${env.palette.accent}`,
+                background: env.palette.accentSoft,
+                color: env.palette.accentDeep,
+                fontFamily: env.fontHead,
+                fontWeight: 700,
+                fontSize: 12,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                marginTop: 3,
+                padding: "0 4px",
+              } as React.CSSProperties}
+            >
+              {num}
+            </span>
+          ) : ordered ? (
+            <span
+              style={{
+                minWidth: 22,
+                height: 22,
+                borderRadius: 999,
+                background: `linear-gradient(135deg, ${env.palette.accent}, ${env.palette.accentDeep})`,
+                color: "#FFFFFF",
+                fontFamily: env.fontHead,
+                fontWeight: 700,
+                fontSize: 10.5,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                marginTop: 4,
+                padding: "0 4px",
+              } as React.CSSProperties}
+            >
+              {num}
+            </span>
+          ) : (
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: 2,
+                background: `linear-gradient(135deg, ${env.palette.gold}, ${env.palette.accent})`,
+                transform: "rotate(45deg)",
+                flexShrink: 0,
+                marginTop: 12,
+              } as React.CSSProperties}
+            />
+          );
+        return (
+          <div
+            key={i}
             style={{
-              minWidth: 26,
-              height: 26,
-              borderRadius: 9,
-              border: `1.5px solid ${palette.accent}`,
-              background: palette.accentSoft,
-              color: palette.accentDeep,
-              fontFamily: FONT_HEAD,
-              fontWeight: 700,
-              fontSize: 12,
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              marginTop: 3,
-              padding: "0 4px",
+              gap: 11,
+              marginBottom: 9,
+              fontSize: 13.5,
+              lineHeight: 2,
+              color: env.palette.ink,
+              breakInside: "avoid",
             } as React.CSSProperties}
           >
-            {num}
-          </span>
-        ) : ordered ? (
-          <span
-            style={{
-              minWidth: 22,
-              height: 22,
-              borderRadius: 999,
-              background: `linear-gradient(135deg, ${palette.accent}, ${palette.accentDeep})`,
-              color: "#FFFFFF",
-              fontFamily: FONT_HEAD,
-              fontWeight: 700,
-              fontSize: 10.5,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              marginTop: 4,
-              padding: "0 4px",
-            } as React.CSSProperties}
-          >
-            {num}
-          </span>
-        ) : (
-          <span
-            style={{
-              width: 7,
-              height: 7,
-              borderRadius: 2,
-              background: `linear-gradient(135deg, ${palette.gold}, ${palette.accent})`,
-              transform: "rotate(45deg)",
-              flexShrink: 0,
-              marginTop: 12,
-            } as React.CSSProperties}
-          />
+            {chip}
+            <span style={{ flex: 1 } as React.CSSProperties}>{arabicize(item, env.arBodyMode)}</span>
+          </div>
         );
-      return (
-        <div
-          key={i}
-          style={{
-            display: "flex",
-            gap: 11,
-            marginBottom: 9,
-            fontSize: 13.5,
-            lineHeight: 2,
-            color: palette.ink,
-            breakInside: "avoid",
-          } as React.CSSProperties}
-        >
-          {chip}
-          <span style={{ flex: 1 } as React.CSSProperties}>{arabicize(item)}</span>
-        </div>
-      );
-    })}
-  </div>
-);
+      })}
+    </div>
+  );
+};
 
 // ---------------------------------------------------------------------------
 // Node dispatch (composition table: AST type -> component)
+// Plain function (not JSX): takes env + glueDepth; must not call hooks.
 // ---------------------------------------------------------------------------
 
 function RenderNode({
   node,
   formulaArt,
+  env,
+  glueDepth,
 }: {
   node: AstNode;
   formulaArt?: FormulaArtMap;
-}) {
+  env: RenderEnv;
+  glueDepth: number;
+}): React.ReactNode {
   const n = node as any;
   switch (n.type) {
     case "heading":
@@ -875,30 +948,57 @@ function RenderNode({
       );
     case "paragraph":
       return <Para>{n.text}</Para>;
-    // KT-bearing components are invoked as plain functions so they build
-    // eagerly while the section glue window is open (see glueDepth above).
+    // KT-bearing builders are invoked as plain functions (with explicit env +
+    // glueDepth) so they must not call hooks.
     case "definition":
-      return DefinitionCard({ term: n.term, definition: n.definition, source: n.source });
+      return DefinitionCard({
+        term: n.term,
+        definition: n.definition,
+        source: n.source,
+        env,
+        glueDepth,
+      });
     case "callout":
-      return CalloutBox({ variant: n.variant, content: n.content, source: n.source });
+      return CalloutBox({
+        variant: n.variant,
+        content: n.content,
+        source: n.source,
+        env,
+        glueDepth,
+      });
     case "formula": {
       const art = formulaArt?.get(norm(n.latex ?? ""));
-      return FormulaCard({ latex: n.latex, caption: n.caption, source: n.source, art });
+      return FormulaCard({
+        latex: n.latex,
+        caption: n.caption,
+        source: n.source,
+        art,
+        env,
+        glueDepth,
+      });
     }
     case "table": {
       const hasPct = n.rows?.some((r: string[]) => r.some((c: string) => isPct(c ?? "")));
       if (hasPct) {
-        return StatBars({ headers: n.headers, rows: n.rows, source: n.source });
+        return StatBars({ headers: n.headers, rows: n.rows, source: n.source, env, glueDepth });
       }
       return ComparisonTable({
         headers: n.headers,
         rows: n.rows,
         caption: n.caption,
         source: n.source,
+        env,
+        glueDepth,
       });
     }
     case "code":
-      return CodeCard({ code: n.code, language: n.language, source: n.source });
+      return CodeCard({
+        code: n.code,
+        language: n.language,
+        source: n.source,
+        env,
+        glueDepth,
+      });
     case "list":
       return <ListBlock items={n.items} ordered={n.ordered} />;
     case "source": {
@@ -910,18 +1010,19 @@ function RenderNode({
       return KT(
         <div
           style={{
-            border: `1.5px dashed ${palette.hairline}`,
+            border: `1.5px dashed ${env.palette.hairline}`,
             borderRadius: 12,
             padding: 16,
             margin: "0 0 10px 0",
             fontSize: 12,
-            color: palette.muted,
+            color: env.palette.muted,
             textAlign: "center",
             background: "#FDFCFA",
           } as React.CSSProperties}
         >
           {n.caption || "شكل غير متاح في هذه النسخة"}
-        </div>
+        </div>,
+        glueDepth
       );
     default:
       return null;
@@ -968,6 +1069,7 @@ function CoverSection({
   sectionsCount: number;
   height?: number;
 }) {
+  const env = React.useContext(RenderCtx);
   const { frontmatter } = ast;
   const pages = frontmatter.sources[0]?.pages ?? [];
   const pagesLabel = pages.length
@@ -984,10 +1086,10 @@ function CoverSection({
   ]
     .filter(Boolean)
     .join(" · ");
-  const brand = THEME.cover.brand;
-  const badge = THEME.cover.badge;
+  const brand = env.theme.cover.brand;
+  const badge = env.theme.cover.badge;
   const lede =
-    THEME.cover.lede?.trim() ||
+    env.theme.cover.lede?.trim() ||
     `ملخص مركّز بالعربية للفصل «${frontmatter.title}» مع الحفاظ على المصطلحات الأصلية — جاهز للمراجعة والطباعة.`;
 
   return (
@@ -1017,7 +1119,7 @@ function CoverSection({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" } as React.CSSProperties}>
           <div
             style={{
-              fontFamily: FONT_HEAD,
+              fontFamily: env.fontHead,
               fontSize: 15,
               fontWeight: 700,
               color: "#FFFFFF",
@@ -1031,7 +1133,7 @@ function CoverSection({
                 width: 10,
                 height: 10,
                 borderRadius: 3,
-                background: `linear-gradient(135deg, #FDE68A, ${palette.gold})`,
+                background: `linear-gradient(135deg, #FDE68A, ${env.palette.gold})`,
                 transform: "rotate(45deg)",
               } as React.CSSProperties}
             />
@@ -1042,7 +1144,7 @@ function CoverSection({
               background: "rgba(255,255,255,0.12)",
               border: "1px solid rgba(255,255,255,0.28)",
               color: "#FFFFFF",
-              fontFamily: FONT_HEAD,
+              fontFamily: env.fontHead,
               fontSize: 11,
               fontWeight: 700,
               padding: "6px 14px",
@@ -1061,7 +1163,7 @@ function CoverSection({
               background: "rgba(253,230,138,0.16)",
               border: "1px solid rgba(253,230,138,0.4)",
               color: "#FDE68A",
-              fontFamily: FONT_HEAD,
+              fontFamily: env.fontHead,
               fontSize: 12.5,
               fontWeight: 700,
               padding: "5px 14px",
@@ -1073,7 +1175,7 @@ function CoverSection({
           </span>
           <h1
             style={{
-              fontFamily: FONT_HEAD,
+              fontFamily: env.fontHead,
               fontSize: 46,
               fontWeight: 700,
               color: "#FFFFFF",
@@ -1085,7 +1187,7 @@ function CoverSection({
           </h1>
           <div
             style={{
-              fontFamily: FONT_MONO,
+              fontFamily: env.fontMono,
               fontSize: 12.5,
               color: "rgba(255,255,255,0.62)",
               direction: "ltr",
@@ -1101,7 +1203,7 @@ function CoverSection({
               width: 74,
               height: 5,
               borderRadius: 999,
-              background: `linear-gradient(90deg, #FDE68A, ${palette.gold})`,
+              background: `linear-gradient(90deg, #FDE68A, ${env.palette.gold})`,
               marginBottom: 22,
             } as React.CSSProperties}
           />
@@ -1137,7 +1239,7 @@ function CoverSection({
               >
                 <div
                   style={{
-                    fontFamily: FONT_HEAD,
+                    fontFamily: env.fontHead,
                     fontSize: 10.5,
                     color: "rgba(255,255,255,0.6)",
                     marginBottom: 4,
@@ -1147,7 +1249,7 @@ function CoverSection({
                 </div>
                 <div
                   style={{
-                    fontFamily: FONT_HEAD,
+                    fontFamily: env.fontHead,
                     fontSize: 12,
                     fontWeight: 700,
                     color: "#FFFFFF",
@@ -1165,13 +1267,13 @@ function CoverSection({
             style={{
               display: "flex",
               justifyContent: "space-between",
-              fontFamily: FONT_MONO,
+              fontFamily: env.fontMono,
               fontSize: 10.5,
               color: "rgba(255,255,255,0.5)",
               direction: "ltr",
             } as React.CSSProperties}
           >
-            <span>{THEME.cover.brand} · takumi-pdf engine</span>
+            <span>{env.theme.cover.brand} · takumi-pdf engine</span>
             <span>generated {new Date().toISOString().slice(0, 10)}</span>
           </div>
         </div>
@@ -1193,22 +1295,21 @@ export function ChapterDoc({
   coverHeight?: number;
   formulaArt?: FormulaArtMap;
 }) {
+  const env = React.useContext(RenderCtx);
   const { frontmatter, sections } = ast;
   const isAr = frontmatter.language === "ar";
-  // set once per render (synchronous plain-function tree build — see glueDepth)
-  arBodyMode = isAr;
 
   return (
     <div
       style={{
-        fontFamily: FONT_BODY,
-        color: palette.ink,
-        background: palette.paper,
+        fontFamily: env.fontBody,
+        color: env.palette.ink,
+        background: env.palette.paper,
         direction: (isAr ? "rtl" : "ltr") as "rtl" | "ltr",
-        fontSize: THEME.fonts.bodySize,
+        fontSize: env.theme.fonts.bodySize,
       } as React.CSSProperties}
     >
-      {THEME.cover.enabled && (
+      {env.theme.cover.enabled && (
         <CoverSection ast={ast} sectionsCount={sections.length} height={coverHeight} />
       )}
 
@@ -1227,7 +1328,9 @@ export function ChapterDoc({
  *  the outer boundary, re-creating orphans):
  *    - section h2 + first block + its sources  (no orphan section heading)
  *    - h3 + its first following block + sources (no orphan subsection)
- *    - every block + its trailing source nodes  (no stranded Source line) */
+ *    - every block + its trailing source nodes  (no stranded Source line)
+ *  SectionBody opens the glue window by passing glueDepth=1 to RenderNode /
+ *  plain builders so nested KT() stays bare. */
 function SectionBody({
   sec,
   num,
@@ -1237,6 +1340,7 @@ function SectionBody({
   num: number;
   formulaArt?: FormulaArtMap;
 }) {
+  const env = React.useContext(RenderCtx);
   // The parser re-emits the section's h2 as a node inside nodes[] — drop
   // those duplicates so glue binds the real first block.
   const nodes = (sec.nodes as any[]).filter(
@@ -1264,16 +1368,19 @@ function SectionBody({
   const sourceSpans = (sources: any[]) =>
     sources.map((s, k) => <SourceNote key={k} text={sourceLine(s)} />);
 
-  // Builds the avoid-wrapper with children constructed EAGERLY while the
-  // glue window is open, so nested KT() blocks render bare.
-  const renderGlued = (build: () => React.ReactNode, sources: any[], key: React.Key) => (
+  // Builds the avoid-wrapper. Children are created eagerly so the outer div
+  // owns the page-break; nested KT is bare via glueDepth=1.
+  const renderGlued = (children: React.ReactNode, sources: any[], key: React.Key) => (
     <div key={key} style={{ breakInside: "avoid" } as React.CSSProperties}>
-      {glued(build)}
+      {children}
       {sourceSpans(sources)}
     </div>
   );
 
   const isReview = sec.name === "review";
+  const GLUE = 1;
+  const renderNode = (node: any) =>
+    RenderNode({ node, formulaArt, env, glueDepth: GLUE });
 
   const parts: React.ReactNode[] = [];
   const headingEl = <SectionHeading level={2} num={num}>{sec.heading}</SectionHeading>;
@@ -1283,12 +1390,10 @@ function SectionBody({
   if (first && first.node && first.node.type !== "heading") {
     parts.push(
       renderGlued(
-        () => (
-          <>
-            {headingEl}
-            {RenderNode({ node: first.node, formulaArt })}
-          </>
-        ),
+        <>
+          {headingEl}
+          {renderNode(first.node)}
+        </>,
         first.sources,
         "lead"
       )
@@ -1307,12 +1412,10 @@ function SectionBody({
       if (next && next.node && next.node.type !== "heading") {
         parts.push(
           renderGlued(
-            () => (
-              <>
-                {RenderNode({ node, formulaArt })}
-                {RenderNode({ node: next.node, formulaArt })}
-              </>
-            ),
+            <>
+              {renderNode(node)}
+              {renderNode(next.node)}
+            </>,
             next.sources,
             b
           )
@@ -1325,7 +1428,7 @@ function SectionBody({
     if (node && node.type === "list" && isReview) {
       parts.push(
         renderGlued(
-          () => <ListBlock items={(node as any).items} ordered={(node as any).ordered} variant="review" />,
+          <ListBlock items={(node as any).items} ordered={(node as any).ordered} variant="review" />,
           blk.sources,
           b
         )
@@ -1336,7 +1439,7 @@ function SectionBody({
     if (!node) {
       parts.push(<React.Fragment key={b}>{sourceSpans(blk.sources)}</React.Fragment>);
     } else {
-      parts.push(renderGlued(() => RenderNode({ node, formulaArt }), blk.sources, b));
+      parts.push(renderGlued(renderNode(node), blk.sources, b));
     }
     b += 1;
   }
@@ -1345,6 +1448,7 @@ function SectionBody({
 
 /** Repeating band for the top of every page (passed via render options). */
 export function PageHeaderBand({ ast }: { ast: ChapterAST }) {
+  const env = React.useContext(RenderCtx);
   return (
     <div
       style={{
@@ -1352,9 +1456,9 @@ export function PageHeaderBand({ ast }: { ast: ChapterAST }) {
         justifyContent: "space-between",
         alignItems: "center",
         width: "100%",
-        fontFamily: FONT_HEAD,
+        fontFamily: env.fontHead,
         fontSize: 10,
-        color: palette.ink2,
+        color: env.palette.ink2,
         borderBottom: "1px solid #EEECE8",
         paddingBottom: 7,
         direction: "rtl",
@@ -1366,15 +1470,15 @@ export function PageHeaderBand({ ast }: { ast: ChapterAST }) {
             width: 7,
             height: 7,
             borderRadius: 2,
-            background: `linear-gradient(135deg, ${palette.gold}, ${palette.accent})`,
+            background: `linear-gradient(135deg, ${env.palette.gold}, ${env.palette.accent})`,
             transform: "rotate(45deg)",
           } as React.CSSProperties}
         />
-        <span style={{ fontWeight: 700, color: palette.ink } as React.CSSProperties}>
+        <span style={{ fontWeight: 700, color: env.palette.ink } as React.CSSProperties}>
           {ast.frontmatter.title}
         </span>
       </span>
-      <span style={{ fontFamily: FONT_MONO, fontSize: 9.5, color: palette.muted } as React.CSSProperties}>
+      <span style={{ fontFamily: env.fontMono, fontSize: 9.5, color: env.palette.muted } as React.CSSProperties}>
         {SUBJECT_AR[ast.frontmatter.subject] ?? ast.frontmatter.subject}
       </span>
     </div>
@@ -1391,6 +1495,7 @@ export interface PageFooterBandProps {
  * the counter text; the `arabic-indic` counter-style class formats it ١٢٣.
  */
 export function PageFooterBand({ ast }: PageFooterBandProps) {
+  const env = React.useContext(RenderCtx);
   return (
     <div
       style={{
@@ -1398,9 +1503,9 @@ export function PageFooterBand({ ast }: PageFooterBandProps) {
         justifyContent: "space-between",
         alignItems: "center",
         width: "100%",
-        fontFamily: FONT_HEAD,
+        fontFamily: env.fontHead,
         fontSize: 10,
-        color: palette.muted,
+        color: env.palette.muted,
         borderTop: "1px solid #EEECE8",
         paddingTop: 7,
         direction: "rtl",
@@ -1409,17 +1514,17 @@ export function PageFooterBand({ ast }: PageFooterBandProps) {
       <span style={{ display: "flex", alignItems: "center", gap: 7 } as React.CSSProperties}>
         <span
           style={{
-            fontFamily: FONT_HEAD,
+            fontFamily: env.fontHead,
             fontWeight: 700,
             fontSize: 11,
-            color: palette.accent,
+            color: env.palette.accent,
           } as React.CSSProperties}
         >
-          {THEME.footer.brand}
+          {env.theme.footer.brand}
         </span>
-        {THEME.footer.tagline && <span>{THEME.footer.tagline}</span>}
+        {env.theme.footer.tagline && <span>{env.theme.footer.tagline}</span>}
       </span>
-      {THEME.footer.showPageNumbers ? (
+      {env.theme.footer.showPageNumbers ? (
         <span>
           صفحة <span className="pageNumber arabic-indic">٠</span> من{" "}
           <span className="totalPages arabic-indic">٠</span>

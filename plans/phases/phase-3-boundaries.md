@@ -1,6 +1,6 @@
 # المرحلة 3 — الحدود المعمارية (Boundaries)
 
-**الأولوية:** P1 · **الحالة:** جارية (M3.2 مكتملة) · **يعتمد على:** M0, M2
+**الأولوية:** P1 · **الحالة:** جارية (M3.2 + M3.1 مكتملتان) · **يعتمد على:** M0, M2
 
 ---
 
@@ -44,12 +44,13 @@ publication، hashing، assets، trace، preview، toolchain.
 - ~15 سطرًا، يغلق الثغرة فورًا بينما يُجهَّز M3.1.
 - **القبول:** اختبار آلي: رندرتان متزامنتان بثيمين → خرجان صحيحان.
 
-### M3.1 — `RenderContext` بدل الحالة العالمية
-- تمرير `{theme, fonts, arBodyMode, ...}` عبر props / React context
-  بدل المتغيرات على مستوى الوحدة.
-- الهدف: **صفر `let` على مستوى الوحدة** في `lib/takumi-renderer.tsx`.
-- ⚠️ يلامس 1444 سطرًا — **بالتدريج**، وبعد M0.4 (golden tests).
-- **القبول:** لا حالة عالمية؛ الاختبارات المتزامنة تمر بلا طابور.
+### M3.1 — `RenderContext` بدل الحالة العالمية *(مكتملة)*
+- ~~تمرير `{theme, fonts, arBodyMode, ...}` عبر props / React context~~
+  نُفِّذ: `RenderEnv` + `RenderProvider` + `makeRenderEnv`؛ المكوّنات الحقيقية
+  تقرأ عبر `useContext(RenderCtx)`، والـ builders تأخذ `env`/`glueDepth` كوسائط.
+- **صفر `let` على مستوى الوحدة** في `lib/takumi-renderer.tsx` ✅
+- `applyStudioTheme` محذوفة ✅
+- ⚠️ كان يلامس 1444 سطرًا — نُفِّذ مع الحفاظ على كل أنماط العرض.
 
 ### M3.3 — تفكيك `project.ts`
 - `lib/project-store.ts` — CRUD + filesystem
@@ -72,7 +73,7 @@ publication، hashing، assets، trace، preview، toolchain.
 - [x] رندرتان متزامنتان بثيمين مختلفين → خرجان صحيحان (اختبار آلي) — M3.2
 - [ ] `project.ts` < 150 سطرًا
 - [ ] الواجهات الثلاث تستدعي نفس الدوال من `lib/index.ts`
-- [ ] صفر `let` على مستوى الوحدة في الرندرر (بعد M3.1)
+- [x] صفر `let` على مستوى الوحدة في الرندرر — M3.1
 
 ## المخاطر
 

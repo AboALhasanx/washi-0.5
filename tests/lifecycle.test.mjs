@@ -256,7 +256,13 @@ describe("verify", () => {
     await publishProject(meta.id);
     const file = path.join(pubDir(meta.id, 1), "document.ast");
     const original = fs.readFileSync(file, "utf8");
-    fs.rmSync(file);
+    // KD-2: win32 fs.rmSync silently no-ops on non-ASCII paths. Rename to an
+    // ASCII tombstone first (same pattern as deleteProject), then remove.
+    const tomb = path.join("output", `.rm-${Date.now().toString(36)}.bin`);
+    fs.mkdirSync(path.dirname(tomb), { recursive: true });
+    fs.renameSync(file, tomb);
+    fs.rmSync(tomb, { force: true });
+    assert.ok(!fs.existsSync(file), "document.ast must be gone before verify");
     try {
       const res = verifyPublication(meta.id, 1);
       assert.equal(res.status, "mismatch");

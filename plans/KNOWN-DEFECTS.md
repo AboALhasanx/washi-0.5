@@ -26,6 +26,7 @@ Tracked so “pre-existing” does not hide real bugs. Update when fixed; delete
 | **Related** | `deleteProject` already works around this with rename-to-ASCII-tombstone + `cmd /c rmdir` (`lib/project.ts`). |
 | **Fix direction** | In the test, delete via rename to a temp ASCII path then `rmSync`, or use an ASCII-only project title for this case. Do **not** weaken verify. |
 | **Priority** | P1 — false confidence that M1 “deleted artifact” detection is broken. |
+| **Status** | **FIXED** (M3.1 branch) — test now renames to an ASCII tombstone under `output/` before `rmSync`. Product `verifyPublication` unchanged. |
 
 ## Out of scope notes
 
