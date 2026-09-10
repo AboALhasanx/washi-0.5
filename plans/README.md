@@ -11,19 +11,20 @@
 
 ```text
 plans/
-├── README.md          ← هذا الملف: كيف تستخدم المجلد
-├── master-plan.md     ← التقييم الكامل + الخطة الأساسية (M0–M7)
-├── TODO.md            ← قائمة المهام القابلة للتحقق ✅ (ابدأ من هنا كل جلسة)
-├── KNOWN-DEFECTS.md   ← عيوب معروفة/اختبارات مضللة — لا تُخفَّ كـ "pre-existing"
+├── README.md               ← هذا الملف
+├── master-plan.md          ← الخطة الأساسية الأصلية (M0–M7)
+├── ROADMAP-AFTER-M3.md     ← خطة ما بعد الفريز: PS.F ثم M4-ED
+├── TODO.md                 ← مصدر الحقيقة للمهام ✅ (ابدأ من هنا كل جلسة)
+├── KNOWN-DEFECTS.md        ← عيوب معروفة — لا تُخفَّ كـ "pre-existing"
 └── phases/
     ├── phase-0-test-harness.md
     ├── phase-1-publication-integrity.md
     ├── phase-2-contracts.md
-    ├── phase-3-boundaries.md
+    ├── phase-3-boundaries.md      ← M3 FROZEN
     ├── phase-4-lifecycle.md
     ├── phase-5-production-validation.md
     ├── phase-6-ingestion-docs.md
-    └── phase-7-editor-ux.md      ← مؤجل
+    └── phase-7-editor-ux.md       ← M4-ED (بعد PS.F)
 ```
 
 ## كيف تستعمله

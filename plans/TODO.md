@@ -1,8 +1,10 @@
 # TODO — الخطة الأساسية
 
 **آخر تحديث:** 2026-09-10
-**المرحلة الجارية:** Production Trial ✅ → **التالية: Studio Editor Foundation**
-**التقدم العام:** M0 ✅ · M1 ✅ · M2 ✅ · **M3 FROZEN** · **Trial ✅ (0 critical)**
+**المرحلة الجارية:** M3 FROZEN + Production Trial ✅
+**التالية:** **PS.F — Prompt Studio Foundation** (domain model، مو UI)
+**بعدها:** M4-ED Editor Productization
+**التقدم:** M0 ✅ · M1 ✅ · M2 ✅ · **M3 FROZEN** · **Trial ✅ (0 critical)**
 
 ---
 
@@ -141,29 +143,82 @@ detected» → «is detected».
 | [x] | السكربت: `scripts/production-trial.mjs` |
 
 **ملاحظات Trial (لا تُغلق هسه):**
-- E1/E2/E3 → **دخل Editor Foundation (M4 Studio)**
+- E1/E2/E3 → **دخل M4-ED Editor** (وليس Prompt Studio)
 - S1: 255 `.trash-*` على main → تنظيف ops منفصل
 - S2: مشروع شبكات على main قصير (0.9KB) — لا نلمسه
 
 ---
 
-## M4 Studio — Editor Productization · *التالية*
+## PS.F — Prompt Studio Foundation · *التالية الآن*
 
-> **لا M3.3/M3.4. لا إعادة بناء رندرر. لا AI داخلي.**
-> التحرير فوق model الحالي: Visual action → Markdown → AST → Takumi → Preview.
+> مصدر: بحث Prompt Studio (dd.txt 2026-09-10) + تدقيق `lib/prompts.ts`.
+> **الحكم:** المكتبة الحالية = text + versions فقط. Washi يحتاج
+> **versioned specification + evaluation contract**، مو واجهة أجمل.
+>
+> **ممنوع هسه:** UI جديدة ضخمة · LLM provider إلزامي · OPRO/PromptBreeder ·
+> mega-prompt · AI داخل Washi · RAG/vector DB.
 
-| حالة | المهمة |
-|------|--------|
-| [ ] | M4.S1 Editor Foundation — تحرير paragraph/heading/definition/callout/formula/table + insert/delete/reorder |
-| [ ] | M4.S2 Presentation — **فقط** ما هو موجود بـ StudioTheme (لا حقول جديدة بلا قرار) |
-| [ ] | M4.S3 Template Studio — create/duplicate/edit/apply (لا marketplace) |
-| [ ] | M4.S4 Publication UX — وضوح الدورة على ما هو موجود (لا نظام نشر جديد) |
+### PS.0 — تقوية المكتبة الموجودة (بدون نموذج جديد)
 
-**بوابة M4.S3:** مراجعة مصغرة لـ `templateFileSchema` أولاً.
+| حالة | المهمة | القبول |
+|------|--------|--------|
+| [ ] | PS.0.1 stable ids + validation على read/write | garbage لا يدخل `.washi/prompts.json` |
+| [ ] | PS.0.2 tags + search + import/export | نسخ/استعادة المكتبة |
+| [ ] | PS.0.3 safe writes (atomic) | لا prompts.json فاسد عند crash |
+| [ ] | PS.0.4 tests على `lib/prompts.ts` | `npm test` يغطي CRUD+version |
+
+### PS.1 — PromptSpec (العقد)
+
+| حالة | المهمة | القبول |
+|------|--------|--------|
+| [ ] | PS.1.1 `promptSpecSchema` (Zod): task, variables, constraints, outputContract, examples | يُرفض بلا LLM |
+| [ ] | PS.1.2 migration: Prompt قديم → PromptSpec (body = instruction) | التوافق مع المكتبة الحالية |
+| [ ] | PS.1.3 `renderPrompt(spec, inputs) → string` | copy-to-external-AI يبقى يعمل |
+| [ ] | PS.1.4 أمثلة Washi جاهزة: provenance good/bad · definition · generated marker | مربوطة بعقد parser |
+| [ ] | PS.1.5 CLI: `washi prompt list/show/validate/render` | بدون run/optimizer |
+
+### Definition of Done لـ PS.F
+
+```
+[ ] المكتبة الحالية متوافقة
+[ ] version identity صريح
+[ ] variables + output contract + examples
+[ ] PromptSpec يُتحقق منه بدون LLM
+[ ] copy-to-external-AI يعمل
+[ ] لا provider إلزامي
+[ ] npm test أخضر
+[ ] مكان محجوز لاحقاً: Run / Benchmark / Evaluation
+```
+
+### بعد PS.F (لا يُنفَّذ الآن)
+
+```
+PS.2 Run record (model, params, hashes)     — بدون استدعاء LLM إلزامي
+PS.3 Washi Content Benchmark (cases حقيقية)
+PS.4 Hybrid eval: deterministic + evidence + rubric
+PS.5 Regression / compare versions
+PS.6 Multi-model · PS.7 Self-Refine · PS.8 Optimization
+```
 
 ---
 
-## M4-Lifecycle (الخطة الأصلية) · *غير blocker — يمكن دمجها مع M4.S4*
+## M4-ED — Editor Productization · *بعد PS.F (أو متوازٍ بقرار صريح)*
+
+> **لا M3.3/M3.4. لا إعادة بناء رندرر.**
+> Visual action → Markdown → AST → Takumi → Preview.
+
+| حالة | المهمة |
+|------|--------|
+| [ ] | M4.ED1 Editor Foundation — paragraph/heading/definition/callout/formula/table + insert/delete/reorder |
+| [ ] | M4.ED2 Presentation — **فقط** ما هو موجود بـ StudioTheme |
+| [ ] | M4.ED3 Template Studio — create/duplicate/edit/apply (لا marketplace) |
+| [ ] | M4.ED4 Publication UX — وضوح الدورة على ما هو موجود |
+
+**بوابة M4.ED3:** مراجعة مصغرة لـ `templateFileSchema`.
+
+---
+
+## M4-Lifecycle (الخطة الأصلية) · *غير blocker*
 
 | حالة | المهمة | الملف |
 |------|--------|-------|
@@ -171,7 +226,7 @@ detected» → «is detected».
 | [ ] | L2 `restoreSnapshot`: نسخة واحدة لا اثنتان | `lib/project.ts:270` |
 | [ ] | L3 سياسة استبقاء النسخ | `lib/project.ts:199` |
 | [ ] | L4 `washi snapshot` اليدوي = مصدر النسخ المهمة | `cli/commands/snapshot.ts` |
-| [ ] | M4.5 إزالة `execSync` من `deleteProject` | `lib/project.ts:516` |
+| [ ] | L5 إزالة `execSync` من `deleteProject` | `lib/project.ts:516` |
 
 **القبول:** خمس حفظات متتالية → `currentVersion` unchanged.
 
