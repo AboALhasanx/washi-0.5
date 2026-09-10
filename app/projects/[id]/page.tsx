@@ -69,6 +69,7 @@ export default function ProjectWorkspace() {
   const [rendering, setRendering] = React.useState(false);
   const [renderMs, setRenderMs] = React.useState<number | null>(null);
   const [livePreview, setLivePreview] = React.useState(true);
+  const [previewZoom, setPreviewZoom] = React.useState(100);
   const [liveMarkdown, setLiveMarkdown] = React.useState("");
   const [themesList, setThemesList] = React.useState<Array<StudioTheme>>([]);
   const [assets, setAssets] = React.useState<string[]>([]);
@@ -456,15 +457,33 @@ export default function ProjectWorkspace() {
               </div>
 
               <div className="border hairline rounded-2xl bg-paper overflow-hidden">
-                <div className="px-4 py-2.5 border-b hairline bg-ink text-paper flex items-center justify-between">
+                <div className="px-4 py-2.5 border-b hairline bg-ink text-paper flex items-center justify-between flex-wrap gap-2">
                   <span className="font-mono text-[0.72rem] text-paper/60">معاينة حية (HTML — تقريبية وفورية)</span>
-                  <label className="flex items-center gap-1.5 text-[0.68rem] text-paper/80 cursor-pointer select-none">
-                    <input type="checkbox" checked={livePreview} onChange={(e) => setLivePreview(e.target.checked)} />
-                    Live Preview: {livePreview ? "ON" : "OFF"}
-                  </label>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <label className="flex items-center gap-1.5 text-[0.68rem] text-paper/70">
+                      <span>تكبير</span>
+                      <input
+                        type="range"
+                        min={70}
+                        max={140}
+                        step={5}
+                        value={previewZoom}
+                        onChange={(e) => setPreviewZoom(Number(e.target.value))}
+                        className="w-20 accent-amber-400"
+                        aria-label="تكبير المعاينة"
+                      />
+                      <span className="font-mono w-8">{previewZoom}%</span>
+                    </label>
+                    <label className="flex items-center gap-1.5 text-[0.68rem] text-paper/80 cursor-pointer select-none">
+                      <input type="checkbox" checked={livePreview} onChange={(e) => setLivePreview(e.target.checked)} />
+                      Live Preview: {livePreview ? "ON" : "OFF"}
+                    </label>
+                  </div>
                 </div>
-                <div className="max-h-[560px] overflow-y-auto scrollbar-thin p-4">
-                  <LivePreview markdown={liveMarkdown} theme={template!} />
+                <div className="max-h-[560px] overflow-auto scrollbar-thin p-4">
+                  <div style={{ zoom: previewZoom / 100 }}>
+                    <LivePreview markdown={liveMarkdown} theme={template!} />
+                  </div>
                 </div>
               </div>
             </section>
