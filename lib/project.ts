@@ -31,6 +31,7 @@ import { parseMarkdown } from "./markdown-parser";
 import { buildDocumentAst, buildAppContent, type DocumentAst, type AppContent } from "./artifacts";
 import { validateMarkdown, type ValidationResult } from "./validate";
 import { renderChapterPdf } from "./render-pdf";
+import { WASHI_VERSION, AST_SCHEMA } from "./version";
 import type { PublicationManifest } from "./schemas";
 
 const ROOT = path.join(process.cwd(), "projects");
@@ -65,6 +66,37 @@ function assertValidProjectId(id: string): string {
 
 function ensureRoot() {
   fs.mkdirSync(ROOT, { recursive: true });
+}
+
+/**
+ * sha256 of one file on disk. Every digest in a publication must be computed
+ * from the bytes actually written, never from the in-memory string — otherwise
+ * a re-encode on read (BOM, CRLF) would produce a false mismatch.
+ */
+function sha256File(file: string): string {
+  return crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+}
+
+/**
+ * Walk a publication root and hash every file below it.
+ * Keys are posix-style relative paths so digests are comparable across
+ * platforms (Windows would otherwise produce `assets\\x.png`).
+ */
+function collectArtifactHashes(root: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  const walk = (rel: string) => {
+    const abs = path.join(root, rel);
+    if (!fs.existsSync(abs)) return;
+    if (fs.statSync(abs).isDirectory()) {
+      for (const entry of fs.readdirSync(abs)) walk(rel ? `${rel}/${entry}` : entry);
+      return;
+    }
+    out[rel.split(path.sep).join("/")] = sha256File(abs);
+  };
+  for (const entry of ["content.md", "document.ast", "app-content.json", "document.pdf", "assets", "metadata"]) {
+    walk(entry);
+  }
+  return out;
 }
 
 /** Resolved takumi-pdf version — recorded in the publication manifest so any
@@ -362,9 +394,41 @@ export async function publishProject(id: string): Promise<PublishResult> {
       }
     }
 
+    // Every artifact must be on disk BEFORE hashing — including metadata.json,
+    // which is why the publish instant is decided up front instead of being
+    // taken from the manifest after the fact.
+    const publishedAt = new Date().toISOString();
+    fs.writeFileSync(
+      path.join(tmpDir, "metadata", "metadata.json"),
+      JSON.stringify({ ...metadata, status: "published", publishedAt }, null, 2),
+      "utf8"
+    );
+    fs.writeFileSync(
+      path.join(tmpDir, "metadata", "template.json"),
+      JSON.stringify(template, null, 2),
+      "utf8"
+    );
+
+    // Package integrity gate (§11): every declared artifact must exist before
+    // the directory earns its immutable name.
+    const required = ["content.md", "document.ast", "app-content.json", "document.pdf", "assets", "metadata"];
+    for (const f of required) {
+      if (!fs.existsSync(path.join(tmpDir, f))) {
+        throw new PublishError(`الحزمة غير مكتملة قبل التثبيت: ${f} مفقود`);
+      }
+    }
+
+    // Full-artifact sealing: hash EVERY file in the package, not just
+    // content.md + document.pdf. A package is only truly "sealed" when every
+    // artifact it ships is covered — otherwise document.ast, app-content.json,
+    // assets/ and metadata/ could be edited after publishing without verify()
+    // ever noticing. manifest.json is the single excluded file: it carries the
+    // digests and therefore cannot digest itself.
+    const artifacts = collectArtifactHashes(tmpDir);
+
     const manifest: PublicationManifest = {
       version,
-      publishedAt: new Date().toISOString(),
+      publishedAt,
       title: metadata.title,
       subject: metadata.subject,
       language: metadata.language,
@@ -379,35 +443,17 @@ export async function publishProject(id: string): Promise<PublishResult> {
       ],
       validation: { ok: validation.ok, errors: validation.errors, warnings: validation.warnings },
       hashes: {
-        contentSha256: crypto.createHash("sha256").update(content, "utf8").digest("hex"),
-        pdfSha256: crypto.createHash("sha256").update(pdf).digest("hex"),
+        artifacts,
+        contentSha256: artifacts["content.md"],
+        pdfSha256: artifacts["document.pdf"],
       },
       toolchain: {
-        washi: "0.5.0",
-        schema: "washi.document-ast/0.5",
+        washi: WASHI_VERSION,
+        schema: AST_SCHEMA,
         takumi: getTakumiVersion(),
       },
     };
     fs.writeFileSync(path.join(tmpDir, "manifest.json"), JSON.stringify(manifest, null, 2), "utf8");
-    fs.writeFileSync(
-      path.join(tmpDir, "metadata", "metadata.json"),
-      JSON.stringify({ ...metadata, status: "published", publishedAt: manifest.publishedAt }, null, 2),
-      "utf8"
-    );
-    fs.writeFileSync(
-      path.join(tmpDir, "metadata", "template.json"),
-      JSON.stringify(template, null, 2),
-      "utf8"
-    );
-
-    // Package integrity gate (§11): every declared artifact must exist before
-    // the directory earns its immutable name.
-    const required = ["content.md", "document.ast", "app-content.json", "document.pdf", "manifest.json", "assets", "metadata"];
-    for (const f of required) {
-      if (!fs.existsSync(path.join(tmpDir, f))) {
-        throw new PublishError(`الحزمة غير مكتملة قبل التثبيت: ${f} مفقود`);
-      }
-    }
 
     fs.renameSync(tmpDir, pubDir);
 
@@ -454,6 +500,20 @@ export function listPublications(id: string): PublicationSummary[] {
       return { version: v, publishedAt, title, dir: vDir };
     })
     .sort((a, b) => a.version - b.version);
+}
+
+/**
+ * Read ONLY the manifest. Verification must not depend on the artifacts it is
+ * about to check — otherwise deleting one of them throws and the audit
+ * collapses into "missing" instead of naming the file that disappeared.
+ */
+export function loadManifest(id: string, version: number): PublicationManifest {
+  const pubDir = path.join(projectDir(id), "publications", `v${version}`);
+  const file = path.join(pubDir, "manifest.json");
+  if (!fs.existsSync(file)) {
+    throw new Error("لا توجد حزمة نشر بهذا الإصدار");
+  }
+  return JSON.parse(fs.readFileSync(file, "utf8")) as PublicationManifest;
 }
 
 export function loadPublication(id: string, version: number) {
@@ -553,29 +613,61 @@ export function buildTraceModel(id: string, version?: number): TraceModel {
 }
 
 export type VerifyStatus = "ok" | "mismatch" | "legacy" | "missing";
+
+/** Per-artifact outcome. `reason` distinguishes edited bytes from a deleted
+ *  file — both are integrity failures but they mean different things. */
+export interface VerifyArtifact {
+  file: string;
+  ok: boolean;
+  reason?: "missing" | "changed";
+}
+
 export interface VerifyResult {
   version: number;
   status: VerifyStatus;
+  /** Present whenever the manifest carries a full-artifact seal. */
+  artifacts?: VerifyArtifact[];
+  /** Kept for backward compatibility — derived from the artifact list. */
   contentOk?: boolean;
   pdfOk?: boolean;
   error?: string;
 }
 
-/** Integrity audit of one frozen package: recompute sha256 of content.md and
- *  document.pdf against the manifest recorded at publish time. "legacy" = a
- *  package published before hashes existed — unverifiable, not tampered. */
+/**
+ * Integrity audit of one frozen package: recompute sha256 of EVERY file the
+ * manifest sealed and compare against the digests recorded at publish time.
+ *
+ * "legacy" = a package published before full-artifact sealing existed. It is
+ * unverifiable, NOT tampered — it never claims "ok".
+ */
 export function verifyPublication(id: string, version: number): VerifyResult {
   try {
-    const { manifest } = loadPublication(id, version);
+    const manifest = loadManifest(id, version);
     const hashes = (manifest as Partial<PublicationManifest>).hashes;
     if (!hashes?.contentSha256) return { version, status: "legacy" };
-    const sha = (p: string) =>
-      crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
+
+    const artifacts = hashes.artifacts;
+    if (!artifacts || Object.keys(artifacts).length === 0) {
+      return { version, status: "legacy" };
+    }
+
     const pubDir = path.join(projectDir(id), "publications", `v${version}`);
-    const contentOk = sha(path.join(pubDir, "content.md")) === hashes.contentSha256;
-    const pdfPath = path.join(pubDir, "document.pdf");
-    const pdfOk = fs.existsSync(pdfPath) && sha(pdfPath) === hashes.pdfSha256;
-    return { version, status: contentOk && pdfOk ? "ok" : "mismatch", contentOk, pdfOk };
+    const results: VerifyArtifact[] = Object.entries(artifacts).map(([file, expected]) => {
+      const abs = path.join(pubDir, file);
+      if (!fs.existsSync(abs)) return { file, ok: false, reason: "missing" as const };
+      const actual = sha256File(abs);
+      return actual === expected ? { file, ok: true } : { file, ok: false, reason: "changed" as const };
+    });
+
+    const at = (file: string) => results.find((r) => r.file === file)?.ok;
+    const ok = results.every((r) => r.ok);
+    return {
+      version,
+      status: ok ? "ok" : "mismatch",
+      artifacts: results,
+      contentOk: at("content.md"),
+      pdfOk: at("document.pdf"),
+    };
   } catch (e: any) {
     return { version, status: "missing", error: e?.message };
   }
@@ -588,7 +680,7 @@ export function listPublicationManifests(id: string): PublicationManifest[] {
   const manifests: PublicationManifest[] = [];
   for (let v = 1; v <= project.metadata.publicationCount; v++) {
     try {
-      manifests.push(loadPublication(id, v).manifest);
+      manifests.push(loadManifest(id, v));
     } catch {
       /* gap in numbering — skip */
     }

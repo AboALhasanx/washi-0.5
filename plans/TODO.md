@@ -1,8 +1,8 @@
 # TODO — الخطة الأساسية
 
 **آخر تحديث:** 2026-09-10
-**المرحلة الجارية:** M1 — سلامة حزمة النشر
-**التقدم العام:** 6 / 40 مهمة · **M0 مكتملة ✅ (74/74 اختبارًا تمرّ)**
+**المرحلة الجارية:** M2 — العقود
+**التقدم العام:** 12 / 40 مهمة · **M0 ✅ (74/74)** · **M1 ✅ (79/79 اختبارًا تمرّ)**
 
 ---
 
@@ -33,26 +33,45 @@
 
 ---
 
-## M1 — سلامة حزمة النشر · P0 · *التالية*
-
-> اختبار التلاشي (change detector) جاهز وينتظرك في
-> `tests/lifecycle.test.mjs`: «tampering with app-content.json is currently
-> NOT detected». عندما تُنفَّذ M1 يجب أن يقلب إلى `mismatch`.
+## ✅ M1 — سلامة حزمة النشر · P0 · *مكتملة 2026-09-10*
 
 | حالة | المهمة | الملف |
 |------|--------|-------|
-| [ ] | M1.6 `lib/version.ts` — مصدر إصدار واحد | `lib/project.ts:386`, `package.json:3` |
-| [ ] | M1.1 `hashes` → خريطة بصمات لكل artifact | `lib/schemas.ts:324` |
-| [ ] | M1.2 حساب البصمات أثناء النشر | `lib/project.ts:365` |
-| [ ] | M1.3 `verifyPublication` شامل + تسمية المختلف | `lib/project.ts:567` |
-| [ ] | M1.4 الحزم القديمة → `legacy` صريح | `lib/project.ts:571` |
-| [ ] | M1.5 توحيد مخرجات verify في CLI/MCP | `cli/commands/verify.ts`, `mcp/server.ts:303` |
+| [x] | M1.6 `lib/version.ts` — مصدر إصدار واحد | `lib/version.ts` (جديد) |
+| [x] | M1.1 `hashes` → خريطة بصمات لكل artifact | `lib/schemas.ts` |
+| [x] | M1.2 حساب البصمات أثناء النشر | `lib/project.ts` |
+| [x] | M1.3 `verifyPublication` شامل + تسمية المختلف | `lib/project.ts` |
+| [x] | M1.4 الحزم القديمة → `legacy` صريح | `lib/project.ts` |
+| [x] | M1.5 توحيد مخرجات verify في CLI/MCP | `cli/commands/verify.ts`, `mcp/server.ts` |
 
-**القبول:** العبث بأي ملف داخل حزمة منشورة → `verify` يكتشفه ويسمّيه.
+**النتيجة:** `npm test` → **79/79 تمر** (من 74: +5 اختبارات ختم)، `tsc` نظيف.
+اختبار كاشف التغيير **انقلب**: «app-content.json tampering is currently NOT
+detected» → «is detected».
+
+**التصميم النهائي:**
+- `manifest.hashes.artifacts`: خريطة `مسار نسبي بأسلوب posix → sha256` لكل
+  ملف داخل `content.md`، `document.ast`، `app-content.json`، `document.pdf`،
+  `assets/`، `metadata/`. المفاتيح تُطبَّع بـ posix حتى لا تكسر مسارات ويندوز
+  قابلية المقارنة.
+- `manifest.json` نفسه **ليس** له بصمة (هو حامل البصمات).
+- `VerifyResult.artifacts`: `{ file, ok, reason?: "missing" | "changed" }`.
+- `loadManifest()` جديد — التحقق يقرأ المانيفست **فقط**، لا يمرّ على
+  `loadPublication()` الذي يرمي عند غياب ملف.
+
+**خطأان حقيقيان اكتُشفا بالاختبارات (لا بالنظر):**
+1. `metadata/metadata.json` كان يُكتب **بعد** حساب البصمات → لم يكن مختمًا أبدًا.
+   الحل: `publishedAt` يُحسم مرة واحدة في الأعلى، وملفات metadata تُكتب قبل الحساب.
+2. حذف artifact كان يُبلَّغ `missing` بدل `mismatch` لأن `verifyPublication`
+   يستدعي `loadPublication()` الذي يرمي. الحل: `loadManifest()`.
+
+> الحزم الستة الحالية تُبلّغ `legacy` — **لم تُلمس**.
 
 ---
 
-## M2 — العقود · P0
+## M2 — العقود · P0 · *التالية*
+
+> نقطة البداية: `tests/artifacts.test.mjs` — أضف اختبارًا يرفض
+> `app-content.json` تالفًا. اليوم يُقبل بصمت.
 
 | حالة | المهمة | الملف |
 |------|--------|-------|
@@ -134,3 +153,4 @@
 |---------|---------|----------|
 | 2026-09-10 | — | إنشاء مجلد `plans/` وإيداع الخطة الأساسية |
 | 2026-09-10 | M0 | شبكة اختبارات كاملة: 4 ملفات، 74 اختبارًا، `npm test` يمر |
+| 2026-09-10 | M1 | ختم كل artifact بـ sha256؛ كاشف التغيير انقلب؛ 79/79 تمر |

@@ -1,6 +1,6 @@
 # المرحلة 1 — سلامة حزمة النشر (Publication Integrity)
 
-**الأولوية:** P0 · **الحالة:** لم تبدأ · **يعتمد على:** M0
+**الأولوية:** P0 · **الحالة:** ✅ مكتملة 2026-09-10 · **يعتمد على:** M0
 
 ---
 
@@ -77,10 +77,53 @@ hashes: z.object({
 
 ## معايير القبول
 
-- [ ] العبث بأي ملف داخل حزمة منشورة → `verify` يكتشفه **ويسمّيه**
-- [ ] لا يوجد تضارب إصدار بين `package.json` والمانيفست
-- [ ] الحزم القديمة تُبلّغ `legacy` صراحةً
-- [ ] اختبار آلي في `tests/lifecycle.test.mjs` يغطي الحالات الأربع
+- [x] العبث بأي ملف داخل حزمة منشورة → `verify` يكتشفه **ويسمّيه**
+- [x] لا يوجد تضارب إصدار بين `package.json` والمانيفست
+- [x] الحزم القديمة تُبلّغ `legacy` صراحةً
+- [x] اختبار آلي في `tests/lifecycle.test.mjs` يغطي الحالات الأربع
+
+---
+
+## ✅ النتيجة — 2026-09-10
+
+**`npm test` → 79/79 تمر** · `tsc --noEmit` نظيف · 6 مهام من 6.
+
+### ما نُفِّذ
+
+| المهمة | التنفيذ |
+|--------|---------|
+| M1.6 | `lib/version.ts` جديد: `WASHI_VERSION`، `AST_SCHEMA`، `APP_CONTENT_SCHEMA`، `HASH_ALGORITHM`. `project.ts` و`artifacts.ts` يستوردان منه. |
+| M1.1 | `publicationManifestSchema.hashes.artifacts: z.record(...).optional()` |
+| M1.2 | `sha256File()` + `collectArtifactHashes()`؛ الحساب بعد كتابة كل شيء بما فيه `metadata/`، وقبل المانيفست |
+| M1.3 | `verifyPublication()` أُعيدت كتابتها بالكامل + `VerifyArtifact { file, ok, reason? }` |
+| M1.4 | بلا `hashes.artifacts` → `status: "legacy"` صريح |
+| M1.5 | CLI و MCP يعرضان عدد وأسماء الملفات المختلفة |
+
+### اختبارات جديدة في `tests/lifecycle.test.mjs`
+
+1. tampering with `app-content.json` is detected *(كاشف التغيير — كان يسقط)*
+2. tampering with `document.ast` is detected
+3. tampering with a packaged asset is detected
+4. a deleted artifact is reported as missing, not merely changed
+5. a manifest without an artifact seal is reported as legacy
+6. every artifact in the package is sealed
+
+أُضيفت أداة `withTamperedFile(file, mutate, fn)` تضمن الاستعادة في `finally`.
+
+### قرارات تصميمية
+
+- **مفاتيح الخريطة بنمط posix.** `rel.split(path.sep).join("/")` — بغيرها
+  تُنتج ويندوز مفاتيح `assets\foo.png` فتنكسر المقارنة مع حزم أُنتجت على لينكس.
+- **`manifest.json` بلا بصمة** عن قصد: هو الذي يحمل البصمات، فختمه دوري.
+- **التحقق لا يقرأ سوى المانيفست** (`loadManifest()`). أي اعتماد على
+  `loadPublication()` يجعل «ملف محذوف» يرمي استثناءً بدل أن يُبلَّغ `missing`.
+
+### أخطاء كشفها الاختبار الآلي
+
+1. `metadata/metadata.json` كان يُكتب بعد حساب البصمات → غير مختم.
+2. حذف artifact كان يُبلَّغ `missing` لا `mismatch` (استثناء من `loadPublication`).
+
+كلاهما صُحِّح، وكلاهما كان سيمرّ دون ملاحظة بمراجعة النظر وحدها.
 
 ## المخاطر
 

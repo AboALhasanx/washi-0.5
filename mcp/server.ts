@@ -316,8 +316,13 @@ export function createServer(): McpServer {
           results.push(verifyPublication(id, v));
         }
         const ok = results.every((r) => r.status !== "mismatch");
+        const bad = results.flatMap((r) =>
+          (r.artifacts ?? []).filter((a) => !a.ok).map((a) => `v${r.version}/${a.file}`)
+        );
         return result(
-          ok ? "كل الحزم سليمة" : "تحذير: حزمة مخالفة — الحزمة المجمدة يجب ألا تتغير أبداً",
+          ok
+            ? `كل الحزم سليمة (${results.reduce((n, r) => n + (r.artifacts?.length ?? 0), 0)} ملف مختم)`
+            : `تحذير: ${bad.length} ملف مخالف — الحزمة المجمدة يجب ألا تتغير أبداً: ${bad.join("، ")}`,
           { results },
           !ok,
         );

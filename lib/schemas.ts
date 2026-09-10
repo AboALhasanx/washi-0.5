@@ -322,6 +322,11 @@ export const publicationManifestSchema = z.object({
   contents: z.array(z.string()).min(1), // files inside the package
   validation: z.object({ ok: z.boolean(), errors: z.number(), warnings: z.number() }),
   hashes: z.object({
+    /** sha256 of EVERY artifact in the package — posix relative path → hex
+     *  digest. Optional so manifests published before full-artifact sealing
+     *  still parse; their status is "legacy" (unverifiable, not tampered).
+     *  manifest.json is intentionally absent — it carries these digests. */
+    artifacts: z.record(z.string(), z.string()).optional(),
     /** sha256 of content.md — content identity (canonical source) */
     contentSha256: z.string().min(1),
     /** sha256 of document.pdf — exact published artifact identity */

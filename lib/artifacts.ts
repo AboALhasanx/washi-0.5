@@ -12,6 +12,7 @@
  */
 
 import type { ChapterAST, AstNode, ProvenanceRef } from "./schemas";
+import { AST_SCHEMA, APP_CONTENT_SCHEMA, type AstSchema, type AppContentSchema } from "./version";
 
 // ── document.ast ─────────────────────────────────────────────────────────────
 
@@ -21,7 +22,7 @@ function cleanNode(n: any): any {
 }
 
 export interface DocumentAst {
-  schema: "washi.document-ast/0.5";
+  schema: AstSchema;
   generatedAt: string;
   frontmatter: ChapterAST["frontmatter"];
   sections: Array<{
@@ -65,7 +66,7 @@ export function buildDocumentAst(ast: ChapterAST): DocumentAst {
   const withProv = allNodes.filter((n: any) => Array.isArray(n.provenance) && n.provenance.length > 0);
 
   return {
-    schema: "washi.document-ast/0.5",
+    schema: AST_SCHEMA,
     generatedAt: new Date().toISOString(),
     frontmatter: ast.frontmatter,
     sections,
@@ -84,7 +85,7 @@ export function buildDocumentAst(ast: ChapterAST): DocumentAst {
 // ── app-content.json ─────────────────────────────────────────────────────────
 
 export interface AppContent {
-  schema: "washi.app-content/0.5";
+  schema: AppContentSchema;
   generatedAt: string;
   title: string;
   subject: string;
@@ -174,7 +175,7 @@ export function buildAppContent(ast: ChapterAST): AppContent {
   const blockCount = doc.sections.reduce((s, sec) => s + sec.nodes.length, 0);
 
   return {
-    schema: "washi.app-content/0.5",
+    schema: APP_CONTENT_SCHEMA,
     generatedAt: doc.generatedAt,
     title: ast.frontmatter.title,
     subject: ast.frontmatter.subject,

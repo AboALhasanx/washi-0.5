@@ -41,12 +41,16 @@ export const verifyCommand = new Command("verify")
     }
     let mismatch = false;
     for (const r of results) {
-      if (r.status === "ok") okLine(green(`v${r.version} سليمة — الهاشات مطابقة`));
+      if (r.status === "ok") okLine(green(`v${r.version} سليمة — ${r.artifacts?.length ?? 0} ملف مطابق`));
       else if (r.status === "legacy") log(`  ▲ v${r.version} قديمة بلا هاشات — أعد النشر لتدقيق السلامة`);
       else if (r.status === "missing") failLine(`v${r.version} غير موجودة`);
       else {
         mismatch = true;
-        failLine(`v${r.version} مخالفة! ${!r.contentOk ? "content.md متغير " : ""}${!r.pdfOk ? "document.pdf متغير" : ""}`);
+        const bad = (r.artifacts ?? []).filter((a) => !a.ok);
+        const names = bad.map((a) => `${a.file}${a.reason === "missing" ? " (مفقود)" : ""}`);
+        failLine(
+          `v${r.version} مخالفة! ${bad.length} ملف مختلف: ${names.join("، ") || "غير معروف"}`
+        );
       }
     }
     log(dim("  الحزمة المجمدة يجب ألا تتغير أبداً — أي اختلاف يعني عبثاً أو تلفاً"));
