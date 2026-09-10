@@ -15,9 +15,9 @@ import { parseMarkdown } from "@/lib/markdown-parser";
 import {
   ChapterDoc,
   PageFooterBand,
-  RenderProvider,
   baseCss,
   makeRenderEnv,
+  runWithRenderEnv,
 } from "@/lib/takumi-renderer";
 import { buildFormulaArt } from "@/lib/formula-svg";
 import { StudioTheme, mergeTheme } from "@/lib/theme";
@@ -52,25 +52,14 @@ export interface RenderChapterResult {
 export class RenderError extends Error {}
 
 /**
- * Process-local serial queue (M3.2). Renderer module state is gone (M3.1);
- * the queue remains as belt-and-suspenders until a post-M3.1 audit removes it.
+ * Parse + render one chapter through the intended Takumi path.
+ *
+ * No process-local queue: theme/palette/fonts are explicit per-call via
+ * RenderEnv (M3.1). MathJax's shared converter cache is pure (see freeze
+ * tests). Concurrent renderChapterPdf() calls are supported and covered by
+ * tests/render-concurrency.test.mjs.
  */
-let renderChain: Promise<void> = Promise.resolve();
-
-/** Parse + render one chapter through the intended Takumi path. */
-export function renderChapterPdf(
-  markdown: string,
-  themeInput?: unknown
-): Promise<RenderChapterResult> {
-  const run = renderChain.then(() => renderChapterPdfUnqueued(markdown, themeInput));
-  renderChain = run.then(
-    () => undefined,
-    () => undefined
-  );
-  return run;
-}
-
-async function renderChapterPdfUnqueued(
+export async function renderChapterPdf(
   markdown: string,
   themeInput?: unknown
 ): Promise<RenderChapterResult> {
@@ -86,62 +75,58 @@ async function renderChapterPdfUnqueued(
   const theme: StudioTheme = mergeTheme(themeInput);
   const env = makeRenderEnv(theme, ast.frontmatter.language);
 
-  const PAGE_SIZES: Record<string, { w: number; h: number }> = {
-    a4: { w: 595, h: 1123 },
-    letter: { w: 612, h: 1056 },
-  };
-  const pageSize = PAGE_SIZES[theme.page.size] ?? PAGE_SIZES.a4;
-  const TOP = theme.page.marginTop;
-  const SIDE = theme.page.marginSide;
-  const footer = React.createElement(RenderProvider, {
-    env,
-    children: React.createElement(PageFooterBand, { ast }),
-  });
-  let bottom = 48;
-  let coverHeight = 946;
-  if (typeof measureFn === "function") {
-    const m = await measureFn(footer, {
-      size: theme.page.size,
-      fonts: loadFonts(),
-      fontFamilies: FONT_FAMILIES.map(([name]) => name),
-      css: baseCss,
-    });
-    bottom = Math.max(48, Math.ceil(m.height) + 20);
-    coverHeight = pageSize.h - TOP - bottom - 3;
-  }
+  return runWithRenderEnv(env, async () => {
+    const PAGE_SIZES: Record<string, { w: number; h: number }> = {
+      a4: { w: 595, h: 1123 },
+      letter: { w: 612, h: 1056 },
+    };
+    const pageSize = PAGE_SIZES[theme.page.size] ?? PAGE_SIZES.a4;
+    const TOP = theme.page.marginTop;
+    const SIDE = theme.page.marginSide;
+    const footer = React.createElement(PageFooterBand, { ast });
+    let bottom = 48;
+    let coverHeight = 946;
+    if (typeof measureFn === "function") {
+      const m = await measureFn(footer, {
+        size: theme.page.size,
+        fonts: loadFonts(),
+        fontFamilies: FONT_FAMILIES.map(([name]) => name),
+        css: baseCss,
+      });
+      bottom = Math.max(48, Math.ceil(m.height) + 20);
+      coverHeight = pageSize.h - TOP - bottom - 3;
+    }
 
-  const formulaArt = await buildFormulaArt(ast);
+    const formulaArt = await buildFormulaArt(ast);
 
-  const element = React.createElement(RenderProvider, {
-    env,
-    children: React.createElement(ChapterDoc, {
+    const element = React.createElement(ChapterDoc, {
       ast,
       coverHeight,
       formulaArt: formulaArt.map,
-    }),
-  });
+    });
 
-  const t0 = Date.now();
-  const pdfBytes: Uint8Array = await renderFn(element, {
-    size: theme.page.size,
-    margin: { top: TOP, bottom, left: SIDE, right: SIDE },
-    footer,
-    backgroundColor: theme.page.background,
-    images: formulaArt.images,
-    fonts: loadFonts(),
-    fontFamilies: FONT_FAMILIES.map(([name]) => name),
-    css: baseCss,
-    lang: ast.frontmatter.language,
-    outline: true,
-    metadata: {
-      title: ast.frontmatter.title,
-      creator: theme.footer.brand || "washi",
-      creationDate: new Date().toISOString().slice(0, 10),
-    },
-  });
-  const ms = Date.now() - t0;
+    const t0 = Date.now();
+    const pdfBytes: Uint8Array = await renderFn(element, {
+      size: theme.page.size,
+      margin: { top: TOP, bottom, left: SIDE, right: SIDE },
+      footer,
+      backgroundColor: theme.page.background,
+      images: formulaArt.images,
+      fonts: loadFonts(),
+      fontFamilies: FONT_FAMILIES.map(([name]) => name),
+      css: baseCss,
+      lang: ast.frontmatter.language,
+      outline: true,
+      metadata: {
+        title: ast.frontmatter.title,
+        creator: theme.footer.brand || "washi",
+        creationDate: new Date().toISOString().slice(0, 10),
+      },
+    });
+    const ms = Date.now() - t0;
 
-  return { pdf: Buffer.from(pdfBytes), ast, ms };
+    return { pdf: Buffer.from(pdfBytes), ast, ms };
+  });
 }
 
 export { FONT_FAMILIES, loadFonts };

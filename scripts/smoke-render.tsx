@@ -14,9 +14,9 @@ import { parseMarkdown } from "../lib/markdown-parser";
 import {
   ChapterDoc,
   PageFooterBand,
-  RenderProvider,
   baseCss,
   makeRenderEnv,
+  runWithRenderEnv,
 } from "../lib/takumi-renderer";
 import { buildFormulaArt } from "../lib/formula-svg";
 
@@ -59,57 +59,53 @@ async function main() {
   // DEFAULT_THEME env; arBodyMode from AST language.
   const env = makeRenderEnv(undefined, ast.frontmatter.language);
 
-  // Page geometry (A4 = 595×1123 px @96dpi): measure the footer band first,
-  // reserve its margin exactly, and let the cover fill page 1 (see route.ts).
-  const PAGE_H = 1123;
-  const TOP = 56;
-  const footer = React.createElement(RenderProvider, {
-    env,
-    children: React.createElement(PageFooterBand, { ast }),
-  });
-  const band = await measure(footer, { size: "a4", fonts, fontFamilies, css: baseCss });
-  const bottom = Math.max(48, Math.ceil(band.height) + 20);
-  const coverHeight = PAGE_H - TOP - bottom - 3;
+  await runWithRenderEnv(env, async () => {
+    // Page geometry (A4 = 595×1123 px @96dpi): measure the footer band first,
+    // reserve its margin exactly, and let the cover fill page 1 (see route.ts).
+    const PAGE_H = 1123;
+    const TOP = 56;
+    const footer = React.createElement(PageFooterBand, { ast });
+    const band = await measure(footer, { size: "a4", fonts, fontFamilies, css: baseCss });
+    const bottom = Math.max(48, Math.ceil(band.height) + 20);
+    const coverHeight = PAGE_H - TOP - bottom - 3;
 
-  const formulaArt = await buildFormulaArt(ast);
-  console.log("formula SVGs:", formulaArt.images.length);
+    const formulaArt = await buildFormulaArt(ast);
+    console.log("formula SVGs:", formulaArt.images.length);
 
-  const element = React.createElement(RenderProvider, {
-    env,
-    children: React.createElement(ChapterDoc, {
+    const element = React.createElement(ChapterDoc, {
       ast,
       coverHeight,
       formulaArt: formulaArt.map,
-    }),
+    });
+
+    const t0 = Date.now();
+    const pdf = await render(element, {
+      size: "a4",
+      margin: { top: TOP, bottom, left: 56, right: 56 },
+      footer,
+      backgroundColor: "#FFFCF8",
+      images: formulaArt.images,
+      fonts,
+      fontFamilies,
+      css: baseCss,
+      lang: "ar",
+      outline: true,
+      metadata: {
+        title: ast.frontmatter.title,
+        authors: ["washi"],
+        creator: "washi (takumi-pdf)",
+        creationDate: "2026-09-04",
+      },
+    });
+    console.log("render:", Date.now() - t0, "ms,", (pdf.length / 1024).toFixed(1), "KB");
+
+    fs.mkdirSync("output", { recursive: true });
+    const out = path.resolve("output/washi-chapter9.pdf");
+    fs.writeFileSync(out, Buffer.from(pdf));
+    console.log("written:", out);
+
+    await verify(out);
   });
-
-  const t0 = Date.now();
-  const pdf = await render(element, {
-    size: "a4",
-    margin: { top: TOP, bottom, left: 56, right: 56 },
-    footer,
-    backgroundColor: "#FFFCF8",
-    images: formulaArt.images,
-    fonts,
-    fontFamilies,
-    css: baseCss,
-    lang: "ar",
-    outline: true,
-    metadata: {
-      title: ast.frontmatter.title,
-      authors: ["washi"],
-      creator: "washi (takumi-pdf)",
-      creationDate: "2026-09-04",
-    },
-  });
-  console.log("render:", Date.now() - t0, "ms,", (pdf.length / 1024).toFixed(1), "KB");
-
-  fs.mkdirSync("output", { recursive: true });
-  const out = path.resolve("output/washi-chapter9.pdf");
-  fs.writeFileSync(out, Buffer.from(pdf));
-  console.log("written:", out);
-
-  await verify(out);
 }
 
 main().catch((e) => {

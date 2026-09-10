@@ -28,6 +28,10 @@ req("mathjax-full/js/input/tex/newcommand/NewcommandConfiguration.js");
 req("mathjax-full/js/input/tex/color/ColorConfiguration.js");
 req("mathjax-full/js/input/tex/cancel/CancelConfiguration.js");
 
+// MathJax document cache — SAFE SHARED after M3 freeze (see docs/DECISIONS.md).
+// convert() is sync and returns a new node; concurrent calls do not
+// cross-contaminate (tests/render-concurrency.test.mjs). Do not create a
+// document per render — TeX/SVG jax init is expensive.
 let doc: any = null;
 
 function getDoc() {

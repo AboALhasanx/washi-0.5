@@ -110,22 +110,22 @@ detected» → «is detected».
 
 ---
 
-## M3 — الحدود المعمارية · P1 · *M3.1+M3.2 مكتملتان*
+## M3 — الحدود المعمارية · P1 · **مجمّدة (FROZEN)**
 
-> **M3.2** أغلق التلاشي بـ `renderQueue`. **M3.1** أزال الحالة العالمية
-> (`RenderEnv` / `RenderProvider`).
->
-> **قبل M3.3/M3.4:** audit صغير — هل يُزال الـqueue؟ `formula-svg.ts` لسه
-> عنده `let doc` module-level. لا تُفتح M3.3/M3.4 قبل هذا الـaudit.
+> M3.2 أضاف ثم **أزال** الـqueue بعد إثبات عدم الحاجة. M3.1 أزال الحالة
+> العالمية (`RenderEnv`). **audit الإغلاق:** MathJax `doc` = SAFE SHARED؛
+> `fontCache` = CACHE؛ لا render globals متبقية. انظر `DECISIONS.md` D-301
+> و`docs/compose/spec/m3-freeze.md`.
 
 | حالة | المهمة | الملف |
 |------|--------|-------|
-| [x] | M3.2 `renderQueue` تسلسلي (إصلاح فوري للتلاشي) | `lib/render-pdf.ts` |
+| [x] | M3.2 `renderQueue` (أُضيف ثم أُزيل في freeze) | `lib/render-pdf.ts` |
 | [x] | M3.1 `RenderContext` بدل الحالة العالمية | `lib/takumi-renderer.tsx` |
-| [ ] | M3.3 تفكيك `project.ts` إلى 5 وحدات | `lib/project.ts` (616 سطر) |
-| [ ] | M3.4 `lib/index.ts` — canonical domain API | جديد |
+| [x] | M3 freeze audit — queue REMOVE + formula SAFE SHARED | `DECISIONS.md` |
+| [-] | M3.3 تفكيك `project.ts` — **خارج freeze** | مؤجل بعد M4 إن لزم |
+| [-] | M3.4 `lib/index.ts` — **خارج freeze** | مؤجل بعد M4 إن لزم |
 
-**القبول:** رندرتان متزامنتان بثيمين مختلفين → خرجان صحيحان (اختبار آلي).
+**القبول:** رندرتان متزامنتان بثيمين مختلفين → خرجان صحيحان (اختبار آلي) — **تحقق**.
 
 ---
 

@@ -1,9 +1,8 @@
 /**
- * tests/render-queue.test.mjs — M3.2 acceptance (queue still relevant after M3.1).
+ * tests/render-queue.test.mjs — concurrent isolation of renderChapterPdf().
  *
- * M3.1 removed module-level theme state from the renderer. The queue remains
- * as belt-and-suspenders; these tests pin concurrent isolation of the public
- * renderChapterPdf() API.
+ * Named for the M3.2 queue that was REMOVED at M3 freeze (queue no longer
+ * required after RenderEnv). These tests remain the isolation regression.
  */
 
 import { test, describe } from "node:test";

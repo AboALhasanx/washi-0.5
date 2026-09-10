@@ -242,3 +242,54 @@ Deep architecture audit and stabilization pass prior to merging CLI/MCP into `ma
 ### Test Matrix Expansion
 - `scripts/cli-test.mjs`: Expanded from 22 to 27 automated checks, validating invalid version arguments, multi-package publication, full verification, and `--json` stdout purity.
 - `scripts/mcp-test.mjs`: Expanded to 18 checks, adding schema rejection validation.
+
+---
+
+## M3 Freeze — Renderer Closure (D-301)
+
+Full audit before freezing M3. No M4 features.
+
+### renderQueue — **REMOVE**
+
+M3.2 added a process-local queue to contain `applyStudioTheme()` module state. M3.1 replaced that with explicit `RenderEnv`. Freeze probes:
+
+| Probe | Result |
+|-------|--------|
+| Concurrent MathJax `convert()` | 0 mismatches / 80 |
+| 2× / 4× concurrent full renders | brand-isolated |
+| 8× concurrent stress | 0 leaks |
+| Fail then success | success unaffected |
+
+`lib/render-pdf.ts` is a single async `renderChapterPdf` again. Isolation pinned by `tests/render-concurrency.test.mjs`.
+
+**Not guaranteed:** byte-identical PDFs under concurrent load. Theme/brand/formula isolation is guaranteed.
+
+### Formula MathJax `doc` — **SAFE SHARED**
+
+`lib/formula-svg.ts` `let doc` is a lazily created MathJax converter cache. `convert()` is sync and returns a new node; no chapter state is stored on `doc`. Classification: CACHE + SAFE SHARED. Keep one process-wide instance.
+
+### StatBars `glueDepth` — **EXEMPT**
+
+Multi-row %-charts use per-row `breakInside: avoid` so long tables can split. Whole-chart `KT()` would force one atomic block. Dead `glueDepth` prop removed.
+
+### Final module-state map (render path)
+
+| Binding | Class |
+|---------|-------|
+| `fontCache` (`render-pdf.ts`) | CACHE — immutable font bytes |
+| MathJax `doc` (`formula-svg.ts`) | SAFE SHARED + CACHE |
+| Theme/palette/fonts/arBodyMode | **removed** (RenderEnv) |
+| `glueDepth` | **removed** (parameter) |
+| `renderChain` | **removed** (this freeze) |
+
+### Render contract
+
+```
+Render(markdown, theme) → PDF
+```
+
+Studio preview, workspace, CLI `render`/`publish`, publish path, and MCP all call `renderChapterPdf` (or `renderPreviewToDir` → same function). No hidden process theme state.
+
+### RenderEnv delivery — AsyncLocalStorage (not React context)
+
+Next.js API routes are Server Components; `React.createContext` is rejected in their import graph (`next build` failed after M3.1 used context). Env is bound with `node:async_hooks` `AsyncLocalStorage` via `runWithRenderEnv` / `getRenderEnv`. Concurrent renders stay isolated (freeze tests pass). Works in Node CLI/MCP and Next server routes.

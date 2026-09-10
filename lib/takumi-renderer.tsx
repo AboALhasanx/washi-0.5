@@ -26,11 +26,14 @@
  */
 
 import React from "react";
+import { AsyncLocalStorage } from "node:async_hooks";
 import type { ChapterAST, AstNode } from "./schemas";
 import { norm } from "./formula-svg";
 
 // ---------------------------------------------------------------------------
-// Render environment — one per render, threaded via context.
+// Render environment — one per render, via AsyncLocalStorage.
+// Next.js API routes are Server Components: React.createContext is rejected
+// in their import graph. ALS isolates concurrent renders without context.
 // ---------------------------------------------------------------------------
 
 import { StudioTheme, DEFAULT_THEME, mergeTheme } from "./theme";
@@ -57,15 +60,16 @@ export function makeRenderEnv(themeInput?: unknown, language?: string): RenderEn
   };
 }
 
-export const RenderCtx: React.Context<RenderEnv> = React.createContext<RenderEnv>(
-  makeRenderEnv(DEFAULT_THEME)
-);
+const envStorage = new AsyncLocalStorage<RenderEnv>();
 
-export function RenderProvider(props: {
-  env: RenderEnv;
-  children: React.ReactNode;
-}): JSX.Element {
-  return <RenderCtx.Provider value={props.env}>{props.children}</RenderCtx.Provider>;
+/** Run `fn` with `env` bound to this async context (and nested awaits). */
+export function runWithRenderEnv<T>(env: RenderEnv, fn: () => T): T {
+  return envStorage.run(env, fn);
+}
+
+/** Current render env; falls back to DEFAULT_THEME outside a render. */
+export function getRenderEnv(): RenderEnv {
+  return envStorage.getStore() ?? makeRenderEnv(DEFAULT_THEME);
 }
 
 const AR_DIGITS = "٠١٢٣٤٥٦٧٨٩";
@@ -110,7 +114,7 @@ const Chip: React.FC<{ label: string; colors: [string, string]; size?: number }>
   colors,
   size = 10.5,
 }) => {
-  const env = React.useContext(RenderCtx);
+  const env = getRenderEnv();
   return (
     <span
       style={{
@@ -151,7 +155,7 @@ const sourceLine = (n: { raw?: string; document?: string; pages?: number[] }) =>
 };
 
 const SourceNote: React.FC<{ text: string }> = ({ text }) => {
-  const env = React.useContext(RenderCtx);
+  const env = getRenderEnv();
   return (
     <div
       style={{
@@ -170,7 +174,7 @@ const SourceNote: React.FC<{ text: string }> = ({ text }) => {
 };
 
 const Para: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const env = React.useContext(RenderCtx);
+  const env = getRenderEnv();
   return (
     <p
       style={{
@@ -196,7 +200,7 @@ const SectionHeading: React.FC<{ level: 2 | 3; num?: number; children: React.Rea
   num,
   children,
 }) => {
-  const env = React.useContext(RenderCtx);
+  const env = getRenderEnv();
   if (level === 2) {
     return (
       <div
@@ -444,17 +448,19 @@ const CalloutBox = ({
 
 const isPct = (s: string) => /^\s*\d+(\.\d+)?\s*%\s*$/.test(s);
 
+// StatBars is intentionally multi-row: each row is its own breakInside:avoid
+// unit so long %-tables can split across pages. Wrapping the whole chart in
+// KT() would force a single atomic block — so it does NOT take glueDepth.
 const StatBars = ({
   headers,
   rows,
   source,
   env,
-  glueDepth,
 }: {
   headers: string[];
   rows: string[][];
   source?: string;
-} & CardEnvProps): React.ReactNode => {
+} & Omit<CardEnvProps, "glueDepth">): React.ReactNode => {
   // find the column holding the percentages (first column with any % cell)
   let pctCol = -1;
   for (let c = 0; c < headers.length; c++) {
@@ -838,7 +844,7 @@ const ListBlock: React.FC<{ items: string[]; ordered?: boolean; variant?: "plain
   ordered,
   variant = "plain",
 }) => {
-  const env = React.useContext(RenderCtx);
+  const env = getRenderEnv();
   return (
     <div style={{ margin: "2px 0 12px 0" } as React.CSSProperties}>
       {items.map((item, i) => {
@@ -980,7 +986,7 @@ function RenderNode({
     case "table": {
       const hasPct = n.rows?.some((r: string[]) => r.some((c: string) => isPct(c ?? "")));
       if (hasPct) {
-        return StatBars({ headers: n.headers, rows: n.rows, source: n.source, env, glueDepth });
+        return StatBars({ headers: n.headers, rows: n.rows, source: n.source, env });
       }
       return ComparisonTable({
         headers: n.headers,
@@ -1069,7 +1075,7 @@ function CoverSection({
   sectionsCount: number;
   height?: number;
 }) {
-  const env = React.useContext(RenderCtx);
+  const env = getRenderEnv();
   const { frontmatter } = ast;
   const pages = frontmatter.sources[0]?.pages ?? [];
   const pagesLabel = pages.length
@@ -1295,7 +1301,7 @@ export function ChapterDoc({
   coverHeight?: number;
   formulaArt?: FormulaArtMap;
 }) {
-  const env = React.useContext(RenderCtx);
+  const env = getRenderEnv();
   const { frontmatter, sections } = ast;
   const isAr = frontmatter.language === "ar";
 
@@ -1340,7 +1346,7 @@ function SectionBody({
   num: number;
   formulaArt?: FormulaArtMap;
 }) {
-  const env = React.useContext(RenderCtx);
+  const env = getRenderEnv();
   // The parser re-emits the section's h2 as a node inside nodes[] — drop
   // those duplicates so glue binds the real first block.
   const nodes = (sec.nodes as any[]).filter(
@@ -1448,7 +1454,7 @@ function SectionBody({
 
 /** Repeating band for the top of every page (passed via render options). */
 export function PageHeaderBand({ ast }: { ast: ChapterAST }) {
-  const env = React.useContext(RenderCtx);
+  const env = getRenderEnv();
   return (
     <div
       style={{
@@ -1495,7 +1501,7 @@ export interface PageFooterBandProps {
  * the counter text; the `arabic-indic` counter-style class formats it ١٢٣.
  */
 export function PageFooterBand({ ast }: PageFooterBandProps) {
-  const env = React.useContext(RenderCtx);
+  const env = getRenderEnv();
   return (
     <div
       style={{
