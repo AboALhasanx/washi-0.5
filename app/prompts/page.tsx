@@ -58,18 +58,16 @@ export default function PromptsPage() {
   return (
     <div dir="rtl" className="min-h-screen" style={{ background: "var(--paper-2)" }}>
       <header
-        className="flex items-center justify-between px-5 h-14 border-b hairline sticky top-0 z-40"
-        style={{ background: "var(--paper)" }}
+        className="flex items-center justify-between px-5 h-12 border-b hairline sticky top-0 z-40 backdrop-blur-md"
+        style={{ background: "color-mix(in srgb, var(--paper) 88%, transparent)" }}
       >
-        <div className="flex items-center gap-3">
-          <Logo size={28} />
-          <span className="font-display font-black text-lg text-ink">Prompt Studio</span>
-          <span className="font-mono text-[0.6rem] text-ink2 hidden sm:inline">
-            برومبت شامل واحد — انسخه وروح للـAI
-          </span>
+        <div className="flex items-center gap-2.5">
+          <Logo size={22} />
+          <span className="font-semibold text-[0.9rem] text-ink tracking-tight">Prompt Studio</span>
+          <span className="text-[0.7rem] text-ink-3 hidden sm:inline">— برومبت واشي الشامل</span>
         </div>
-        <Link href="/projects" className="btn-ghost !py-1.5 !text-xs">
-          ← المشاريع
+        <Link href="/projects" className="btn-ghost !py-1.5 !px-2.5 !text-[0.75rem]">
+          المشاريع
         </Link>
       </header>
 
@@ -82,63 +80,57 @@ export default function PromptsPage() {
       )}
 
       <main className="max-w-4xl mx-auto p-5 space-y-4">
-        <section className="border hairline rounded-2xl bg-paper p-5 space-y-4">
-          <div>
-            <h1 className="font-display font-black text-ink text-lg">
-              الـprompt الشامل لإنتاج فصل واشي
+        <section className="rounded-xl border hairline bg-paper overflow-hidden">
+          <div className="px-5 py-4 border-b hairline">
+            <h1 className="text-[1.05rem] font-semibold text-ink tracking-tight">
+              برومبت إنتاج فصل واشي
             </h1>
-            <p className="text-xs text-ink2 mt-2 leading-relaxed">
-              برومبت واحد طويل يغطي العقد والتتبع والهيكل والتعريفات والأسئلة والبطاقات
-              وخصوصية الشبكات. <b>ما نرفع ملفات هنا.</b> تنسخ الـprompt، تفتح ChatGPT
-              أو Claude، تلزقه، بعدين تلزق <b>نص الـPDF/المحاضرة</b> بنفس المحادثة.
-              الـAI يطلع لك <bdi>content.md</bdi> تدخله واشي كمشروع.
+            <p className="text-[0.8rem] text-ink-2 mt-1.5 leading-relaxed max-w-2xl">
+              انسخ الـprompt، ألصقه في ChatGPT أو Claude، ثم ألصق نص المحاضرة بعده.
+              الخرج: <span className="font-mono text-[0.75rem]">content.md</span> جاهز لمشروع واشي.
             </p>
           </div>
 
+          <div className="p-5 space-y-4">
           <div className="grid sm:grid-cols-2 gap-3">
-            <label className="block text-xs text-ink2">
-              عنوان الفصل (اختياري — يُحقن بالـprompt)
+            <label className="block text-[0.7rem] font-medium text-ink-2">
+              عنوان الفصل (اختياري)
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="اتركه فارغاً لاستخدام {{عنوان الفصل}}"
-                className="mt-1 w-full border hairline rounded-xl px-3 py-2 text-sm bg-paper-2 outline-none text-ink"
+                placeholder="{{عنوان الفصل}}"
+                className="mt-1.5 field"
               />
             </label>
-            <label className="block text-xs text-ink2">
+            <label className="block text-[0.7rem] font-medium text-ink-2">
               اسم المستند (اختياري)
               <input
                 value={documentName}
                 onChange={(e) => setDocumentName(e.target.value)}
-                placeholder="اتركه فارغاً لاستخدام {{اسم الملف.pdf}}"
-                className="mt-1 w-full border hairline rounded-xl px-3 py-2 text-sm bg-paper-2 outline-none text-ink font-mono"
+                placeholder="{{اسم الملف.pdf}}"
+                className="mt-1.5 field font-mono"
                 dir="ltr"
               />
             </label>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <button type="button" className="btn-primary !py-2 !px-5 !text-sm" onClick={copy}>
+          <div className="flex flex-wrap items-center gap-2">
+            <button type="button" className="btn-primary" onClick={copy}>
               نسخ الـprompt الشامل
             </button>
-            <button type="button" className="btn-ghost !py-2 !text-sm" onClick={download}>
+            <button type="button" className="btn-ghost" onClick={download}>
               تحميل .md
             </button>
-            <span className="text-[0.65rem] text-ink2 self-center font-mono" dir="ltr">
-              {masterPrompt.length} chars
+            <span className="text-[0.7rem] text-ink-3 self-center font-mono tabular" dir="ltr">
+              {masterPrompt.length.toLocaleString()} chars
             </span>
           </div>
 
-          <div className="rounded-xl border hairline bg-paper-2 p-3 text-[0.7rem] text-ink2 leading-relaxed">
-            <b className="text-ink">الخطوات:</b>
-            <ol className="list-decimal ps-5 mt-1 space-y-0.5">
-              <li>انسخ الـprompt</li>
-              <li>افتح ChatGPT / Claude / Gemini</li>
-              <li>الصق الـprompt</li>
-              <li>الصق نص المحاضرة / الـPDF بعده مباشرة</li>
-              <li>انسخ خرج الـAI (content.md)</li>
-              <li>من <Link href="/projects" className="underline">المشاريع</Link> — مشروع جديد بهذا الملف</li>
-            </ol>
+          <div className="rounded-lg border hairline bg-paper-2/60 p-3.5 text-[0.78rem] text-ink-2 leading-relaxed">
+            <span className="font-medium text-ink">الخطوات:</span>{" "}
+            انسخ الـprompt → افتح ChatGPT/Claude → ألصقه → ألصق نص المحاضرة → انسخ{" "}
+            <span className="font-mono text-[0.72rem]">content.md</span> →{" "}
+            <Link href="/projects" className="text-ink underline underline-offset-2">مشروع جديد</Link>
           </div>
 
           <textarea
@@ -146,9 +138,10 @@ export default function PromptsPage() {
             value={masterPrompt}
             dir="auto"
             rows={22}
-            className="w-full p-4 font-mono text-[0.72rem] leading-relaxed border hairline rounded-xl bg-paper outline-none resize-y"
+            className="w-full p-4 font-mono text-[0.75rem] leading-[1.7] border-t hairline bg-ink text-[#E9E4D8] outline-none resize-y"
             spellCheck={false}
           />
+          </div>
         </section>
       </main>
     </div>

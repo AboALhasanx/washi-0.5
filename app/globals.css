@@ -31,9 +31,9 @@
     --selection-bg: #1E3A5F;
     --selection-fg: #FFFCF8;
     --focus-ring: #1E3A5F;
-    --grain-opacity: 0.5;
-    --shadow-1: 0 1px 0 rgba(11,17,32,0.04), 0 12px 24px -16px rgba(11,17,32,0.18), 0 2px 6px -2px rgba(11,17,32,0.08);
-    --shadow-2: 0 1px 0 rgba(11,17,32,0.05), 0 30px 60px -30px rgba(11,17,32,0.28), 0 4px 12px -4px rgba(11,17,32,0.10);
+    --grain-opacity: 0;
+    --shadow-1: 0 1px 2px rgba(11,17,32,0.04), 0 4px 12px -4px rgba(11,17,32,0.08);
+    --shadow-2: 0 1px 2px rgba(11,17,32,0.05), 0 12px 32px -12px rgba(11,17,32,0.14);
 
     --background: var(--paper);
     --foreground: var(--ink);
@@ -48,7 +48,7 @@
     --border: var(--line);
     --input: var(--line);
     --ring: var(--accent);
-    --radius: 2px;
+    --radius: 6px;
     --page-margin: 20mm;
 
     --alert-note: #E8EDF4;
@@ -147,14 +147,11 @@
 
   body {
     background-color: var(--paper);
-    background-image:
-      radial-gradient(rgba(127,176,224,0.04) 1px, transparent 1px);
-    background-size: 3px 3px;
     color: var(--ink);
     @apply font-sans antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
-    font-size: 15px;
-    line-height: 1.6;
+    font-size: 14px;
+    line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     transition: background-color .2s ease, color .2s ease;
@@ -280,57 +277,61 @@
   .field {
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 2px;
+    border-radius: 6px;
     font-family: var(--font-sans);
     font-size: 0.875rem;
-    padding: 0.55rem 0.7rem;
+    padding: 0.5rem 0.7rem;
     transition: border-color .15s ease, box-shadow .15s ease;
     color: var(--ink);
     width: 100%;
   }
   .field:focus {
     outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+    border-color: var(--ink-3);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 8%, transparent);
   }
   .field::placeholder { color: var(--ink-3); }
 
-  /* ─── Buttons ─── */
+  /* ─── Buttons — Linear-grade restraint ─── */
   .btn-primary {
     background: var(--ink);
     color: var(--paper);
     font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 0.8rem;
-    letter-spacing: 0.02em;
-    padding: 0.65rem 1.15rem;
-    border-radius: 2px;
-    transition: background .15s ease, transform .1s ease, opacity .15s ease;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    letter-spacing: -0.01em;
+    padding: 0.5rem 0.9rem;
+    border-radius: 6px;
+    transition: background .15s ease, opacity .15s ease, box-shadow .15s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--ink);
+    gap: 0.35rem;
+    border: 1px solid transparent;
+    line-height: 1.2;
   }
-  .btn-primary:hover { background: var(--accent); border-color: var(--accent); box-shadow: var(--shadow-1); }
-  .btn-primary:active { transform: translateY(1px); box-shadow: none; }
-  .btn-primary:disabled { opacity: 0.5; pointer-events: none; }
+  .btn-primary:hover { opacity: 0.92; }
+  .btn-primary:active { opacity: 0.85; }
+  .btn-primary:disabled { opacity: 0.4; pointer-events: none; }
 
   .btn-ghost {
     background: transparent;
     border: 1px solid var(--line);
-    color: var(--ink);
+    color: var(--ink-2);
     font-family: var(--font-sans);
-    font-weight: 600;
-    font-size: 0.8rem;
-    padding: 0.6rem 1.05rem;
-    border-radius: 2px;
+    font-weight: 500;
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 6px;
     transition: border-color .15s ease, background .15s ease, color .15s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.35rem;
+    line-height: 1.2;
   }
-  .btn-ghost:hover { border-color: var(--ink); background: var(--paper-2); }
-  .btn-ghost:disabled { opacity: 0.5; pointer-events: none; }
+  .btn-ghost:hover { border-color: var(--ink-3); background: var(--paper-2); color: var(--ink); }
+  .btn-ghost:disabled { opacity: 0.4; pointer-events: none; }
 
   /* ─── Dropzone ─── */
   .dropzone {

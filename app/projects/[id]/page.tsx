@@ -333,24 +333,24 @@ export default function ProjectWorkspace() {
 
   return (
     <div dir="rtl" className="min-h-screen" style={{ background: "var(--paper-2)" }}>
-      <header className="flex items-center justify-between px-5 h-14 border-b hairline sticky top-0 z-40" style={{ background: "var(--paper)" }}>
-        <div className="flex items-center gap-3">
-          <Logo size={28} />
-          <span className="font-display font-black text-lg text-ink">{meta.title}</span>
-          <span className={`text-xs px-2 py-0.5 rounded-full ${meta.status === "published" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}>
+      <header className="flex items-center justify-between px-5 h-12 border-b hairline sticky top-0 z-40 backdrop-blur-md" style={{ background: "color-mix(in srgb, var(--paper) 88%, transparent)" }}>
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Logo size={22} />
+          <span className="font-semibold text-[0.9rem] text-ink truncate tracking-tight">{meta.title}</span>
+          <span className={`text-[0.65rem] px-1.5 py-0.5 rounded-md font-medium ${meta.status === "published" ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400" : "bg-amber-500/10 text-amber-700 dark:text-amber-400"}`}>
             {statusLabel[meta.status] ?? meta.status}
           </span>
-          <span className="font-mono text-[0.62rem] text-ink2">v{meta.currentVersion}</span>
+          <span className="font-mono text-[0.65rem] text-ink-3 tabular">v{meta.currentVersion}</span>
         </div>
-        <nav className="flex items-center gap-2">
-          <span className={`text-xs font-mono ${dirty ? "text-amber-700" : "text-emerald-700"}`}>{dirty ? "● تغييرات غير محفوظة" : "✓ محفوظ"}</span>
-          <button onClick={() => save(false)} disabled={!dirty || busy === "save"} className="btn-ghost !py-1.5 !text-xs">حفظ</button>
-          <button onClick={() => save(true)} disabled={!dirty || busy === "save"} className="btn-primary !py-1.5 !px-4 !text-xs">حفظ + snapshot</button>
-          <Link href="/projects" className="btn-ghost !py-1.5 !text-xs">← المشاريع</Link>
+        <nav className="flex items-center gap-1.5">
+          <span className={`text-[0.7rem] font-medium ${dirty ? "text-amber-600" : "text-emerald-600"}`}>{dirty ? "غير محفوظ" : "محفوظ"}</span>
+          <button onClick={() => save(false)} disabled={!dirty || busy === "save"} className="btn-ghost !py-1.5 !px-2.5 !text-[0.75rem]">حفظ</button>
+          <button onClick={() => save(true)} disabled={!dirty || busy === "save"} className="btn-primary !py-1.5 !px-3 !text-[0.75rem]">حفظ + نسخة</button>
+          <Link href="/projects" className="btn-ghost !py-1.5 !px-2.5 !text-[0.75rem]">المشاريع</Link>
         </nav>
       </header>
 
-      <nav className="flex items-center gap-1 px-5 pt-3 max-w-7xl mx-auto">
+      <nav className="flex items-end gap-0.5 px-5 pt-2 max-w-7xl mx-auto border-b hairline">
         {([
           ["editor", "المحرر"],
           ["template", "القالب"],
@@ -360,13 +360,17 @@ export default function ProjectWorkspace() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 text-xs font-semibold rounded-t-xl border hairline border-b-0 ${tab === t ? "bg-paper text-ink" : "bg-transparent text-ink2"}`}
+            className={`px-3 py-2 text-[0.8rem] font-medium rounded-t-md -mb-px border-b-2 transition-colors ${
+              tab === t
+                ? "border-ink text-ink"
+                : "border-transparent text-ink-3 hover:text-ink"
+            }`}
           >
             {label}
           </button>
         ))}
         <div className="flex-1" />
-        <Link href={`/trace/${id}`} className="btn-ghost !py-1.5 !text-xs">شاشة تتبع المنصة ↗</Link>
+        <Link href={`/trace/${id}`} className="btn-ghost !py-1 !px-2.5 !text-[0.7rem] mb-1.5">تتبع المنصة ↗</Link>
       </nav>
 
       {notice && (

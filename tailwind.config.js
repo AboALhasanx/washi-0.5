@@ -63,9 +63,9 @@ export default {
         mono: ["var(--font-mono)", "JetBrains Mono", "ui-monospace", "monospace"],
       },
       borderRadius: {
-        lg: "2px",
-        md: "2px",
-        sm: "2px",
+        lg: "8px",
+        md: "6px",
+        sm: "4px",
       },
       spacing: {
         "page-margin": "var(--page-margin)",
