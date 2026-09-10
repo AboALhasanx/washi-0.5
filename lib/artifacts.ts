@@ -11,8 +11,13 @@
  *   a stable id so questions can be linked to concepts later.
  */
 
-import type { ChapterAST, AstNode, ProvenanceRef } from "./schemas";
-import { AST_SCHEMA, APP_CONTENT_SCHEMA, type AstSchema, type AppContentSchema } from "./version";
+import type { ChapterAST, AstNode, DocumentAst, AppContent, AstNodeWithId } from "./schemas";
+import { AST_SCHEMA, APP_CONTENT_SCHEMA } from "./version";
+
+// The artifact shapes are INFERRED from their Zod schemas (lib/schemas.ts), not
+// hand-maintained here — a contract that is written twice drifts. Re-exported
+// so callers keep importing from the module that builds them.
+export type { DocumentAst, AppContent };
 
 // ── document.ast ─────────────────────────────────────────────────────────────
 
@@ -21,35 +26,13 @@ function cleanNode(n: any): any {
   return rest;
 }
 
-export interface DocumentAst {
-  schema: AstSchema;
-  generatedAt: string;
-  frontmatter: ChapterAST["frontmatter"];
-  sections: Array<{
-    id: string;
-    name: string;
-    heading: string;
-    provenance?: ProvenanceRef[];
-    nodes: Array<any & { id: string }>;
-  }>;
-  stats: {
-    sections: number;
-    blocks: number;
-    definitions: number;
-    formulas: number;
-    tables: number;
-    figures: number;
-    provenanceBlocks: number;
-  };
-}
-
 /** Build the document.ast artifact: stable block ids + hidden provenance. */
 export function buildDocumentAst(ast: ChapterAST): DocumentAst {
   let blockCounter = 0;
   const sections = ast.sections.map((sec, si) => {
-    const nodes = sec.nodes.map((n: AstNode, ni: number) => {
+    const nodes: AstNodeWithId[] = sec.nodes.map((n: AstNode, ni: number) => {
       blockCounter += 1;
-      return { ...cleanNode(n), id: `b${si + 1}-${ni + 1}` };
+      return { ...cleanNode(n), id: `b${si + 1}-${ni + 1}` } as AstNodeWithId;
     });
     const cleaned: any = cleanNode(sec as any);
     return {
@@ -84,51 +67,6 @@ export function buildDocumentAst(ast: ChapterAST): DocumentAst {
 
 // ── app-content.json ─────────────────────────────────────────────────────────
 
-export interface AppContent {
-  schema: AppContentSchema;
-  generatedAt: string;
-  title: string;
-  subject: string;
-  language: "ar" | "en";
-  sections: Array<{
-    id: string;
-    name: string;
-    heading: string;
-    blocks: Array<{ id: string; type: string; [k: string]: unknown }>;
-  }>;
-  /** Platform-facing concept index derived from definition blocks. */
-  concepts: Array<{
-    id: string;
-    term: string;
-    definition: string;
-    blockId: string;
-    sectionId: string;
-  }>;
-  /** Question candidates extracted from review sections. */
-  questionCandidates: Array<{
-    id: string;
-    text: string;
-    sectionId: string;
-    /** concept ids present in the same document — for later linking */
-    suggestedConceptIds: string[];
-  }>;
-  /** Flashcard candidates: front = term, back = definition. */
-  flashcards: Array<{
-    id: string;
-    front: string;
-    back: string;
-    conceptId: string;
-  }>;
-  stats: AppContentStats;
-}
-
-interface AppContentStats {
-  blocks: number;
-  concepts: number;
-  flashcards: number;
-  questionCandidates: number;
-}
-
 /**
  * The platform says "show this definition", not "edit this definition".
  * app-content.json is exactly that read model.
@@ -140,34 +78,42 @@ export function buildAppContent(ast: ChapterAST): AppContent {
   const flashcards: AppContent["flashcards"] = [];
   const questionCandidates: AppContent["questionCandidates"] = [];
 
+  // Pass 1 — concepts and flashcards. Done before questions so a definition
+  // that appears AFTER the review section is still linkable.
   for (const sec of doc.sections) {
     for (const node of sec.nodes) {
-      if (node.type === "definition") {
-        const conceptId = `c-${node.id}`;
-        concepts.push({
-          id: conceptId,
-          term: String(node.term ?? ""),
-          definition: String(node.definition ?? ""),
-          blockId: node.id,
+      if (node.type !== "definition") continue;
+      const conceptId = `c-${node.id}`;
+      concepts.push({
+        id: conceptId,
+        term: String(node.term ?? ""),
+        definition: String(node.definition ?? ""),
+        blockId: node.id,
+        sectionId: sec.id,
+      });
+      flashcards.push({
+        id: `f-${node.id}`,
+        front: String(node.term ?? ""),
+        back: String(node.definition ?? ""),
+        conceptId,
+      });
+    }
+  }
+
+  // Pass 2 — question candidates, each linked only to the concepts it names.
+  for (const sec of doc.sections) {
+    if (sec.name !== "review") continue;
+    for (const node of sec.nodes) {
+      if (node.type !== "list") continue;
+      const items = Array.isArray(node.items) ? node.items : [];
+      for (let i = 0; i < items.length; i++) {
+        const text = String(items[i]);
+        questionCandidates.push({
+          id: `q-${node.id}-${i + 1}`,
+          text,
           sectionId: sec.id,
+          suggestedConceptIds: suggestConceptIds(text, concepts),
         });
-        flashcards.push({
-          id: `f-${node.id}`,
-          front: String(node.term ?? ""),
-          back: String(node.definition ?? ""),
-          conceptId,
-        });
-      }
-      if (sec.name === "review" && node.type === "list") {
-        const items = Array.isArray(node.items) ? node.items : [];
-        for (let i = 0; i < items.length; i++) {
-          questionCandidates.push({
-            id: `q-${node.id}-${i + 1}`,
-            text: String(items[i]),
-            sectionId: sec.id,
-            suggestedConceptIds: concepts.map((c) => c.id),
-          });
-        }
       }
     }
   }
@@ -184,7 +130,10 @@ export function buildAppContent(ast: ChapterAST): AppContent {
       id: s.id,
       name: s.name,
       heading: s.heading,
-      blocks: s.nodes.map((n: any) => ({ id: n.id, type: n.type, ...payloadFor(n) })),
+      // key order (id, type, then payload) is part of the serialized artifact
+      blocks: s.nodes.map(
+        (n) => ({ id: n.id, type: n.type, ...payloadFor(n) }) as AppContent["sections"][number]["blocks"][number]
+      ),
     })),
     concepts,
     questionCandidates,
@@ -196,6 +145,42 @@ export function buildAppContent(ast: ChapterAST): AppContent {
       questionCandidates: questionCandidates.length,
     },
   };
+}
+
+/**
+ * Fold the Arabic (and Latin) spelling variants that would otherwise hide an
+ * obvious match: harakat, tatweel, آأإا, ى→ي, ة→ه. Matching stays a plain
+ * substring test — deliberately fuzzy toward recall, because the output is a
+ * *suggestion* a human confirms in the Studio, never an automatic link.
+ */
+function normalizeForMatch(s: string): string {
+  return s
+    .replace(/[\u064B-\u0652\u0670\u0640]/g, "")
+    .replace(/[\u0622\u0623\u0625\u0627]/g, "\u0627")
+    .replace(/\u0649/g, "\u064A")
+    .replace(/\u0629/g, "\u0647")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+/**
+ * Concepts a question actually mentions.
+ *
+ * The previous behaviour attached EVERY concept in the document to EVERY
+ * question — with 7 concepts that is 7 suggestions per question, all but one
+ * of them noise. An empty array is honest: the platform shows "no suggestion,
+ * link manually" instead of a pre-filled wrong answer.
+ */
+function suggestConceptIds(question: string, concepts: AppContent["concepts"]): string[] {
+  const q = normalizeForMatch(question);
+  if (!q) return [];
+  return concepts
+    .filter((c) => {
+      const term = normalizeForMatch(c.term);
+      return term.length > 1 && q.includes(term);
+    })
+    .map((c) => c.id);
 }
 
 function payloadFor(node: any): Record<string, unknown> {

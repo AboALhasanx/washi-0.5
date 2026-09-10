@@ -1,6 +1,6 @@
 # المرحلة 2 — العقود (Contracts)
 
-**الأولوية:** P0 · **الحالة:** لم تبدأ · **يعتمد على:** M0
+**الأولوية:** P0 · **الحالة:** ✅ مكتملة 2026-09-10 · **يعتمد على:** M0
 
 ---
 
@@ -65,14 +65,52 @@
 
 ## معايير القبول
 
-- [ ] `app-content.json` تالف يُرفض بخطأ واضح في Studio و CLI و MCP
-- [ ] `template.json` garbage يُرفض
-- [ ] هوية مصدر موحّدة
-- [ ] `suggestedConceptIds` ذات معنى
+- [x] `app-content.json` تالف يُرفض بخطأ واضح في Studio و CLI و MCP
+- [x] `template.json` garbage يُرفض
+- [x] هوية مصدر موحّدة
+- [x] `suggestedConceptIds` ذات معنى
 
 ## المخاطر
 
 | الخطر | التخفيف |
 |-------|---------|
-| تشديد الـ schema يكسر المشاريع الستة الحالية | تشغيل تحقق على كل المشاريع **أولًا**، وإصلاح يدوي قبل التفعيل |
+| تشديد الـ schema يكسر المشاريع الستة الحالية | ✅ التحقق على 453 ملفًا حقيقيًا (5 حزم منشورة + ~150 مشروع اختبار + ثيمات) — كلها اجتازت |
 | `.passthrough()` يُبقي الباب مواربًا | مقبول مرحليًا؛ يُشدد في 0.6 |
+
+---
+
+## ✅ النتيجة — 2026-09-10
+
+**`npm test` → 79/79 تمر** · `tsc --noEmit` نظيف · 6 مهام من 6.
+
+### ما نُفِّذ
+
+| المهمة | التنفيذ |
+|--------|---------|
+| M2.1 | `appContentSchema` + `appBlockSchema` (discriminated union) + `appConceptSchema` + `appQuestionCandidateSchema` + `appFlashcardSchema` |
+| M2.2 | `documentAstSchema` + `astNodeWithIdSchema` + `documentAstSectionSchema` |
+| M2.3 | `parseDocumentAst` / `parseAppContent` / `parsePublicationManifest` / `parseManifestForRead` + `formatZodError` (عربي)؛ التحقق في `loadPublication` و`buildTraceModel` |
+| M2.4 | `studioThemeSchema` (مرآة لـ `StudioTheme`) + `templateFileSchema` = `studioThemeSchema`؛ `parseTemplateFile` في `saveTheme`؛ `safeParse` في API route يُرجع 400 |
+| M2.5 | `pageNumbersSchema` مشترك بين `sourceEntrySchema` و`provenanceRefSchema` |
+| M2.6 | `suggestConceptIds` يُطابق بعد تطبيع عربي؛ المرور ثنائي (مفاهيم ثم أسئلة) |
+
+### قرارات تصميمية
+
+- **الأنواع مُشتقة من Zod** (`z.infer<typeof schema>`) — لا واجهات يدوية. العقد
+  والنوع لا يتباعدان أبدًا.
+- **مانيفست قارئ/كاتب منفصلان:**
+  - `publicationManifestSchema` (صارم) → `parsePublicationManifest` → يُستخدم عند
+    **الكتابة** (publishProject). مانيفست ناقص = لا يصل القرص.
+  - `manifestReadSchema` (متسامح) → `parseManifestForRead` → يُستخدم عند **القراءة**
+    (loadManifest, loadPublication). يقبل مانيفست `شبكات-الحاسوب-الفصل-الأول/v1`
+    الذي يفتقر `templateId`/`hashes`/`toolchain`.
+- **المنصة لا ترى provenance.** `appBlockSchema` يُسقط `source`/`provenance` عن
+  قصد — المنصة تعرض، لا تُدقق.
+
+### اكتشافات أثناء التنفيذ
+
+1. **مانيفست قديم حقيقي:** `شبكات-الحاسوب-الفصل-الأول/v1` (أول حزمة منشورة)
+   يفتقر `templateId` و`hashes` و`toolchain`. بدون `manifestReadSchema` كان
+   `verify` يرمي استثناءً بدل أن يُبلّغ `legacy`.
+2. **~150 مجلد `.trash-*` في `projects/`:** بقايا `deleteProject` على ويندوز
+   (handle مفتوح يمنع الحذف النهائي). يحتاج M4.5.

@@ -2,7 +2,7 @@
 
 **آخر تحديث:** 2026-09-10
 **المرحلة الجارية:** M2 — العقود
-**التقدم العام:** 12 / 40 مهمة · **M0 ✅ (74/74)** · **M1 ✅ (79/79 اختبارًا تمرّ)**
+**التقدم العام:** 18 / 40 مهمة · **M0 ✅ (74/74)** · **M1 ✅ (79/79)** · **M2 ✅ (79/79)**
 
 ---
 
@@ -68,25 +68,52 @@ detected» → «is detected».
 
 ---
 
-## M2 — العقود · P0 · *التالية*
-
-> نقطة البداية: `tests/artifacts.test.mjs` — أضف اختبارًا يرفض
-> `app-content.json` تالفًا. اليوم يُقبل بصمت.
+## ✅ M2 — العقود · P0 · *مكتملة 2026-09-10*
 
 | حالة | المهمة | الملف |
 |------|--------|-------|
-| [ ] | M2.1 `appContentSchema` (Zod) | `lib/schemas.ts` |
-| [ ] | M2.2 `documentAstSchema` (Zod) | `lib/schemas.ts` |
-| [ ] | M2.3 التحقق عند `loadPublication` + `buildTraceModel` | `lib/project.ts:459,540` |
-| [ ] | M2.4 `templateFileSchema` من `StudioTheme` | `lib/schemas.ts:305` |
-| [ ] | M2.5 `sourceRefSchema` مشترك | `lib/schemas.ts:16,61` |
-| [ ] | M2.6 إصلاح `suggestedConceptIds` | `lib/artifacts.ts:167` |
+| [x] | M2.1 `appContentSchema` (Zod) | `lib/schemas.ts` |
+| [x] | M2.2 `documentAstSchema` (Zod) | `lib/schemas.ts` |
+| [x] | M2.3 التحقق عند `loadPublication` + `buildTraceModel` | `lib/project.ts` |
+| [x] | M2.4 `templateFileSchema` من `StudioTheme` | `lib/schemas.ts` |
+| [x] | M2.5 `sourceRefSchema` مشترك | `lib/schemas.ts` |
+| [x] | M2.6 إصلاح `suggestedConceptIds` | `lib/artifacts.ts` |
 
-**القبول:** `app-content.json` تالف يُرفض بخطأ واضح في الواجهات الثلاث.
+**النتيجة:** `npm test` → **79/79 تمر**، `tsc` نظيف. Golden snapshot تحدّث.
+
+**التصميم النهائي:**
+- `DocumentAst` و`AppContent` و`AppBlock` و`TemplateFile` — أنواع **مشتقة** من
+  Zod (`z.infer`) لا مكتوبة يدويًا. العقد والنوع لا يتباعدان أبدًا.
+- `documentAstSchema` يحتفظ بالـ provenance (هذا هو هدف الملف).
+- `appBlockSchema` يُسقط provenance — المنصة تعرض، لا تُدقق.
+- `manifestReadSchema` مقابل `publicationManifestSchema`:
+  - **الكتابة** صارمة (`parsePublicationManifest`): مانيفست ناقص = لا يصل القرص.
+  - **القراءة** متسامحة (`parseManifestForRead`): حزمة `شبكات-الحاسوب-الفصل-الأول/v1`
+    (الأقدم، قبل وجود `templateId`/`hashes`/`toolchain`) تُقرأ وتُبلَّغ `legacy`.
+- `parseTemplateFile` يحمي `theme-server.saveTheme()` من garbage (مثل `mergeTheme("hello")`
+  الذي كان يُنتج مفاتيح `0..4` بدل رمي).
+- `pageNumbersSchema` مشترك بين `sourceEntrySchema` و`provenanceRefSchema` —
+  قاعدة "الصفحة عدد صحيح موجب" مُعلنة مرة واحدة.
+
+**M2.6 — `suggestedConceptIds`:**
+- السلوك القديم: كل مفهوم في المستند يُربط بكل سؤال → ضوضاء 100%.
+- السلوك الجديد: تطابق جزئي بعد تطبيع عربي (إزالة حركات، آأإا→ا، ى→ي، ة→ه).
+- إذا لم يُذكر المفهوم في نص السؤال → مصفوفة فارغة (صادقة).
+- المرور أصبح ثنائي: أولًا المفاهيم، ثم الأسئلة — تعريف يأتي بعد قسم المراجعة
+  ما زال مُرشحًا للربط.
+
+**اكتشافات أثناء التنفيذ:**
+- مانيفست `شبكات-الحاسوب-الفصل-الأول/v1` يفتقر `templateId`/`hashes`/`toolchain`.
+  بدون `manifestReadSchema` كان `verify` يرمي بدل أن يُبلّغ `legacy`.
+- ~150 مجلد `.trash-*` مخفي في `projects/` — بقايا `deleteProject` على ويندوز
+  (handle مفتوح يمنع الحذف). يحتاج M4.5.
 
 ---
 
-## M3 — الحدود المعمارية · P1
+## M3 — الحدود المعمارية · P1 · *التالية*
+
+> نقطة البداية: `lib/render-pdf.ts:62` — `applyStudioTheme(theme)` يُعدّل حالة
+> عالمية ويتبعه 3 `await` بدون قفل. هذا تلاشي (race) حقيقي قابل للتكرار.
 
 | حالة | المهمة | الملف |
 |------|--------|-------|
@@ -154,3 +181,4 @@ detected» → «is detected».
 | 2026-09-10 | — | إنشاء مجلد `plans/` وإيداع الخطة الأساسية |
 | 2026-09-10 | M0 | شبكة اختبارات كاملة: 4 ملفات، 74 اختبارًا، `npm test` يمر |
 | 2026-09-10 | M1 | ختم كل artifact بـ sha256؛ كاشف التغيير انقلب؛ 79/79 تمر |
+| 2026-09-10 | M2 | عقود Zod لكل artifact؛ `suggestedConceptIds` يُطابق نص السؤال؛ 79/79 تمر |

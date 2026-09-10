@@ -150,12 +150,19 @@ describe("app-content.json", () => {
     }
   });
 
-  /* ⚠️ KNOWN DEFECT (M2.6): suggestedConceptIds currently attaches EVERY
-   * concept in the document to EVERY question — 100% noise. This assertion
-   * pins the current behaviour so M2.6 is forced to update it. */
-  test("question candidates carry concept suggestions (current behaviour)", () => {
+  /* M2.6: suggestedConceptIds links a question only to the concepts it
+   * actually names (substring match after Arabic normalization). Empty array
+   * is honest — the platform shows "link manually" instead of wrong guesses. */
+  test("question candidates carry concept suggestions", () => {
     for (const q of appContent.questionCandidates) {
       assert.ok(Array.isArray(q.suggestedConceptIds));
+      // Every suggestion must be a concept that exists in the document.
+      for (const cid of q.suggestedConceptIds) {
+        assert.ok(
+          appContent.concepts.some((c) => c.id === cid),
+          `question ${q.id} suggests unknown concept ${cid}`
+        );
+      }
     }
   });
 

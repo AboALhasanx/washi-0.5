@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { listThemes, saveTheme, deleteTheme } from "@/lib/theme-server";
+import { templateFileSchema, formatZodError } from "@/lib/schemas";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,6 +31,14 @@ export async function POST(req: NextRequest) {
 
     if (!body.theme || typeof body.theme !== "object") {
       return NextResponse.json({ error: "Missing 'theme' object" }, { status: 400 });
+    }
+    // Structural garbage is a client error (400), not a server fault (500).
+    const check = templateFileSchema.safeParse(body.theme);
+    if (!check.success) {
+      return NextResponse.json(
+        { error: `قالب غير صالح — ${formatZodError(check.error)}` },
+        { status: 400 }
+      );
     }
     const saved = saveTheme(body.theme);
     return NextResponse.json({ theme: saved, themes: listThemes() });

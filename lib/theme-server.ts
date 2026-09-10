@@ -7,6 +7,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { StudioTheme, mergeTheme } from "./theme";
+import { parseTemplateFile } from "./schemas";
 
 const DATA_DIR = path.join(process.cwd(), ".washi");
 const THEMES_DIR = path.join(DATA_DIR, "themes");
@@ -37,9 +38,15 @@ export function listThemes(): StudioTheme[] {
     .filter(Boolean) as StudioTheme[];
 }
 
+/**
+ * Validate BEFORE mergeTheme. mergeTheme spreads whatever it is handed, so
+ * `mergeTheme("hello")` quietly yields a theme with keys 0..4 instead of
+ * failing — garbage would be written to disk and only surface as a broken PDF
+ * much later. Rejecting here keeps template.json structurally sound.
+ */
 export function saveTheme(theme: any): StudioTheme {
   ensureDirs();
-  const merged = mergeTheme(theme);
+  const merged = mergeTheme(parseTemplateFile(theme, "template.json"));
   merged.id = safeName(merged.id || merged.name);
   fs.writeFileSync(path.join(THEMES_DIR, `${merged.id}.json`), JSON.stringify(merged, null, 2), "utf8");
   return merged;

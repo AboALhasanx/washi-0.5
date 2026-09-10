@@ -1233,92 +1233,43 @@
         "id": "q-b9-2-1",
         "text": "عرّف الاتصال البياناتي واذكر عناصره الخمسة مع مثال متكامل.",
         "sectionId": "s9",
-        "suggestedConceptIds": [
-          "c-b2-3",
-          "c-b2-5",
-          "c-b3-3",
-          "c-b3-4",
-          "c-b3-5",
-          "c-b3-6"
-        ]
+        "suggestedConceptIds": []
       },
       {
         "id": "q-b9-2-2",
         "text": "قارن بين نموذج العميل/الخادم ونموذج الند للند من حيث الإدارة والتكلفة والأمان.",
         "sectionId": "s9",
-        "suggestedConceptIds": [
-          "c-b2-3",
-          "c-b2-5",
-          "c-b3-3",
-          "c-b3-4",
-          "c-b3-5",
-          "c-b3-6"
-        ]
+        "suggestedConceptIds": []
       },
       {
         "id": "q-b9-2-3",
         "text": "ملف حجمه 50 ميجابايت يُرسل عبر قناة 40 ميجابت في الثانية؛ احسب زمن الإرسال واذكر الخطوات.",
         "sectionId": "s9",
-        "suggestedConceptIds": [
-          "c-b2-3",
-          "c-b2-5",
-          "c-b3-3",
-          "c-b3-4",
-          "c-b3-5",
-          "c-b3-6"
-        ]
+        "suggestedConceptIds": []
       },
       {
         "id": "q-b9-2-4",
         "text": "قناة عرضها الترددي 4000 هرتز ونسبة الإشارة إلى الضوضاء 24 ديسيبل؛ احسب سعتها القصوى وفق شانون.",
         "sectionId": "s9",
-        "suggestedConceptIds": [
-          "c-b2-3",
-          "c-b2-5",
-          "c-b3-3",
-          "c-b3-4",
-          "c-b3-5",
-          "c-b3-6"
-        ]
+        "suggestedConceptIds": []
       },
       {
         "id": "q-b9-2-5",
         "text": "ما الفرق الجوهري بين الموجِّه Router والمبدِّل Switch من حيث طبقة العمل ومبدأ التوجيه؟",
         "sectionId": "s9",
-        "suggestedConceptIds": [
-          "c-b2-3",
-          "c-b2-5",
-          "c-b3-3",
-          "c-b3-4",
-          "c-b3-5",
-          "c-b3-6"
-        ]
+        "suggestedConceptIds": []
       },
       {
         "id": "q-b9-2-6",
         "text": "صنّف الشبكات حسب الامتداد الجغرافي مع ذكر خاصية مميزة لكل فئة.",
         "sectionId": "s9",
-        "suggestedConceptIds": [
-          "c-b2-3",
-          "c-b2-5",
-          "c-b3-3",
-          "c-b3-4",
-          "c-b3-5",
-          "c-b3-6"
-        ]
+        "suggestedConceptIds": []
       },
       {
         "id": "q-b9-2-7",
         "text": "لماذا يُعد الإنترنت مثالاً مثالياً على الشبكة الواسعة WAN وليس على الشبكة المحلية؟",
         "sectionId": "s9",
-        "suggestedConceptIds": [
-          "c-b2-3",
-          "c-b2-5",
-          "c-b3-3",
-          "c-b3-4",
-          "c-b3-5",
-          "c-b3-6"
-        ]
+        "suggestedConceptIds": []
       }
     ],
     "flashcards": [

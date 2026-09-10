@@ -23,8 +23,13 @@ import matter from "gray-matter";
 import {
   documentMetadataSchema,
   frontmatterSchema,
+  parseAppContent,
+  parseDocumentAst,
+  parseManifestForRead,
+  parsePublicationManifest,
   type DocumentMetadata,
   type DocumentStatus,
+  type ManifestRead,
 } from "./schemas";
 import { mergeTheme, type StudioTheme } from "./theme";
 import { parseMarkdown } from "./markdown-parser";
@@ -453,7 +458,10 @@ export async function publishProject(id: string): Promise<PublishResult> {
         takumi: getTakumiVersion(),
       },
     };
-    fs.writeFileSync(path.join(tmpDir, "manifest.json"), JSON.stringify(manifest, null, 2), "utf8");
+    // Write-side gate: a manifest that does not satisfy the contract must never
+    // reach disk — it would be unreadable by the next version of Washi.
+    const sealed = parsePublicationManifest(manifest, `manifest.json (v${version})`);
+    fs.writeFileSync(path.join(tmpDir, "manifest.json"), JSON.stringify(sealed, null, 2), "utf8");
 
     fs.renameSync(tmpDir, pubDir);
 
@@ -463,7 +471,7 @@ export async function publishProject(id: string): Promise<PublishResult> {
     metadata.updatedAt = manifest.publishedAt;
     writeMetadata(dir, metadata);
 
-    return { version, manifest, dir: pubDir };
+    return { version, manifest: sealed, dir: pubDir };
   } catch (e: any) {
     // never leave a partial package behind under a real version name
     try {
@@ -507,15 +515,26 @@ export function listPublications(id: string): PublicationSummary[] {
  * about to check — otherwise deleting one of them throws and the audit
  * collapses into "missing" instead of naming the file that disappeared.
  */
-export function loadManifest(id: string, version: number): PublicationManifest {
+export function loadManifest(id: string, version: number): ManifestRead {
   const pubDir = path.join(projectDir(id), "publications", `v${version}`);
   const file = path.join(pubDir, "manifest.json");
   if (!fs.existsSync(file)) {
     throw new Error("لا توجد حزمة نشر بهذا الإصدار");
   }
-  return JSON.parse(fs.readFileSync(file, "utf8")) as PublicationManifest;
+  return parseManifestForRead(
+    JSON.parse(fs.readFileSync(file, "utf8")),
+    `manifest.json (v${version})`
+  );
 }
 
+/**
+ * Read a frozen publication package.
+ *
+ * Everything is validated, not cast: a package that fails its contract is a
+ * corrupted package, and the caller must hear about it in the same words from
+ * the Studio, the CLI and MCP. `JSON.parse(...) as AppContent` would have let a
+ * half-written file reach the platform looking like valid content.
+ */
 export function loadPublication(id: string, version: number) {
   const pubDir = path.join(projectDir(id), "publications", `v${version}`);
   if (!fs.existsSync(path.join(pubDir, "manifest.json"))) {
@@ -523,9 +542,9 @@ export function loadPublication(id: string, version: number) {
   }
   const read = (f: string) => fs.readFileSync(path.join(pubDir, f), "utf8");
   return {
-    manifest: JSON.parse(read("manifest.json")) as PublicationManifest,
-    documentAst: JSON.parse(read("document.ast")) as DocumentAst,
-    appContent: JSON.parse(read("app-content.json")) as AppContent,
+    manifest: parseManifestForRead(JSON.parse(read("manifest.json")), `manifest.json (v${version})`),
+    documentAst: parseDocumentAst(JSON.parse(read("document.ast")), `document.ast (v${version})`),
+    appContent: parseAppContent(JSON.parse(read("app-content.json")), `app-content.json (v${version})`),
   };
 }
 
@@ -590,7 +609,7 @@ export function deleteProject(id: string): boolean {
 
 export interface TraceModel {
   source: string;
-  manifest: PublicationManifest | null;
+  manifest: ManifestRead | null;
   documentAst: DocumentAst;
   appContent: AppContent;
 }
@@ -604,11 +623,14 @@ export function buildTraceModel(id: string, version?: number): TraceModel {
   }
   const project = loadProject(id);
   const { ast } = parseMarkdown(project.content);
+  // Built in memory, then validated through the same contract the frozen
+  // package must satisfy — so a builder that drifts from its own schema fails
+  // here, in development, instead of inside a package that is already sealed.
   return {
     source: "live (current draft)",
     manifest: null,
-    documentAst: buildDocumentAst(ast),
-    appContent: buildAppContent(ast),
+    documentAst: parseDocumentAst(buildDocumentAst(ast), "document.ast (مسوّدة حيّة)"),
+    appContent: parseAppContent(buildAppContent(ast), "app-content.json (مسوّدة حيّة)"),
   };
 }
 
@@ -675,9 +697,9 @@ export function verifyPublication(id: string, version: number): VerifyResult {
 
 /** Manifests of every frozen publication (metadata.publicationCount is the
  *  authority; gaps in numbering are skipped). */
-export function listPublicationManifests(id: string): PublicationManifest[] {
+export function listPublicationManifests(id: string): ManifestRead[] {
   const project = loadProject(id);
-  const manifests: PublicationManifest[] = [];
+  const manifests: ManifestRead[] = [];
   for (let v = 1; v <= project.metadata.publicationCount; v++) {
     try {
       manifests.push(loadManifest(id, v));

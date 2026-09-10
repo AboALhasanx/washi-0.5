@@ -28,8 +28,8 @@ export const packagesCommand = new Command("packages")
       manifests.map((m) => [
         `v${m.version}`,
         m.publishedAt.slice(0, 16).replace("T", " "),
-        m.hashes ? m.hashes.contentSha256.slice(0, 12) + "…" : "قديمة بلا هاشات",
-        m.hashes ? m.hashes.pdfSha256.slice(0, 12) + "…" : "—",
+        m.hashes?.contentSha256 ? m.hashes.contentSha256.slice(0, 12) + "…" : "قديمة بلا هاشات",
+        m.hashes?.pdfSha256 ? m.hashes.pdfSha256.slice(0, 12) + "…" : "—",
         m.toolchain?.takumi ?? "—",
       ]),
     );
