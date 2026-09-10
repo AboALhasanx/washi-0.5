@@ -162,10 +162,10 @@ detected» → «is detected».
 
 | حالة | المهمة | القبول |
 |------|--------|--------|
-| [ ] | PS.0.1 stable ids + validation على read/write | garbage لا يدخل `.washi/prompts.json` |
-| [ ] | PS.0.2 tags + search + import/export | نسخ/استعادة المكتبة |
-| [ ] | PS.0.3 safe writes (atomic) | لا prompts.json فاسد عند crash |
-| [ ] | PS.0.4 tests على `lib/prompts.ts` | `npm test` يغطي CRUD+version |
+| [x] | PS.0.1 stable ids + validation على read/write | garbage لا يدخل `.washi/prompts.json` |
+| [x] | PS.0.2 tags + search + import/export | نسخ/استعادة المكتبة |
+| [x] | PS.0.3 safe writes (atomic) | لا prompts.json فاسد عند crash |
+| [x] | PS.0.4 tests على `lib/prompts.ts` | `npm test` يغطي CRUD+version |
 
 ### PS.1 — PromptSpec (العقد)
 
