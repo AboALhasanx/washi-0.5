@@ -1,15 +1,13 @@
 "use client";
 
 /**
- * app/prompts/page.tsx — Prompt Studio (wizard).
+ * app/prompts/page.tsx — Prompt Studio (complete merge).
  *
- * Practical Networks-first flow — NOT a chat:
+ * Two steps only:
  *   1) Source (paste or upload + title/document/pages)
- *   2) Presets (library checkboxes; Networks defaults pre-selected)
- *   3) Package (one .md handoff file — copy or download)
+ *   2) ONE complete merged prompt (all sections always) — copy / download
  *
- * Washi still does not call an LLM. The package is what you paste into
- * ChatGPT/Claude; the scaffold is a content.md starter.
+ * No chat. No fragment-by-checkbox. No LLM inside Washi.
  */
 
 import * as React from "react";
@@ -19,31 +17,21 @@ import {
   assemblePromptPackage,
   buildContentScaffold,
   packageSlug,
-  NETWORKS_DEFAULT_PRESET_MATCH,
 } from "@/lib/prompt-package";
 
 interface Prompt {
   id: number;
   title: string;
-  category: "global" | "subject" | "chapter" | "formatting";
-  subject?: string;
+  category: string;
   body: string;
-  tags?: string[];
-  versions: { body: string; at: string; note?: string }[];
 }
 
-type Step = 1 | 2 | 3;
-
-const STEP_LABELS = ["المصدر", "القوالب", "الحزمة"];
-
 export default function PromptsPage() {
-  const [step, setStep] = React.useState<Step>(1);
+  const [step, setStep] = React.useState<1 | 2>(1);
   const [prompts, setPrompts] = React.useState<Prompt[]>([]);
-  const [selectedIds, setSelectedIds] = React.useState<Set<number>>(new Set());
   const [notice, setNotice] = React.useState<string | null>(null);
   const [showLibrary, setShowLibrary] = React.useState(false);
 
-  // Step 1 — source
   const [title, setTitle] = React.useState("");
   const [documentName, setDocumentName] = React.useState("");
   const [pages, setPages] = React.useState("");
@@ -56,26 +44,17 @@ export default function PromptsPage() {
     setTimeout(() => setNotice(null), 3500);
   };
 
-  const load = React.useCallback(async () => {
-    const res = await fetch("/api/prompts");
-    const json = await res.json();
-    const list: Prompt[] = json.prompts ?? [];
-    setPrompts(list);
-    // Pre-select Networks defaults once
-    setSelectedIds((prev) => {
-      if (prev.size > 0) return prev;
-      const next = new Set<number>();
-      for (const p of list) {
-        const hit = NETWORKS_DEFAULT_PRESET_MATCH.some((m) => p.title.includes(m));
-        if (hit || p.category === "global") next.add(p.id);
-      }
-      return next.size ? next : new Set(list.slice(0, 3).map((p) => p.id));
-    });
-  }, []);
-
   React.useEffect(() => {
-    load();
-  }, [load]);
+    (async () => {
+      try {
+        const res = await fetch("/api/prompts");
+        const json = await res.json();
+        setPrompts(json.prompts ?? []);
+      } catch {
+        /* library optional for merge */
+      }
+    })();
+  }, []);
 
   const meta = {
     title: title || "فصل شبكات — عنوان مؤقت",
@@ -85,17 +64,11 @@ export default function PromptsPage() {
     language: "ar" as const,
   };
 
-  const selectedPrompts = prompts.filter((p) => selectedIds.has(p.id));
-
+  // Selections no longer fragment the output — always the full merge.
   const packageMd = React.useMemo(
-    () =>
-      assemblePromptPackage({
-        meta,
-        prompts: selectedPrompts.map((p) => ({ title: p.title, body: p.body })),
-        sourceText,
-      }),
+    () => assemblePromptPackage({ meta, prompts: [], sourceText }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [title, documentName, pages, sourceText, selectedIds, prompts]
+    [title, documentName, pages, sourceText]
   );
 
   const scaffoldMd = React.useMemo(() => buildContentScaffold(meta), [
@@ -131,17 +104,7 @@ export default function PromptsPage() {
     }
   };
 
-  const toggle = (id: number) => {
-    setSelectedIds((s) => {
-      const n = new Set(s);
-      if (n.has(id)) n.delete(id);
-      else n.add(id);
-      return n;
-    });
-  };
-
-  const canNextFrom1 = sourceText.trim().length > 0 || fileName !== null;
-  const canNextFrom2 = selectedIds.size > 0;
+  const canNext = sourceText.trim().length > 0;
 
   return (
     <div dir="rtl" className="min-h-screen" style={{ background: "var(--paper-2)" }}>
@@ -153,7 +116,7 @@ export default function PromptsPage() {
           <Logo size={28} />
           <span className="font-display font-black text-lg text-ink">Prompt Studio</span>
           <span className="font-mono text-[0.6rem] text-ink2 hidden sm:inline">
-            مسار الشبكات — حزمة Markdown واحدة
+            دمج كامل — prompt واحد لكل الأقسام
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -162,7 +125,7 @@ export default function PromptsPage() {
             className="btn-ghost !py-1.5 !text-xs"
             type="button"
           >
-            {showLibrary ? "إخفاء المكتبة" : "تحرير المكتبة"}
+            {showLibrary ? "إخفاء المكتبة" : "المكتبة"}
           </button>
           <Link href="/projects" className="btn-ghost !py-1.5 !text-xs">
             ← المشاريع
@@ -179,45 +142,36 @@ export default function PromptsPage() {
       )}
 
       <main className="max-w-4xl mx-auto p-5 space-y-4">
-        {/* Steps bar */}
         <ol className="flex items-center gap-2 text-xs">
-          {STEP_LABELS.map((label, i) => {
-            const n = (i + 1) as Step;
+          {(["المصدر", "الـprompt الكامل"] as const).map((label, i) => {
+            const n = (i + 1) as 1 | 2;
             const active = step === n;
-            const done = step > n;
             return (
               <li key={label} className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => {
-                    if (n === 1 || (n === 2 && canNextFrom1) || (n === 3 && canNextFrom1 && canNextFrom2)) {
-                      setStep(n);
-                    }
+                    if (n === 1 || canNext) setStep(n);
                   }}
                   className={`rounded-full px-3 py-1.5 border hairline ${
-                    active
-                      ? "bg-ink text-paper font-bold"
-                      : done
-                        ? "bg-emerald-50 text-emerald-900 border-emerald-200"
-                        : "bg-paper text-ink2"
+                    active ? "bg-ink text-paper font-bold" : "bg-paper text-ink2"
                   }`}
                 >
                   {n}. {label}
                 </button>
-                {i < 2 && <span className="text-ink2">←</span>}
+                {i === 0 && <span className="text-ink2">←</span>}
               </li>
             );
           })}
         </ol>
 
-        {/* ── Step 1 ── */}
         {step === 1 && (
           <section className="border hairline rounded-2xl bg-paper p-5 space-y-4">
             <div>
               <h1 className="font-display font-black text-ink text-lg">١ — المصدر</h1>
               <p className="text-xs text-ink2 mt-1">
-                ألصق نص الفصل أو ارفع <bdi>.md</bdi>/<bdi>.txt</bdi>. المادة ثابتة:{" "}
-                <bdi>computer-networks</bdi>.
+                ألصق النص أو ارفع ملفاً. المادة: <bdi>computer-networks</bdi>. النتيجة
+                اللاحقة prompt <b>مدمج كامل</b> بكل الأقسام — مو نسخ متعددة.
               </p>
             </div>
 
@@ -227,7 +181,7 @@ export default function PromptsPage() {
                 <input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="مثال: مقدمة إلى شبكات الحاسوب"
+                  placeholder="مقدمة إلى شبكات الحاسوب"
                   className="mt-1 w-full border hairline rounded-xl px-3 py-2 text-sm bg-paper-2 outline-none text-ink"
                 />
               </label>
@@ -295,7 +249,7 @@ export default function PromptsPage() {
               value={sourceText}
               onChange={(e) => setSourceText(e.target.value)}
               dir="auto"
-              rows={14}
+              rows={16}
               placeholder="ألصق هنا نص المصدر من المحاضرة / الـPDF…"
               className="w-full border hairline rounded-xl p-3 font-mono text-[0.75rem] leading-relaxed bg-paper-2 outline-none resize-y"
               spellCheck={false}
@@ -304,116 +258,24 @@ export default function PromptsPage() {
               {sourceText.length} chars
             </p>
 
-            <div className="flex justify-start">
-              <button
-                type="button"
-                disabled={!canNextFrom1}
-                onClick={() => setStep(2)}
-                className="btn-primary !py-2 !px-6 !text-sm disabled:opacity-40"
-              >
-                التالي — القوالب ←
-              </button>
-            </div>
+            <button
+              type="button"
+              disabled={!canNext}
+              onClick={() => setStep(2)}
+              className="btn-primary !py-2 !px-6 !text-sm disabled:opacity-40"
+            >
+              ولّد الـprompt الكامل ←
+            </button>
           </section>
         )}
 
-        {/* ── Step 2 ── */}
         {step === 2 && (
-          <section className="border hairline rounded-2xl bg-paper p-5 space-y-4">
-            <div>
-              <h1 className="font-display font-black text-ink text-lg">٢ — القوالب</h1>
-              <p className="text-xs text-ink2 mt-1">
-                اختر presets من المكتبة (مو محادثة). المقترح للشبكات مفعّل مسبقاً.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 text-[0.65rem]">
-              <button
-                type="button"
-                className="btn-ghost !py-1 !px-3"
-                onClick={() => {
-                  const next = new Set<number>();
-                  for (const p of prompts) {
-                    if (
-                      NETWORKS_DEFAULT_PRESET_MATCH.some((m) => p.title.includes(m)) ||
-                      p.category === "global"
-                    )
-                      next.add(p.id);
-                  }
-                  setSelectedIds(next);
-                }}
-              >
-                تفعيل مقترح الشبكات
-              </button>
-              <button
-                type="button"
-                className="btn-ghost !py-1 !px-3"
-                onClick={() => setSelectedIds(new Set())}
-              >
-                مسح التحديد
-              </button>
-              <button
-                type="button"
-                className="btn-ghost !py-1 !px-3"
-                onClick={() => setSelectedIds(new Set(prompts.map((p) => p.id)))}
-              >
-                الكل
-              </button>
-            </div>
-
-            <ul className="space-y-2">
-              {prompts.map((p) => {
-                const on = selectedIds.has(p.id);
-                return (
-                  <li key={p.id}>
-                    <label
-                      className={`flex items-start gap-3 border hairline rounded-xl px-3 py-2.5 cursor-pointer ${
-                        on ? "bg-paper-2" : "bg-paper"
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={on}
-                        onChange={() => toggle(p.id)}
-                        className="mt-1"
-                      />
-                      <span className="min-w-0">
-                        <span className="text-sm text-ink font-semibold block">{p.title}</span>
-                        <span className="text-[0.62rem] text-ink2">
-                          {p.category}
-                          {p.subject ? ` · ${p.subject}` : ""} · {p.body.length} حرف
-                        </span>
-                      </span>
-                    </label>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className="flex justify-between">
-              <button type="button" className="btn-ghost !py-2 !text-sm" onClick={() => setStep(1)}>
-                → رجوع
-              </button>
-              <button
-                type="button"
-                disabled={!canNextFrom2}
-                onClick={() => setStep(3)}
-                className="btn-primary !py-2 !px-6 !text-sm disabled:opacity-40"
-              >
-                التالي — الدمج ←
-              </button>
-            </div>
-          </section>
-        )}
-
-        {/* ── Step 3 ── */}
-        {step === 3 && (
           <section className="border hairline rounded-2xl bg-paper overflow-hidden">
             <div className="px-5 py-4 border-b hairline bg-ink text-paper">
-              <h1 className="font-display font-black text-lg">٣ — الـprompt المدمج</h1>
+              <h1 className="font-display font-black text-lg">٢ — الـprompt الكامل المدمج</h1>
               <p className="text-[0.7rem] text-paper/70 mt-1">
-                ملف واحد متماسك — مو نسخ متتالية للقوالب. انسخه أو حمّله مرة واحدة إلى
-                الـAI الخارجي.
+                ملف واحد يحوي كل الأقسام: العقد · التتبع · الهيكل · التعريفات · الأسئلة ·
+                البطاقات · التدقيق · خصوصية الشبكات · المصدر. انسخه أو حمّله مرة واحدة.
               </p>
             </div>
 
@@ -421,23 +283,25 @@ export default function PromptsPage() {
               <button
                 type="button"
                 className="btn-primary !py-2 !px-4 !text-xs"
-                onClick={() => copy(packageMd, "نُسخ الـprompt المدمج")}
+                onClick={() => copy(packageMd, "نُسخ الـprompt الكامل")}
               >
-                نسخ الـprompt المدمج
+                نسخ الـprompt الكامل
               </button>
               <button
                 type="button"
                 className="btn-ghost !py-2 !text-xs"
-                onClick={() => download(packageMd, `${packageSlug(title)}-unified-prompt.md`)}
+                onClick={() =>
+                  download(packageMd, `${packageSlug(title)}-complete-prompt.md`)
+                }
               >
-                تحميل prompt مدمج
+                تحميل prompt كامل
               </button>
               <button
                 type="button"
                 className="btn-ghost !py-2 !text-xs"
                 onClick={() => copy(scaffoldMd, "نُسخ الهيكل content.md")}
               >
-                نسخ هيكل content.md
+                نسخ content.md
               </button>
               <button
                 type="button"
@@ -446,8 +310,8 @@ export default function PromptsPage() {
               >
                 تحميل content.md
               </button>
-              <span className="text-[0.62rem] text-ink2 self-center">
-                {selectedPrompts.length} قالب · {sourceText.length} حرف مصدر
+              <span className="text-[0.62rem] text-ink2 self-center" dir="ltr">
+                {packageMd.length} chars
               </span>
             </div>
 
@@ -455,91 +319,40 @@ export default function PromptsPage() {
               readOnly
               value={packageMd}
               dir="auto"
-              rows={22}
+              rows={24}
               className="w-full p-4 font-mono text-[0.72rem] leading-relaxed bg-paper-2 outline-none resize-y"
               spellCheck={false}
             />
 
             <div className="px-5 py-3 border-t hairline flex justify-between items-center">
-              <button type="button" className="btn-ghost !py-2 !text-sm" onClick={() => setStep(2)}>
-                → رجوع للقوالب
+              <button type="button" className="btn-ghost !py-2 !text-sm" onClick={() => setStep(1)}>
+                → تعديل المصدر
               </button>
               <Link href="/projects" className="btn-primary !py-2 !px-5 !text-xs">
-                فتح المشاريع لإنشاء المشروع ←
+                المشاريع ←
               </Link>
             </div>
           </section>
         )}
 
-        {/* Optional library editor */}
         {showLibrary && (
-          <LibraryPanel
-            prompts={prompts}
-            onChanged={load}
-          />
+          <section className="border hairline rounded-2xl bg-paper overflow-hidden">
+            <div className="px-4 py-2.5 border-b hairline text-xs font-bold text-ink">
+              مكتبة المرجع (لا تُلصق في الخرج — الدمج مدمج بالكود)
+            </div>
+            <ul className="max-h-48 overflow-y-auto text-xs">
+              {prompts.map((p) => (
+                <li key={p.id} className="px-4 py-1.5 border-b hairline last:border-0 text-ink2">
+                  #{p.id} {p.title}
+                </li>
+              ))}
+              {prompts.length === 0 && (
+                <li className="px-4 py-2 text-ink2">—</li>
+              )}
+            </ul>
+          </section>
         )}
       </main>
     </div>
-  );
-}
-
-function LibraryPanel({
-  prompts,
-  onChanged,
-}: {
-  prompts: Prompt[];
-  onChanged: () => void;
-}) {
-  const [openId, setOpenId] = React.useState<number | null>(null);
-  const [body, setBody] = React.useState("");
-
-  const open = (p: Prompt) => {
-    setOpenId(p.id);
-    setBody(p.body);
-  };
-
-  const save = async () => {
-    if (openId == null) return;
-    await fetch("/api/prompts", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: openId, body }),
-    });
-    onChanged();
-  };
-
-  return (
-    <section className="border hairline rounded-2xl bg-paper overflow-hidden">
-      <div className="px-4 py-2.5 border-b hairline text-xs font-bold text-ink">
-        مكتبة القوالب (متقدمة)
-      </div>
-      <ul className="max-h-64 overflow-y-auto">
-        {prompts.map((p) => (
-          <li key={p.id} className="border-b hairline last:border-0">
-            <button
-              type="button"
-              onClick={() => open(p)}
-              className="w-full text-start px-4 py-2 text-xs hover:bg-paper-2"
-            >
-              #{p.id} {p.title}
-            </button>
-            {openId === p.id && (
-              <div className="px-4 pb-3 space-y-2">
-                <textarea
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  rows={8}
-                  dir="auto"
-                  className="w-full border hairline rounded-xl p-2 font-mono text-[0.7rem] bg-paper-2"
-                />
-                <button type="button" className="btn-primary !py-1.5 !text-xs" onClick={save}>
-                  حفظ
-                </button>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
-    </section>
   );
 }
