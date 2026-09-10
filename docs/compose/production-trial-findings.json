@@ -1,0 +1,32 @@
+{
+  "at": "2026-09-10T20:47:05.291Z",
+  "sources": [
+    "chapter-09 software-engineering (committed sample)",
+    "computer-networks-ch1 (public sample)",
+    "تطور-البرمجيات-الفصل-التاسع",
+    "شبكات-الحاسوب-الفصل-الأول",
+    "فصل-إجهاد-أكواد",
+    "فصل-إجهاد-معادلات",
+    "فصل-إجهاد-خليط"
+  ],
+  "findings": [
+    {
+      "kind": "editor",
+      "severity": "info",
+      "title": "no concepts extracted: فصل-إجهاد-أكواد-mtvzz1ik",
+      "detail": "review sections / definitions may be thin"
+    },
+    {
+      "kind": "editor",
+      "severity": "info",
+      "title": "no concepts extracted: فصل-إجهاد-معادلات-mtvzzght",
+      "detail": "review sections / definitions may be thin"
+    },
+    {
+      "kind": "lifecycle",
+      "severity": "warn",
+      "title": "255 .trash-* husks on main projects/",
+      "detail": "Windows deleteProject residue — M4.5 / ops cleanup"
+    }
+  ]
+}

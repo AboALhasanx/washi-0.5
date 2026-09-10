@@ -1,8 +1,8 @@
 # TODO — الخطة الأساسية
 
 **آخر تحديث:** 2026-09-10
-**المرحلة الجارية:** M3 — الحدود المعمارية
-**التقدم العام:** 19 / 40 مهمة · **M0 ✅** · **M1 ✅** · **M2 ✅** · **M3.2 ✅**
+**المرحلة الجارية:** Production Trial ✅ → **التالية: Studio Editor Foundation**
+**التقدم العام:** M0 ✅ · M1 ✅ · M2 ✅ · **M3 FROZEN** · **Trial ✅ (0 critical)**
 
 ---
 
@@ -129,14 +129,48 @@ detected» → «is detected».
 
 ---
 
-## M4 — دورة الحياة · P1
+## ✅ Production Trial · *مكتمل 2026-09-10*
+
+> بوابة ما قبل M4 Studio. مواد حقيقية عبر المسار الكامل.
+
+| حالة | البند |
+|------|-------|
+| [x] | 7 مصادر: new→validate→render→publish→verify→trace |
+| [x] | **0 critical** — كل الحزم verify ok |
+| [x] | التقرير: `docs/compose/production-trial.md` |
+| [x] | السكربت: `scripts/production-trial.mjs` |
+
+**ملاحظات Trial (لا تُغلق هسه):**
+- E1/E2/E3 → **دخل Editor Foundation (M4 Studio)**
+- S1: 255 `.trash-*` على main → تنظيف ops منفصل
+- S2: مشروع شبكات على main قصير (0.9KB) — لا نلمسه
+
+---
+
+## M4 Studio — Editor Productization · *التالية*
+
+> **لا M3.3/M3.4. لا إعادة بناء رندرر. لا AI داخلي.**
+> التحرير فوق model الحالي: Visual action → Markdown → AST → Takumi → Preview.
+
+| حالة | المهمة |
+|------|--------|
+| [ ] | M4.S1 Editor Foundation — تحرير paragraph/heading/definition/callout/formula/table + insert/delete/reorder |
+| [ ] | M4.S2 Presentation — **فقط** ما هو موجود بـ StudioTheme (لا حقول جديدة بلا قرار) |
+| [ ] | M4.S3 Template Studio — create/duplicate/edit/apply (لا marketplace) |
+| [ ] | M4.S4 Publication UX — وضوح الدورة على ما هو موجود (لا نظام نشر جديد) |
+
+**بوابة M4.S3:** مراجعة مصغرة لـ `templateFileSchema` أولاً.
+
+---
+
+## M4-Lifecycle (الخطة الأصلية) · *غير blocker — يمكن دمجها مع M4.S4*
 
 | حالة | المهمة | الملف |
 |------|--------|-------|
-| [ ] | M4.1 `save`: `snapshotVersion` افتراضه `false` | `lib/project.ts:230` |
-| [ ] | M4.2 `restoreSnapshot`: نسخة واحدة لا اثنتان | `lib/project.ts:270` |
-| [ ] | M4.3 سياسة استبقاء النسخ | `lib/project.ts:199` |
-| [ ] | M4.4 `washi snapshot` اليدوي = مصدر النسخ المهمة | `cli/commands/snapshot.ts` |
+| [ ] | L1 `save`: `snapshotVersion` افتراضه `false` | `lib/project.ts:230` |
+| [ ] | L2 `restoreSnapshot`: نسخة واحدة لا اثنتان | `lib/project.ts:270` |
+| [ ] | L3 سياسة استبقاء النسخ | `lib/project.ts:199` |
+| [ ] | L4 `washi snapshot` اليدوي = مصدر النسخ المهمة | `cli/commands/snapshot.ts` |
 | [ ] | M4.5 إزالة `execSync` من `deleteProject` | `lib/project.ts:516` |
 
 **القبول:** خمس حفظات متتالية → `currentVersion` unchanged.
