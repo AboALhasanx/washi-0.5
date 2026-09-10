@@ -14,6 +14,7 @@ plans/
 ├── README.md          ← هذا الملف: كيف تستخدم المجلد
 ├── master-plan.md     ← التقييم الكامل + الخطة الأساسية (M0–M7)
 ├── TODO.md            ← قائمة المهام القابلة للتحقق ✅ (ابدأ من هنا كل جلسة)
+├── KNOWN-DEFECTS.md   ← عيوب معروفة/اختبارات مضللة — لا تُخفَّ كـ "pre-existing"
 └── phases/
     ├── phase-0-test-harness.md
     ├── phase-1-publication-integrity.md
