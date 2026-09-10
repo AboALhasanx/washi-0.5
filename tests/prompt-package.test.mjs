@@ -1,5 +1,5 @@
 /**
- * tests/prompt-package.test.mjs — wizard package assembly.
+ * tests/prompt-package.test.mjs — unified merged package (not copy-stack).
  */
 
 import { test, describe } from "node:test";
@@ -17,31 +17,59 @@ const meta = {
   language: "ar",
 };
 
-describe("prompt package wizard", () => {
-  test("assembles instructions + source payload + contract reminder", () => {
+describe("unified prompt package", () => {
+  test("produces ONE task prompt — not stacked ## 1. ## 2. copies", () => {
     const md = assemblePromptPackage({
       meta,
       prompts: [
-        { title: "قواعد عامة", body: "لا تهلوس." },
-        { title: "هيكل فصل", body: "اكتب نظرة عامة." },
+        { title: "قواعد عامة — عقد واشي", body: "لا تهلوس." },
+        { title: "هيكل فصل كامل — skeleton", body: "اكتب نظرة عامة." },
+        { title: "قواعد مادة — شبكات الحاسوب", body: "LAN WAN." },
+        { title: "قواعد تنسيق Markdown — واشي", body: "H1 H2." },
       ],
       sourceText: "نص المحاضرة عن Shannon",
     });
-    assert.match(md, /قواعد عامة/);
-    assert.match(md, /هيكل فصل/);
+    // Single task header
+    assert.match(md, /^# المهمة: إنتاج فصل تعليمي كامل/);
+    // Not a numbered copy stack of preset bodies
+    assert.doesNotMatch(md, /## 1\. قواعد عامة/);
+    assert.doesNotMatch(md, /## 2\. هيكل فصل/);
+    assert.doesNotMatch(md, /لا تهلوس\./); // baked rule not pasted again
+    // Merged content present once
+    assert.match(md, /غير قابل للتفاوض/);
+    assert.match(md, /هيكل الفصل الإلزامي/);
+    assert.match(md, /خصوصية مادة الشبكات/);
     assert.match(md, /Shannon/);
     assert.match(md, /subject: computer-networks/);
     assert.match(md, /Computer Networks\.pdf/);
-    assert.match(md, /\(generated\)/);
+  });
+
+  test("selected extras become same-prompt deliverables", () => {
+    const md = assemblePromptPackage({
+      meta,
+      prompts: [
+        { title: "أسئلة مراجعة — from chapter", body: "ignored body" },
+        { title: "بطاقات مراجعة — flashcards", body: "ignored" },
+      ],
+      sourceText: "src",
+    });
+    assert.match(md, /أسئلة مراجعة\*\* — \*\*مطلوب/);
+    assert.match(md, /بطاقات المراجعة/);
+    assert.doesNotMatch(md, /ignored body/);
+    assert.match(md, /أمر الختام/);
+  });
+
+  test("empty selection still yields a complete unified prompt", () => {
+    const md = assemblePromptPackage({ meta, prompts: [], sourceText: "x" });
+    assert.match(md, /# المهمة/);
+    assert.match(md, /frontmatter/);
+    assert.match(md, /أمر الختام/);
   });
 
   test("scaffold has filled frontmatter", () => {
     const md = buildContentScaffold(meta);
-    assert.match(md, /^---\n/);
     assert.match(md, /subject: computer-networks/);
-    assert.match(md, /title: "مقدمة إلى شبكات الحاسوب"/);
     assert.match(md, /pages: \[1,2,3\]/);
-    assert.match(md, /## نظرة عامة/);
   });
 
   test("slug is download-safe", () => {

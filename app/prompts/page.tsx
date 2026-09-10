@@ -400,7 +400,7 @@ export default function PromptsPage() {
                 onClick={() => setStep(3)}
                 className="btn-primary !py-2 !px-6 !text-sm disabled:opacity-40"
               >
-                التالي — الحزمة ←
+                التالي — الدمج ←
               </button>
             </div>
           </section>
@@ -410,10 +410,10 @@ export default function PromptsPage() {
         {step === 3 && (
           <section className="border hairline rounded-2xl bg-paper overflow-hidden">
             <div className="px-5 py-4 border-b hairline bg-ink text-paper">
-              <h1 className="font-display font-black text-lg">٣ — الحزمة</h1>
+              <h1 className="font-display font-black text-lg">٣ — الـprompt المدمج</h1>
               <p className="text-[0.7rem] text-paper/70 mt-1">
-                ملف Markdown واحد. انسخه أو حمّله — ثم الصقه في الـAI الخارجي. النتيجة تُحفظ
-                كمشروع واشي.
+                ملف واحد متماسك — مو نسخ متتالية للقوالب. انسخه أو حمّله مرة واحدة إلى
+                الـAI الخارجي.
               </p>
             </div>
 
@@ -421,16 +421,16 @@ export default function PromptsPage() {
               <button
                 type="button"
                 className="btn-primary !py-2 !px-4 !text-xs"
-                onClick={() => copy(packageMd, "نُسخة الحزمة كاملة")}
+                onClick={() => copy(packageMd, "نُسخ الـprompt المدمج")}
               >
-                نسخ الحزمة
+                نسخ الـprompt المدمج
               </button>
               <button
                 type="button"
                 className="btn-ghost !py-2 !text-xs"
-                onClick={() => download(packageMd, `${packageSlug(title)}-prompt-package.md`)}
+                onClick={() => download(packageMd, `${packageSlug(title)}-unified-prompt.md`)}
               >
-                تحميل حزمة الـprompt
+                تحميل prompt مدمج
               </button>
               <button
                 type="button"
