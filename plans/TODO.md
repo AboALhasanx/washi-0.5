@@ -171,11 +171,11 @@ detected» → «is detected».
 
 | حالة | المهمة | القبول |
 |------|--------|--------|
-| [ ] | PS.1.1 `promptSpecSchema` (Zod): task, variables, constraints, outputContract, examples | يُرفض بلا LLM |
-| [ ] | PS.1.2 migration: Prompt قديم → PromptSpec (body = instruction) | التوافق مع المكتبة الحالية |
-| [ ] | PS.1.3 `renderPrompt(spec, inputs) → string` | copy-to-external-AI يبقى يعمل |
-| [ ] | PS.1.4 أمثلة Washi جاهزة: provenance good/bad · definition · generated marker | مربوطة بعقد parser |
-| [ ] | PS.1.5 CLI: `washi prompt list/show/validate/render` | بدون run/optimizer |
+| [x] | PS.1.1 `promptSpecSchema` (Zod): task, variables, constraints, outputContract, examples | يُرفض بلا LLM |
+| [x] | PS.1.2 migration: Prompt قديم → PromptSpec (body = instruction) | التوافق مع المكتبة الحالية |
+| [x] | PS.1.3 `renderPrompt(spec, inputs) → string` | copy-to-external-AI يبقى يعمل |
+| [x] | PS.1.4 أمثلة Washi جاهزة: provenance good/bad · definition · generated marker | مربوطة بعقد parser |
+| [x] | PS.1.5 CLI: `washi prompt list/show/validate/render` | بدون run/optimizer |
 
 ### Definition of Done لـ PS.F
 

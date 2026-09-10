@@ -25,6 +25,7 @@ import { deleteCommand } from "./commands/delete";
 import { editCommand } from "./commands/edit";
 import { serveCommand } from "./commands/serve";
 import { demoCommand } from "./commands/demo";
+import { promptCommand } from "./commands/prompt";
 
 const program = new Command();
 
@@ -56,6 +57,7 @@ program.addCommand(deleteCommand);
 program.addCommand(editCommand);
 program.addCommand(serveCommand);
 program.addCommand(demoCommand);
+program.addCommand(promptCommand);
 
 // --no-color is a global option; apply it before command handlers run
 program.hook("preAction", (_thisCommand, actionCommand) => {
