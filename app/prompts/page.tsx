@@ -34,7 +34,6 @@ export default function PromptsPage() {
 
   const [title, setTitle] = React.useState("");
   const [documentName, setDocumentName] = React.useState("");
-  const [pages, setPages] = React.useState("");
   const [sourceText, setSourceText] = React.useState("");
   const [fileName, setFileName] = React.useState<string | null>(null);
   const fileRef = React.useRef<HTMLInputElement>(null);
@@ -59,22 +58,20 @@ export default function PromptsPage() {
   const meta = {
     title: title || "فصل شبكات — عنوان مؤقت",
     document: documentName || "Source.pdf",
-    pages: pages || "1",
     subject: "computer-networks",
     language: "ar" as const,
   };
 
-  // Selections no longer fragment the output — always the full merge.
+  // Full document by default — no page picker.
   const packageMd = React.useMemo(
     () => assemblePromptPackage({ meta, prompts: [], sourceText }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [title, documentName, pages, sourceText]
+    [title, documentName, sourceText]
   );
 
   const scaffoldMd = React.useMemo(() => buildContentScaffold(meta), [
     title,
     documentName,
-    pages,
   ]);
 
   const onFile = async (file: File) => {
@@ -175,7 +172,7 @@ export default function PromptsPage() {
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-3 gap-3">
+            <div className="grid sm:grid-cols-2 gap-3">
               <label className="block text-xs text-ink2">
                 عنوان الفصل
                 <input
@@ -195,17 +192,10 @@ export default function PromptsPage() {
                   dir="ltr"
                 />
               </label>
-              <label className="block text-xs text-ink2">
-                الصفحات
-                <input
-                  value={pages}
-                  onChange={(e) => setPages(e.target.value)}
-                  placeholder="1,2,3"
-                  className="mt-1 w-full border hairline rounded-xl px-3 py-2 text-sm bg-paper-2 outline-none text-ink font-mono"
-                  dir="ltr"
-                />
-              </label>
             </div>
+            <p className="text-[0.65rem] text-ink2">
+              المصدر <b>كامل</b> — بلا تحديد صفحات. ألصق/ارفع كل نص الفصل.
+            </p>
 
             <div className="flex flex-wrap items-center gap-2">
               <button

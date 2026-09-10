@@ -12,7 +12,6 @@ const { assemblePromptPackage, buildContentScaffold, packageSlug } = await impor
 const meta = {
   title: "مقدمة إلى شبكات الحاسوب",
   document: "Computer Networks.pdf",
-  pages: "1,2,3",
   subject: "computer-networks",
   language: "ar",
 };
@@ -69,5 +68,24 @@ describe("complete merged prompt", () => {
 
   test("slug safe", () => {
     assert.equal(packageSlug("فصل: شبكات?"), "فصل-شبكات");
+  });
+
+  test("empty pages = full document mode", () => {
+    const md = assemblePromptPackage({ meta, prompts: [], sourceText: "كل نص الملف" });
+    assert.match(md, /المستند كامل/);
+    assert.match(md, /pages: \[1\]/);
+    assert.match(md, /مرجع كامل الملف/);
+    assert.doesNotMatch(md, /الصفحات المسموحة/);
+    assert.match(md, /كل نص الملف/);
+  });
+
+  test("explicit pages still pin the list", () => {
+    const md = assemblePromptPackage({
+      meta: { ...meta, pages: "2,5,9" },
+      prompts: [],
+      sourceText: "src",
+    });
+    assert.match(md, /pages: \[2,5,9\]/);
+    assert.doesNotMatch(md, /المستند كامل/);
   });
 });

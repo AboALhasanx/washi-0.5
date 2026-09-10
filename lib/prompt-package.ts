@@ -7,7 +7,8 @@
 export interface PackageSourceMeta {
   title: string;
   document: string;
-  pages: string;
+  /** Optional. Empty = full document (no page restriction). */
+  pages?: string;
   subject?: string;
   language?: "ar" | "en";
 }
@@ -45,7 +46,9 @@ export function packageSlug(title: string): string {
 export function assemblePromptPackage(input: AssembleInput): string {
   const { meta, sourceText } = input;
   const subject = meta.subject?.trim() || "computer-networks";
-  const pages = meta.pages.trim() || "1";
+  const pagesRaw = (meta.pages ?? "").trim();
+  const fullDoc = pagesRaw.length === 0;
+  const pages = pagesRaw || "1";
   const document = meta.document.trim() || "Source.pdf";
   const title = meta.title.trim() || "فصل جديد";
   const lang = meta.language ?? "ar";
@@ -67,7 +70,11 @@ export function assemblePromptPackage(input: AssembleInput): string {
   L.push(`| المادة | \`${subject}\`${isNetworks ? " — شبكات الحاسوب" : ""} |`);
   L.push(`| العنوان | ${title} |`);
   L.push(`| المستند | ${document} |`);
-  L.push(`| الصفحات المسموحة | ${pages} |`);
+  L.push(
+    fullDoc
+      ? `| الصفحات | **المستند كامل** (بدون تحديد) |`
+      : `| الصفحات المحددة | ${pages} |`
+  );
   L.push(`| اللغة | ${lang} |`);
   L.push("");
 
@@ -91,18 +98,38 @@ export function assemblePromptPackage(input: AssembleInput): string {
   /* ═══════════════ FRONTMATTER ═══════════════ */
   L.push(`## ١. الـfrontmatter (إلزامي — أول الملف)`);
   L.push("");
-  L.push("```yaml");
-  L.push("---");
-  L.push(`subject: ${subject}`);
-  L.push(`title: "${title}"`);
-  L.push(`language: ${lang}`);
-  L.push("sources:");
-  L.push(`  - document: "${document}"`);
-  L.push(`    pages: [${pages}]`);
-  L.push("---");
-  L.push("```");
-  L.push("");
-  L.push(`لا تضف حقولاً أخرى. لا \`theme\`. لا مصادر وهمية.`);
+  if (fullDoc) {
+    L.push(`المصدر **كامل** — لا قيد صفحات. استعمل هذا الـfrontmatter كما هو:`);
+    L.push("");
+    L.push("```yaml");
+    L.push("---");
+    L.push(`subject: ${subject}`);
+    L.push(`title: "${title}"`);
+    L.push(`language: ${lang}`);
+    L.push("sources:");
+    L.push(`  - document: "${document}"`);
+    L.push(`    pages: [1]`);
+    L.push("---");
+    L.push("```");
+    L.push("");
+    L.push(
+      `\`pages: [1]\` هنا **مرجع كامل الملف** في واشي (عقد الهوية)، وليس ادعاء أن المحتوى صفحة واحدة.`
+    );
+    L.push(`لا تغيّرها. لا تضف أرقاماً أخرى.`);
+  } else {
+    L.push("```yaml");
+    L.push("---");
+    L.push(`subject: ${subject}`);
+    L.push(`title: "${title}"`);
+    L.push(`language: ${lang}`);
+    L.push("sources:");
+    L.push(`  - document: "${document}"`);
+    L.push(`    pages: [${pages}]`);
+    L.push("---");
+    L.push("```");
+    L.push("");
+    L.push(`لا تضف حقولاً أخرى. لا \`theme\`. لا مصادر وهمية.`);
+  }
   L.push("");
 
   /* ═══════════════ PROVENANCE ═══════════════ */
@@ -110,12 +137,25 @@ export function assemblePromptPackage(input: AssembleInput): string {
   L.push("");
   L.push(`قبل **كل** قسم H2 منقول من المصدر:`);
   L.push("");
-  L.push("```markdown");
-  L.push(`<!-- source: ${document} p.${firstPage} -->`);
-  L.push("```");
-  L.push("");
-  L.push(`- استعمل فقط الأرقام المذكورة في \`pages\` أعلاه.`);
-  L.push(`- عدة صفحات: \`p.1,2,3\` أو تعليقان منفصلان.`);
+  if (fullDoc) {
+    L.push("```markdown");
+    L.push(`<!-- source: ${document} p.1 -->`);
+    L.push("```");
+    L.push("");
+    L.push(`- المصدر المرفق **بأكمله** هو المرجع — لا تقيّد نفسك بصفحات.`);
+    L.push(
+      `- إن ظهر رقم صفحة واضح داخل النص (مثل \`p.12\`) يمكنك استعماله في التعليق؛ وإلا ثبّت \`p.1\``
+    );
+    L.push(`  كعلامة أن المقطع من المستند الكامل (هكذا يقرأ واشي الهوية).`);
+    L.push(`- **ممنوع** اختراع أرقام صفحات غير واردة في النص.`);
+  } else {
+    L.push("```markdown");
+    L.push(`<!-- source: ${document} p.${firstPage} -->`);
+    L.push("```");
+    L.push("");
+    L.push(`- استعمل فقط الأرقام المذكورة في \`pages\` أعلاه.`);
+    L.push(`- عدة صفحات: \`p.1,2,3\` أو تعليقان منفصلان.`);
+  }
   L.push(`- **محتوى مولّد** (أسئلة، بطاقات، خلاصة، تدقيق ذاتي) يبدأ بـ:`);
   L.push("```markdown");
   L.push("<!-- source: (generated) -->");
@@ -278,7 +318,11 @@ export function assemblePromptPackage(input: AssembleInput): string {
   L.push("[ ] بطاقات مراجعة موجودة وبـ (generated)");
   L.push("[ ] تدقيق المصادر موجود");
   L.push("[ ] التعريفات بصيغة [!NOTE] **Term:**");
-  L.push("[ ] لا صفحة خارج pages");
+  L.push(
+    fullDoc
+      ? "[ ] لا معلومة من خارج المصدر المرفق (كامل الملف)"
+      : "[ ] لا صفحة خارج pages"
+  );
   L.push("[ ] لا معلومة بلا مصدر");
   L.push("[ ] لا نص خارج content.md");
   L.push("```");
@@ -309,9 +353,10 @@ export function assemblePromptPackage(input: AssembleInput): string {
 /** Starter content.md scaffold with frontmatter filled. */
 export function buildContentScaffold(meta: PackageSourceMeta): string {
   const subject = meta.subject?.trim() || "computer-networks";
-  const pages = meta.pages.trim() || "1";
+  const pages = (meta.pages ?? "").trim() || "1";
   const document = meta.document.trim() || "Source.pdf";
   const title = meta.title.trim() || "فصل جديد";
+  const p0 = pages.split(",")[0]?.trim() || "1";
   return [
     "---",
     `subject: ${subject}`,
@@ -324,12 +369,12 @@ export function buildContentScaffold(meta: PackageSourceMeta): string {
     "",
     `# ${title}`,
     "",
-    `<!-- source: ${document} p.${pages.split(",")[0]?.trim() || "1"} -->`,
+    `<!-- source: ${document} p.${p0} -->`,
     "## نظرة عامة",
     "",
     "…",
     "",
-    `<!-- source: ${document} p.${pages.split(",")[0]?.trim() || "1"} -->`,
+    `<!-- source: ${document} p.${p0} -->`,
     "## المفاهيم الأساسية",
     "",
     "> [!NOTE] **المصطلح (Term):** …",
