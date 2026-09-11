@@ -29,6 +29,7 @@ import React from "react";
 import { AsyncLocalStorage } from "node:async_hooks";
 import type { ChapterAST, AstNode } from "./schemas";
 import { norm } from "./formula-svg";
+import { formatProvenance } from "./provenance";
 
 // ---------------------------------------------------------------------------
 // Render environment — one per render, via AsyncLocalStorage.
@@ -145,14 +146,16 @@ const cleanSource = (s?: string) =>
         .trim()
     : "";
 
-/** Human-readable provenance line for a parsed source node. */
-const sourceLine = (n: { raw?: string; document?: string; pages?: number[] }) => {
-  if (n.document && n.pages?.length) {
-    return `Source: ${n.document} · p. ${n.pages.join(", ")}`;
-  }
-  const cleaned = cleanSource(n.raw);
-  return cleaned ? `Source: ${cleaned}` : "";
-};
+/** Canonical provenance caption (P3) — single formatting path. */
+const sourceLine = (n: {
+  raw?: string;
+  document?: string;
+  pages?: number[];
+  source?: string;
+}) => formatProvenance(n);
+
+/** Caption for a node `.source` free-text field. */
+const provenanceCaption = (source?: string) => formatProvenance({ source });
 
 const SourceNote: React.FC<{ text: string }> = ({ text }) => {
   const env = getRenderEnv();
@@ -343,7 +346,7 @@ const DefinitionCard = ({
             textAlign: "right",
           } as React.CSSProperties}
         >
-          {source}
+          {provenanceCaption(source)}
         </div>
       )}
     </div>,
@@ -434,7 +437,7 @@ const CalloutBox = ({
             textAlign: "right",
           } as React.CSSProperties}
         >
-          {source}
+          {provenanceCaption(source)}
         </div>
       )}
     </div>,
@@ -543,7 +546,7 @@ const StatBars = ({
           </div>
         );
       })}
-      {source && <SourceNote text={source} />}
+      {source && <SourceNote text={provenanceCaption(source)} />}
     </div>
   );
 };
@@ -626,7 +629,7 @@ const ComparisonTable = ({
           {caption}
         </div>
       )}
-      {source && <SourceNote text={source} />}
+      {source && <SourceNote text={provenanceCaption(source)} />}
     </>,
     glueDepth
   );
@@ -809,7 +812,7 @@ const FormulaCard = ({
       )}
       </div>
       {source && (
-        <SourceNote text={source} />
+        <SourceNote text={provenanceCaption(source)} />
       )}
     </div>,
     glueDepth
@@ -878,7 +881,7 @@ const CodeCard = ({
         <div
           style={{ fontSize: 10, color: env.palette.muted, marginTop: 6, direction: "ltr", textAlign: "left" } as React.CSSProperties}
         >
-          {source}
+          {provenanceCaption(source)}
         </div>
       )}
     </div>,
