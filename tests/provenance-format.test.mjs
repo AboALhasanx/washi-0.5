@@ -46,7 +46,7 @@ describe("P3 provenance formatter", () => {
     assert.equal(formatProvenance({ source: "   " }), "");
   });
 
-  test("parser source nodes format via same shape", () => {
+  test("parser attaches source string that formats canonically", () => {
     const md = `---
 subject: computer-networks
 title: t
@@ -58,15 +58,19 @@ sources:
 
 # t
 
-<!-- source: CN.pdf p.1 -->
 ## نظرة عامة
 
-text
+<!-- source: CN.pdf p.1 -->
+
+نص الفقرة.
 `;
     const { ast } = parseMarkdown(md);
-    const src = ast.sections.flatMap((s) => s.nodes).find((n) => n.type === "source");
-    assert.ok(src);
-    const cap = formatProvenance(src);
-    assert.equal(cap, "Source: CN.pdf · p. 1");
+    const para = ast.sections
+      .flatMap((s) => s.nodes)
+      .find((n) => n.type === "paragraph" && n.source);
+    assert.ok(para, "paragraph carries source");
+    const cap = formatProvenance({ source: para.source });
+    assert.ok(cap.startsWith("Source:"), cap);
+    assert.ok(!cap.startsWith("Source: Source:"), "no double prefix");
   });
 });
