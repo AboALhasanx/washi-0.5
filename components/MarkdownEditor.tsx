@@ -9,6 +9,13 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { ValidationChecklist } from "./ValidationChecklist";
 
+export interface MarkdownEditorHandle {
+  /** Focus the textarea and select a character range (M4.1B). */
+  selectRange: (start: number, end: number) => void;
+  /** Focus and move caret to a 0-based full-document line. */
+  focusLine: (line: number) => void;
+}
+
 export interface MarkdownEditorProps {
   value: string;
   onChange: (value: string) => void;
@@ -37,7 +44,10 @@ function parseOutline(markdown: string): OutlineItem[] {
   return items;
 }
 
-export function MarkdownEditor({ value, onChange, className, textareaId }: MarkdownEditorProps) {
+export const MarkdownEditor = React.forwardRef<
+  MarkdownEditorHandle,
+  MarkdownEditorProps
+>(function MarkdownEditor({ value, onChange, className, textareaId }, ref) {
   const charCount = value.length;
   const lineCount = value ? value.split("\n").length : 0;
   const wordCount = value.trim() ? value.trim().split(/\s+/).filter(Boolean).length : 0;
@@ -50,6 +60,44 @@ export function MarkdownEditor({ value, onChange, className, textareaId }: Markd
   const [collapsed, setCollapsed] = React.useState<Record<number, boolean>>({});
 
   const outline = React.useMemo(() => parseOutline(value), [value]);
+
+  const applySelection = React.useCallback(
+    (start: number, end: number) => {
+      const ta = textareaRef.current;
+      if (!ta) return;
+      ta.focus();
+      ta.setSelectionRange(start, end);
+      const lines = value.split("\n");
+      // approximate scroll: line of start offset
+      let line = 0;
+      let pos = 0;
+      for (let i = 0; i < lines.length; i++) {
+        if (pos + lines[i].length + 1 > start) {
+          line = i;
+          break;
+        }
+        pos += lines[i].length + 1;
+      }
+      const lineHeight = fontSize * 1.65;
+      ta.scrollTop = Math.max(0, line * lineHeight - 80);
+      if (lineNumbersRef.current) lineNumbersRef.current.scrollTop = ta.scrollTop;
+    },
+    [value, fontSize]
+  );
+
+  React.useImperativeHandle(
+    ref,
+    () => ({
+      selectRange: applySelection,
+      focusLine: (line: number) => {
+        let pos = 0;
+        const lines = value.split("\n");
+        for (let i = 0; i < line && i < lines.length; i++) pos += lines[i].length + 1;
+        applySelection(pos, pos);
+      },
+    }),
+    [applySelection, value]
+  );
 
   const handleCopy = async () => {
     try {
@@ -267,6 +315,6 @@ export function MarkdownEditor({ value, onChange, className, textareaId }: Markd
       <ValidationChecklist markdown={value} />
     </div>
   );
-}
+});
 
 export default MarkdownEditor;

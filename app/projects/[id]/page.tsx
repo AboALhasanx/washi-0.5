@@ -15,10 +15,11 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Logo } from "@/components/studio/Logo";
-import { MarkdownEditor } from "@/components/MarkdownEditor";
+import { MarkdownEditor, type MarkdownEditorHandle } from "@/components/MarkdownEditor";
 import { LivePreview } from "@/components/studio/LivePreview";
 import { PdfPagesCanvas } from "@/components/PdfPagesCanvas";import type { StudioTheme } from "@/lib/theme";
 import { splitOutline, reorderMarkdownSections } from "@/lib/outline";
+import { sourceSpanToSelection, editorLineSpanToSelection } from "@/lib/source-map";
 
 interface ProjectMeta {
   id: string;
@@ -60,6 +61,7 @@ export default function ProjectWorkspace() {
 
   const [meta, setMeta] = React.useState<ProjectMeta | null>(null);
   const [content, setContent] = React.useState("");
+  const editorRef = React.useRef<MarkdownEditorHandle>(null);
   const [savedContent, setSavedContent] = React.useState("");
   const [template, setTemplate] = React.useState<StudioTheme | null>(null);
   const [templateJson, setTemplateJson] = React.useState("");
@@ -82,6 +84,40 @@ export default function ProjectWorkspace() {
   const [notice, setNotice] = React.useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
   const dirty = content !== savedContent;
+
+  /** M4.1B — jump editor to a ## section (heading line through section end). */
+  const jumpToSection = (headingLine: number, endLine: number) => {
+    const sel = editorLineSpanToSelection(content, headingLine, endLine);
+    if (!sel) return;
+    setTab("editor");
+    // Allow tab switch to paint before focusing textarea
+    requestAnimationFrame(() => {
+      editorRef.current?.selectRange(sel.start, sel.end);
+    });
+  };
+
+  /** M4.1B — preview block click → select body-relative source span.
+   *  `md` must be the same string the preview AST was parsed from. */
+  const onPreviewSelectNode = (
+    node: {
+      id?: string;
+      type?: string;
+      sourcePosition?: { startLine: number; endLine?: number };
+    },
+    md: string
+  ) => {
+    const pos = node.sourcePosition;
+    if (!pos) return;
+    const sel = sourceSpanToSelection(md, pos);
+    if (!sel) return;
+    // Select in the editor against the live editor text only when it matches
+    // the preview source; otherwise skip (stale preview).
+    if (md !== content) return;
+    setTab("editor");
+    requestAnimationFrame(() => {
+      editorRef.current?.selectRange(sel.start, sel.end);
+    });
+  };
 
   const loadAll = React.useCallback(async () => {
     if (!id) return;
@@ -397,7 +433,7 @@ export default function ProjectWorkspace() {
                   </button>
                 </div>
               </div>
-              <MarkdownEditor value={content} onChange={setContent} className="border-0" />
+              <MarkdownEditor ref={editorRef} value={content} onChange={setContent} className="border-0" />
             </section>
 
             <section className="space-y-4">
@@ -418,9 +454,14 @@ export default function ProjectWorkspace() {
                         key={`${sec.start}-${sec.title}`}
                         className="flex items-center gap-2 text-xs rounded-md px-2 py-1.5 hover:bg-paper-2"
                       >
-                        <span className="flex-1 truncate text-ink" title={sec.title}>
+                        <button
+                          type="button"
+                          className="flex-1 truncate text-start text-ink hover:underline"
+                          title={sec.title}
+                          onClick={() => jumpToSection(sec.headingLine, sec.end)}
+                        >
                           {sec.title || "—"}
-                        </span>
+                        </button>
                         <button
                           type="button"
                           className="btn-ghost !py-0.5 !px-1.5 !text-[0.65rem]"
@@ -531,7 +572,11 @@ export default function ProjectWorkspace() {
                 </div>
                 <div className="max-h-[560px] overflow-auto scrollbar-thin p-4">
                   <div style={{ zoom: previewZoom / 100 }}>
-                    <LivePreview markdown={liveMarkdown} theme={template!} />
+                    <LivePreview
+                      markdown={liveMarkdown}
+                      theme={template!}
+                      onSelectNode={(n) => onPreviewSelectNode(n, liveMarkdown)}
+                    />
                   </div>
                 </div>
               </div>
@@ -682,7 +727,11 @@ export default function ProjectWorkspace() {
 
             {previewMode === "live" && (
               <div className="border hairline rounded-2xl bg-paper p-5 max-h-[760px] overflow-y-auto scrollbar-thin">
-                <LivePreview markdown={content} theme={template!} />
+                <LivePreview
+                  markdown={content}
+                  theme={template!}
+                  onSelectNode={(n) => onPreviewSelectNode(n, content)}
+                />
               </div>
             )}
           </div>

@@ -191,10 +191,20 @@ function PreviewNode({ node, theme }: { node: AstNode; theme: StudioTheme }) {
   }
 }
 
-export function LivePreview({ markdown, theme }: { markdown: string; theme: StudioTheme }) {
+export function LivePreview({
+  markdown,
+  theme,
+  onSelectNode,
+}: {
+  markdown: string;
+  theme: StudioTheme;
+  /** M4.1B — click a preview block → current AST node (id + sourcePosition). */
+  onSelectNode?: (node: { id?: string; type?: string; sourcePosition?: { startLine: number; endLine?: number } }) => void;
+}) {
   const [ast, setAst] = React.useState<Ast | null>(null);
   const [err, setErr] = React.useState<string | null>(null);
   const empty = !markdown.trim();
+  const reqSeq = React.useRef(0);
 
   React.useEffect(() => {
     if (!markdown.trim()) {
@@ -202,6 +212,7 @@ export function LivePreview({ markdown, theme }: { markdown: string; theme: Stud
       setErr(null);
       return;
     }
+    const seq = ++reqSeq.current;
     const t = setTimeout(async () => {
       try {
         const res = await fetch("/api/preview", {
@@ -210,10 +221,13 @@ export function LivePreview({ markdown, theme }: { markdown: string; theme: Stud
           body: JSON.stringify({ markdown }),
         });
         const data = await res.json();
+        // Drop stale responses (rapid edits) so click maps to current markdown.
+        if (seq !== reqSeq.current) return;
         if (!res.ok) throw new Error(data?.message ?? data?.error ?? "parse failed");
         setAst(data.ast);
         setErr(null);
       } catch (e: any) {
+        if (seq !== reqSeq.current) return;
         setErr(e?.message ?? String(e));
       }
     }, 350);
@@ -342,7 +356,24 @@ export function LivePreview({ markdown, theme }: { markdown: string; theme: Stud
               <span style={{ flex: 1, height: 3, borderRadius: 999, background: `linear-gradient(-90deg, ${theme.colors.accent} 0%, rgba(194,65,12,0.08) 100%)`, marginTop: 4 }} />
             </div>
             {sec.nodes.map((node: AstNode, i: number) => (
-              <div key={(node as any).id ?? i} data-node-id={(node as any).id ?? undefined}>
+              <div
+                key={(node as any).id ?? i}
+                data-node-id={(node as any).id ?? undefined}
+                onClick={
+                  onSelectNode
+                    ? () => {
+                        const n = node as any;
+                        if (!n?.id && !n?.sourcePosition) return;
+                        onSelectNode({
+                          id: n.id,
+                          type: n.type,
+                          sourcePosition: n.sourcePosition,
+                        });
+                      }
+                    : undefined
+                }
+                style={onSelectNode ? { cursor: "pointer" } : undefined}
+              >
                 <PreviewNode node={node} theme={theme} />
               </div>
             ))}
