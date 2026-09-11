@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 
 const { parseMarkdown } = await import("../lib/markdown-parser.ts");
 const { renderChapterPdf } = await import("../lib/render-pdf.ts");
+const { formulaPresentationKind } = await import("../lib/takumi-renderer.tsx");
 
 function md(body) {
   return [
@@ -33,6 +34,20 @@ function md(body) {
 const DISPLAY = "$$\nC = W \\log_2(1 + S/N)\n$$";
 
 describe("P1 inline vs display formula", () => {
+  test("presentation kind is decided by displayMode (direct seam)", () => {
+    assert.equal(formulaPresentationKind({ displayMode: false }), "inline");
+    assert.equal(formulaPresentationKind({ displayMode: true }), "display");
+    assert.equal(formulaPresentationKind({}), "display");
+  });
+
+  test("parser maps $C$ → inline kind and $$…$$ → display kind", () => {
+    const { ast } = parseMarkdown(md(`The capacity is $C$ bits.\n\n${DISPLAY}\n`));
+    const formulas = ast.sections.flatMap((s) => s.nodes.filter((n) => n.type === "formula"));
+    const kinds = formulas.map((f) => formulaPresentationKind(f));
+    assert.ok(kinds.includes("inline"));
+    assert.ok(kinds.includes("display"));
+  });
+
   test("parser sets displayMode correctly", () => {
     const { ast } = parseMarkdown(md(`The capacity is $C$ bits.\n\n${DISPLAY}\n`));
     const formulas = ast.sections.flatMap((s) => s.nodes.filter((n) => n.type === "formula"));

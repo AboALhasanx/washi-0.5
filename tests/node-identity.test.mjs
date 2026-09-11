@@ -77,4 +77,12 @@ describe("P4 node identity", () => {
     }
     assert.ok(allNodes(ast).some((n) => n.sourcePosition), "at least one mapped node");
   });
+
+  test("two inline formulas on one line get unique ids (collision suffix)", () => {
+    const { ast } = parseMarkdown(md("Ratio $C$ and $S/N$ together."));
+    const formulas = allNodes(ast).filter((n) => n.type === "formula");
+    assert.ok(formulas.length >= 2, "two inline formulas");
+    const ids = formulas.map((f) => f.id);
+    assert.equal(new Set(ids).size, ids.length, `ids must be unique: ${ids.join(",")}`);
+  });
 });

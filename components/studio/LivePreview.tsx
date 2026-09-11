@@ -173,7 +173,7 @@ function PreviewNode({ node, theme }: { node: AstNode; theme: StudioTheme }) {
           {n.items.map((item: string, i: number) => (
             <div key={i} style={{ display: "flex", gap: 10, marginBottom: 6, fontSize: 13.5, lineHeight: 2 }}>
               <span style={{ fontWeight: 700, color: theme.colors.accent, minWidth: 20 }}>
-                {n.ordered ? `${toAr(i + 1)}.` : "•"}
+                {n.ordered ? `${toAr(((n as any).start ?? 1) + i)}.` : "•"}
               </span>
               <span>{arabicize(item)}</span>
             </div>

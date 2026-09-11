@@ -406,6 +406,10 @@ export function parseMarkdown(md: string): ParseResult {
   /** P4 — mdast position of the current top-level child (for id + sourcePosition). */
   let currentMdastPos: { start?: { line?: number }; end?: { line?: number } } | undefined;
 
+  /** P4 — ids used this parse; prevents n{line}-{type} collisions when one
+   *  mdast child yields several nodes (e.g. two inlineMath formulas). */
+  const usedIds = new Set<string>();
+
   const assignIdentity = (node: any) => {
     const line = currentMdastPos?.start?.line;
     if (!line || line < 1) return;
@@ -413,9 +417,13 @@ export function parseMarkdown(md: string): ParseResult {
       startLine: line,
       ...(currentMdastPos?.end?.line ? { endLine: currentMdastPos.end.line } : {}),
     };
-    // Re-parse stable: same source → same id. Text edits that keep the start
-    // line keep the id; inserts above shift lines (documented limit).
-    node.id = `n${line}-${node.type}`;
+    let id = `n${line}-${node.type}`;
+    let n = 2;
+    while (usedIds.has(id)) {
+      id = `n${line}-${node.type}-${n++}`;
+    }
+    usedIds.add(id);
+    node.id = id;
   };
 
   const pushNode = (node: AstNode) => {

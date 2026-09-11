@@ -736,6 +736,11 @@ const InlineFormula = ({
   );
 };
 
+/** P1/P2 — presentation kind for a formula node. Shared by renderer + tests. */
+export function formulaPresentationKind(node: { displayMode?: boolean }): "inline" | "display" {
+  return node.displayMode === false ? "inline" : "display";
+}
+
 const FormulaCard = ({
   latex,
   caption,
@@ -1047,8 +1052,7 @@ function RenderNode({
       });
     case "formula": {
       const art = formulaArt?.get(norm(n.latex ?? ""));
-      // displayMode=false → compact inline (P1); true/undefined → display card
-      if (n.displayMode === false) {
+      if (formulaPresentationKind(n) === "inline") {
         return InlineFormula({ latex: n.latex, art, env });
       }
       return FormulaCard({
