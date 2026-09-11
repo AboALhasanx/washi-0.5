@@ -1,0 +1,799 @@
+{
+  "schemaVersion": "cgp.validation.v1",
+  "generatedAt": "2026-09-11T18:00:00.000Z",
+  "validates": {
+    "topicMap": "cgp.topic-map.v1",
+    "deepTopics": "cgp.deep-topics.v1",
+    "source": {
+      "id": "src-forouzan-ch1-intro",
+      "pageCount": 23,
+      "path": "content/cgp/sources/forouzan-ch1.pages.json"
+    }
+  },
+  "sources": {
+    "available": [
+      {
+        "id": "src-forouzan-ch1-intro",
+        "document": "شبكات - مقدمة.pdf",
+        "pageCount": 23,
+        "verifiedPages": 23
+      },
+      {
+        "id": "src-sample-markdown",
+        "document": "public/samples/computer-networks-ch1.md",
+        "role": "comparison-only"
+      }
+    ],
+    "unavailable": [
+      {
+        "id": "src-claimed-textbook",
+        "document": "Computer Networks and Data Communication.pdf"
+      },
+      {
+        "id": "src-claimed-lecture",
+        "document": "Data Communications Lecture Notes.pdf"
+      }
+    ],
+    "provenanceChecks": {
+      "evidenceAnchorsChecked": 42,
+      "evidenceAnchorsHit": 42,
+      "evidenceAnchorsWeak": 0,
+      "badPages": 0
+    }
+  },
+  "sourceCoverage": {
+    "method": "Map each major source block to CGP-0/1 topics; FULL/PARTIAL/MISSING",
+    "blocks": [
+      {
+        "id": "block-1.1-data-comm",
+        "pages": [
+          1,
+          2,
+          3
+        ],
+        "topics": [
+          "topic-data-communication"
+        ],
+        "status": "FULL",
+        "note": "Effectiveness + five components + jitter extracted"
+      },
+      {
+        "id": "block-1.1-representation",
+        "pages": [
+          3,
+          4
+        ],
+        "topics": [
+          "topic-data-representation"
+        ],
+        "status": "FULL",
+        "note": "Text/numbers/images/audio/video + Unicode/ASCII + pixels"
+      },
+      {
+        "id": "block-1.1-data-flow",
+        "pages": [
+          4,
+          5
+        ],
+        "topics": [
+          "topic-data-flow"
+        ],
+        "status": "FULL",
+        "note": "Three modes with capacity semantics"
+      },
+      {
+        "id": "block-1.2-networks-criteria",
+        "pages": [
+          5,
+          6
+        ],
+        "topics": [
+          "topic-networks-criteria"
+        ],
+        "status": "FULL",
+        "note": "Definition, distributed processing, three criteria, throughput–delay"
+      },
+      {
+        "id": "block-1.2-physical",
+        "pages": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "topics": [
+          "topic-physical-structures"
+        ],
+        "status": "FULL",
+        "note": "Connections + four topologies + hybrid + mesh formulas"
+      },
+      {
+        "id": "block-1.2-categories",
+        "pages": [
+          11,
+          12,
+          13
+        ],
+        "topics": [
+          "topic-network-categories"
+        ],
+        "status": "FULL",
+        "note": "LAN/MAN/WAN + switched vs p2p WAN"
+      },
+      {
+        "id": "block-1.2-internetwork",
+        "pages": [
+          13,
+          14
+        ],
+        "topics": [
+          "topic-internetwork"
+        ],
+        "status": "FULL",
+        "note": "Heterogeneous two-LAN + WAN scenario"
+      },
+      {
+        "id": "block-1.3-internet",
+        "pages": [
+          14,
+          15,
+          16,
+          17
+        ],
+        "topics": [
+          "topic-internet"
+        ],
+        "status": "FULL",
+        "note": "History + ISP hierarchy"
+      },
+      {
+        "id": "block-1.4-protocols",
+        "pages": [
+          17
+        ],
+        "topics": [
+          "topic-protocols"
+        ],
+        "status": "FULL",
+        "note": "Syntax/semantics/timing"
+      },
+      {
+        "id": "block-1.4-standards",
+        "pages": [
+          18,
+          19
+        ],
+        "topics": [
+          "topic-standards"
+        ],
+        "status": "FULL",
+        "note": "De facto/de jure + orgs + RFC"
+      },
+      {
+        "id": "block-1.5-reading",
+        "pages": [
+          19,
+          20
+        ],
+        "topics": [],
+        "status": "PARTIAL",
+        "note": "Recommended reading/sites/RFC list captured only as context signals, not a teachable topic"
+      },
+      {
+        "id": "block-1.6-key-terms",
+        "pages": [
+          20,
+          21
+        ],
+        "topics": [],
+        "status": "PARTIAL",
+        "note": "Glossary terms largely covered via definitions; not stored as a standalone term dump"
+      },
+      {
+        "id": "block-1.7-summary",
+        "pages": [
+          21,
+          22
+        ],
+        "topics": [],
+        "status": "FULL",
+        "note": "Summary bullets map onto existing topics"
+      },
+      {
+        "id": "block-1.8-practice",
+        "pages": [
+          22,
+          23
+        ],
+        "topics": [],
+        "status": "PARTIAL",
+        "note": "22 exercise signals captured; research activities 26–29 not fully inventoried as signals"
+      }
+    ],
+    "summary": {
+      "full": 11,
+      "partial": 3,
+      "missing": 0
+    }
+  },
+  "conceptValidation": {
+    "total": 70,
+    "verified": 70,
+    "verifiedWithQualifier": 0,
+    "needsReview": 0,
+    "unsupported": 0,
+    "contradicted": 0
+  },
+  "definitionValidation": {
+    "total": 30,
+    "verified": 30,
+    "needsQualifier": 1,
+    "inconsistent": 0,
+    "unsupported": 0,
+    "notes": [
+      "Unicode definition carries source-specific 32-bit qualifier (VERIFIED_WITH_QUALIFIER).",
+      "internet vs Internet distinction preserved in separate definitions.",
+      "protocol (basic) vs protocol (full) intentionally staged — compatible, not inconsistent."
+    ]
+  },
+  "relationshipValidation": {
+    "total": 25,
+    "valid": 25,
+    "danglingConceptualPlaceholders": 0,
+    "realDangling": 0,
+    "unsupported": 0,
+    "contradictory": 0,
+    "notes": [
+      "Cross-topic bridges use global concept ids that also exist in local topics."
+    ]
+  },
+  "formulaValidation": {
+    "sourceBacked": [
+      {
+        "id": "formula-mesh-links",
+        "latex": "n(n-1)/2",
+        "status": "VERIFIED",
+        "conditions": [
+          "fully connected mesh",
+          "duplex links"
+        ],
+        "sourcePages": [
+          7,
+          8,
+          23
+        ],
+        "notes": "Independent recalculation matches n=2,5,6; exercise 16 uses n=6 → 15"
+      },
+      {
+        "id": "formula-mesh-ports",
+        "latex": "n-1",
+        "status": "VERIFIED",
+        "conditions": [
+          "fully connected mesh"
+        ],
+        "sourcePages": [
+          7,
+          8,
+          23
+        ],
+        "notes": "n=6 → 5 ports; distinct from link count"
+      },
+      {
+        "id": "formula-color-count",
+        "latex": "2^{bits}",
+        "status": "VERIFIED",
+        "conditions": [
+          "uniform bits per pixel"
+        ],
+        "sourcePages": [
+          3,
+          23
+        ],
+        "notes": "16 bits → 65536; 2 bits → 4 gray levels"
+      }
+    ],
+    "externalUnverified": [
+      {
+        "id": "sample-shannon",
+        "status": "EXTERNAL_CONTEXT"
+      },
+      {
+        "id": "sample-snr-db",
+        "status": "EXTERNAL_CONTEXT"
+      },
+      {
+        "id": "sample-t-equals-l-over-b",
+        "status": "EXTERNAL_CONTEXT"
+      }
+    ],
+    "recalculation": [
+      {
+        "id": "formula-mesh-links",
+        "n": 2,
+        "expected": 1,
+        "got": 1,
+        "ok": true
+      },
+      {
+        "id": "formula-mesh-ports",
+        "n": 2,
+        "expected": 1,
+        "got": 1,
+        "ok": true
+      },
+      {
+        "id": "formula-mesh-links",
+        "n": 5,
+        "expected": 10,
+        "got": 10,
+        "ok": true
+      },
+      {
+        "id": "formula-mesh-ports",
+        "n": 5,
+        "expected": 4,
+        "got": 4,
+        "ok": true
+      },
+      {
+        "id": "formula-mesh-links",
+        "n": 6,
+        "expected": 15,
+        "got": 15,
+        "ok": true
+      },
+      {
+        "id": "formula-mesh-ports",
+        "n": 6,
+        "expected": 5,
+        "got": 5,
+        "ok": true
+      },
+      {
+        "id": "formula-color-count",
+        "bits": 1,
+        "expected": 2,
+        "got": 2,
+        "ok": true
+      },
+      {
+        "id": "formula-color-count",
+        "bits": 2,
+        "expected": 4,
+        "got": 4,
+        "ok": true
+      },
+      {
+        "id": "formula-color-count",
+        "bits": 16,
+        "expected": 65536,
+        "got": 65536,
+        "ok": true
+      }
+    ]
+  },
+  "exampleValidation": {
+    "total": 15,
+    "sourceBacked": 15,
+    "recalculated": [
+      {
+        "id": "ex-mesh-six",
+        "arithmetic": "15 links, 5 ports",
+        "result": "NO_ERROR"
+      },
+      {
+        "id": "ex-16bit-color",
+        "arithmetic": "2^16 = 65536",
+        "result": "NO_ERROR"
+      },
+      {
+        "id": "ex-jitter-video",
+        "arithmetic": "qualitative 30 vs 40 ms",
+        "result": "NO_ERROR"
+      }
+    ],
+    "issues": []
+  },
+  "comparisonValidation": {
+    "total": 14,
+    "valid": 14,
+    "rejected": 0,
+    "notes": [
+      "All comparisons use same-abstraction items (modes, categories, topologies, orgs)."
+    ]
+  },
+  "confusionValidation": {
+    "total": 10,
+    "explicit": 9,
+    "implied": 1,
+    "notInSource": 0,
+    "notes": [
+      "bandwidth-vs-throughput marked implied/not-in-source relative to Ch.1 extract."
+    ]
+  },
+  "objectiveValidation": {
+    "total": 38,
+    "specific": 38,
+    "tooVague": 0,
+    "unsupported": 0
+  },
+  "terminology": {
+    "table": [
+      {
+        "term": "data",
+        "status": "VERIFIED",
+        "note": "agreed-form information (p2)"
+      },
+      {
+        "term": "data communications",
+        "status": "VERIFIED",
+        "note": "exchange via medium (p2)"
+      },
+      {
+        "term": "telecommunication",
+        "status": "VERIFIED",
+        "note": "communication at a distance (p1–2)"
+      },
+      {
+        "term": "network",
+        "status": "VERIFIED",
+        "note": "devices (nodes) + links (p5)"
+      },
+      {
+        "term": "internet",
+        "status": "VERIFIED",
+        "note": "lowercase: two or more communicating networks (p15)"
+      },
+      {
+        "term": "Internet",
+        "status": "VERIFIED",
+        "note": "uppercase: global Internet (p15)"
+      },
+      {
+        "term": "internetwork",
+        "status": "VERIFIED",
+        "note": "synonym of lowercase internet in source (p13,15)"
+      },
+      {
+        "term": "protocol",
+        "status": "VERIFIED",
+        "note": "rules; later syntax/semantics/timing (p3,17)"
+      },
+      {
+        "term": "standard",
+        "status": "VERIFIED",
+        "note": "agreed-upon rules (p18)"
+      },
+      {
+        "term": "LAN",
+        "status": "VERIFIED",
+        "note": "local, usually private (p11–12)"
+      },
+      {
+        "term": "MAN",
+        "status": "VERIFIED",
+        "note": "city-scale (p13)"
+      },
+      {
+        "term": "WAN",
+        "status": "VERIFIED",
+        "note": "large geographic (p12)"
+      },
+      {
+        "term": "node",
+        "status": "VERIFIED",
+        "note": "device on network (p5)"
+      },
+      {
+        "term": "link",
+        "status": "VERIFIED",
+        "note": "communications pathway (p6)"
+      },
+      {
+        "term": "port",
+        "status": "VERIFIED",
+        "note": "I/O ports for mesh connections (p7–8)"
+      },
+      {
+        "term": "topology",
+        "status": "VERIFIED",
+        "note": "geometric arrangement of links/nodes (p7)"
+      }
+    ],
+    "internetVsInternetwork": {
+      "status": "CORRECT",
+      "note": "CGP-1 keeps lowercase internet/internetwork vs uppercase Internet distinct."
+    }
+  },
+  "provenanceValidation": {
+    "checked": 42,
+    "hit": 42,
+    "weak": [],
+    "badPage": []
+  },
+  "externalContext": [
+    {
+      "id": "extra-shannon",
+      "title": "Shannon capacity formula and numeric Shannon examples",
+      "validation": "EXTERNAL_CONTEXT",
+      "decision": "needs-separate-source",
+      "disposition": "exclude-until-sourced",
+      "note": "Not in the attached 23-page Ch.1 source. Treat as enrichment only after source-backed topics; requires another verified source to become DIRECT_SOURCE."
+    },
+    {
+      "id": "extra-snr-db",
+      "title": "SNR in dB formula",
+      "validation": "EXTERNAL_CONTEXT",
+      "decision": "needs-separate-source",
+      "disposition": "exclude-until-sourced",
+      "note": "Not in attached source."
+    },
+    {
+      "id": "extra-transmission-time",
+      "title": "T = L/B and 10 MB / 20 Mbps worked example",
+      "validation": "EXTERNAL_CONTEXT",
+      "decision": "needs-separate-source",
+      "disposition": "exclude-until-sourced",
+      "note": "Not in attached source."
+    },
+    {
+      "id": "extra-ipconfig",
+      "title": "Windows ipconfig practical lab",
+      "validation": "EXTERNAL_CONTEXT",
+      "decision": "useful-enrichment-later",
+      "disposition": "optional-appendix",
+      "note": "Sample-only application block; not in attached source."
+    },
+    {
+      "id": "extra-mb-mb-trap",
+      "title": "MB vs Mb exam trap emphasis",
+      "validation": "EXTERNAL_CONTEXT",
+      "decision": "useful-enrichment-later",
+      "disposition": "optional-trap-box",
+      "note": "Common industry trap but not stated in this Ch.1 extract."
+    },
+    {
+      "id": "extra-bandwidth-definition",
+      "title": "Bandwidth definition card",
+      "validation": "EXTERNAL_CONTEXT",
+      "decision": "belongs-with-throughput-context-or-future-chapter",
+      "disposition": "exclude-from-core",
+      "note": "Not defined in attached Ch.1; sample invents a Bandwidth definition."
+    }
+  ],
+  "scopeFlags": [
+    {
+      "id": "scope-ch1-only",
+      "severity": "info",
+      "message": "Knowledge set remains Chapter 1 introduction scope; no advanced routing/subnetting/DNS/HTTP.",
+      "relatedTopicIds": [
+        "topic-chapter-frame",
+        "topic-data-communication",
+        "topic-data-representation",
+        "topic-data-flow",
+        "topic-networks-criteria",
+        "topic-physical-structures",
+        "topic-network-categories",
+        "topic-internetwork",
+        "topic-internet",
+        "topic-protocols",
+        "topic-standards"
+      ]
+    },
+    {
+      "id": "scope-unicode-32",
+      "severity": "review",
+      "message": "Unicode 32-bit is SOURCE-HISTORICAL / textbook claim; do not silently modernize to UTF-8 in core teaching without EXTERNAL_CONTEXT marking.",
+      "relatedTopicIds": [
+        "topic-data-representation"
+      ]
+    },
+    {
+      "id": "scope-x25-frame-relay",
+      "severity": "info",
+      "message": "X.25/Frame Relay/ATM as WAN examples are SOURCE-HISTORICAL; keep as source examples, optional modern note later.",
+      "relatedTopicIds": [
+        "topic-network-categories"
+      ]
+    }
+  ],
+  "compressionAudit": {
+    "method": "Classify each must-preserve knowledge unit against public/samples/computer-networks-ch1.md. No coverage percentage.",
+    "categories": {
+      "PRESENT+ADEQUATE": [
+        "topic-data-flow (simplex/half/full table)",
+        "topic-network-categories names (LAN/MAN/WAN bullets)",
+        "five components mentioned in prose"
+      ],
+      "PRESENT+TOO_SHALLOW": [
+        "protocol: one-line definition; syntax/semantics/timing absent",
+        "network: definition present; three criteria and throughput–delay absent",
+        "jitter/accuracy/timeliness not taught (only delivery implicitly via prose)"
+      ],
+      "PRESENT+WRONG_EMPHASIS": [
+        "formulas section dominated by Shannon/SNR/T=L/B (not in this source)",
+        "bandwidth definition card while source teaches throughput/delay"
+      ],
+      "MISSING": [
+        "topic-data-representation (Unicode/ASCII/pixels) — absent",
+        "topic-physical-structures topologies — absent",
+        "mesh formulas n(n−1)/2 and n−1 — absent",
+        "topic-internet ARPANET/TCP-IP history — absent",
+        "topic-standards de facto/de jure/orgs/RFC — absent",
+        "topic-internetwork heterogeneous scenario — absent",
+        "switched vs point-to-point WAN — absent"
+      ],
+      "EXTERNAL/UNVERIFIED": [
+        "Shannon capacity + worked Shannon example",
+        "SNR_dB",
+        "T = L/B + 10 MB / 20 Mbps example",
+        "ipconfig lab",
+        "MB vs Mb trap",
+        "Bandwidth definition card"
+      ]
+    }
+  },
+  "compressionGuardChecks": [
+    {
+      "id": "guard-five-components",
+      "represented": true,
+      "description": "Message, sender, receiver, medium, protocol must stay as a complete set."
+    },
+    {
+      "id": "guard-effectiveness-four",
+      "represented": true,
+      "description": "Delivery, accuracy, timeliness, jitter — do not drop jitter."
+    },
+    {
+      "id": "guard-flow-three",
+      "represented": true,
+      "description": "Simplex / half-duplex / full-duplex directionality distinction."
+    },
+    {
+      "id": "guard-topology-four",
+      "represented": true,
+      "description": "Mesh, star, bus, ring (+ hybrid) with failure modes."
+    },
+    {
+      "id": "guard-mesh-formulas",
+      "represented": true,
+      "description": "n(n−1)/2 duplex links and n−1 ports with conditions."
+    },
+    {
+      "id": "guard-throughput-delay",
+      "represented": true,
+      "description": "Throughput↑ can increase delay under congestion."
+    },
+    {
+      "id": "guard-internet-history",
+      "represented": true,
+      "description": "1969 four-node ARPANET + TCP/IP split narrative."
+    },
+    {
+      "id": "guard-protocol-elements",
+      "represented": true,
+      "description": "Syntax / semantics / timing triad."
+    },
+    {
+      "id": "guard-de-facto-de-jure",
+      "represented": true,
+      "description": "De facto vs de jure standards."
+    },
+    {
+      "id": "guard-heterogeneous-internetwork",
+      "represented": true,
+      "description": "Two LANs + switched WAN + p2p WANs scenario."
+    }
+  ],
+  "readiness": {
+    "level": "READY_WITH_REVIEW",
+    "cgp3CanComposeWithoutRediscoveringSource": true,
+    "residualReviewAllowed": true
+  },
+  "issues": [
+    {
+      "id": "issue-001",
+      "severity": "medium",
+      "category": "formula",
+      "entityId": "formula-color-count",
+      "status": "needs-review",
+      "claim": "16-bit color exercise text not found on page 23",
+      "evidence": [
+        "SECTION 1.8 PRACTICE SET 25\n18. You have two computers connected by an Ethernet hub at home. Is this a LAN, a\nMAN, or a WAN? Explain your reason.\n19. In the ring topology in Figure 1.8, what happens i"
+      ],
+      "recommendation": "Re-check practice-set page extraction"
+    },
+    {
+      "id": "issue-002",
+      "severity": "low",
+      "category": "source-coverage",
+      "entityId": "block-1.5-reading",
+      "status": "needs-review",
+      "claim": "Recommended reading/sites/RFC list captured only as context signals, not a teachable topic",
+      "evidence": [
+        "pages 19,20"
+      ],
+      "recommendation": "Optional CGP-3 enrichment; not blocking core teaching"
+    },
+    {
+      "id": "issue-003",
+      "severity": "low",
+      "category": "source-coverage",
+      "entityId": "block-1.6-key-terms",
+      "status": "needs-review",
+      "claim": "Glossary terms largely covered via definitions; not stored as a standalone term dump",
+      "evidence": [
+        "pages 20,21"
+      ],
+      "recommendation": "Optional CGP-3 enrichment; not blocking core teaching"
+    },
+    {
+      "id": "issue-004",
+      "severity": "low",
+      "category": "source-coverage",
+      "entityId": "block-1.8-practice",
+      "status": "needs-review",
+      "claim": "22 exercise signals captured; research activities 26–29 not fully inventoried as signals",
+      "evidence": [
+        "pages 22,23"
+      ],
+      "recommendation": "Optional CGP-3 enrichment; not blocking core teaching"
+    },
+    {
+      "id": "issue-005",
+      "severity": "high",
+      "category": "compression-audit",
+      "entityId": "topic-data-representation",
+      "status": "needs-review",
+      "claim": "Core source topic is missing or nearly absent from current sample chapter",
+      "evidence": [
+        "sample markdown search"
+      ],
+      "recommendation": "CGP-3 must restore this topic from deep-topics; do not treat sample as complete"
+    },
+    {
+      "id": "issue-006",
+      "severity": "high",
+      "category": "compression-audit",
+      "entityId": "topic-physical-structures",
+      "status": "needs-review",
+      "claim": "Core source topic is missing or nearly absent from current sample chapter",
+      "evidence": [
+        "sample markdown search"
+      ],
+      "recommendation": "CGP-3 must restore this topic from deep-topics; do not treat sample as complete"
+    },
+    {
+      "id": "issue-007",
+      "severity": "high",
+      "category": "compression-audit",
+      "entityId": "topic-standards",
+      "status": "needs-review",
+      "claim": "Core source topic is missing or nearly absent from current sample chapter",
+      "evidence": [
+        "sample markdown search"
+      ],
+      "recommendation": "CGP-3 must restore this topic from deep-topics; do not treat sample as complete"
+    },
+    {
+      "id": "issue-008",
+      "severity": "high",
+      "category": "compression-audit",
+      "entityId": "topic-networks-criteria",
+      "status": "needs-review",
+      "claim": "Core source topic is missing or nearly absent from current sample chapter",
+      "evidence": [
+        "sample markdown search"
+      ],
+      "recommendation": "CGP-3 must restore this topic from deep-topics; do not treat sample as complete"
+    }
+  ],
+  "qualityChecks": {
+    "noUnresolvedCriticalKnowledgeContradictions": true,
+    "coreTopicsCoveredInKnowledgeBase": true,
+    "unsupportedMarked": true,
+    "formulasValidated": true
+  }
+}

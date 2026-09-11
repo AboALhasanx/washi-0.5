@@ -5,17 +5,26 @@ Research artifacts for chapter generation. **Not** Washi ChapterAST, renderer, o
 | Phase | Status | Artifact |
 |---|---|---|
 | CGP-0 Source structure & topic discovery | done | `computer-networks-ch1.topic-map.json` |
-| CGP-1 Topic deep extraction | next | — |
-| Coverage validation | pending | — |
-| Chapter composition | pending | — |
+| CGP-1 Topic deep extraction | done | `computer-networks-ch1.deep-topics.json` |
+| CGP-2 Coverage / consistency validation | done | `computer-networks-ch1.validation.json` |
+| CGP-3 Chapter composition architecture | done | `computer-networks-ch1.composition.json` |
+| CGP-4 Chapter writing / Washi Markdown | next | — |
 
-## Source for CGP-0
+## Source
 
 - Extracted PDF pages: `sources/forouzan-ch1.pages.json` (from user-supplied `شبكات - مقدمة.pdf`, 23 pages)
 - Plain text: `sources/forouzan-ch1.txt`
 - Extractor: `scripts/cgp-extract-source.py`
 - Topic map builder: `scripts/cgp-build-topic-map.mjs`
-- Schema: `lib/cgp/schemas.ts` (`cgp.topic-map.v1`)
+- Deep topics builder: `scripts/cgp-build-deep-topics.mjs` + `scripts/cgp-deep/*`
+- Schemas: `lib/cgp/schemas.ts` (`cgp.topic-map.v1`), `lib/cgp/deep-schemas.ts` (`cgp.deep-topics.v1`)
+
+## Claim classes (CGP-1)
+
+- `DIRECT_SOURCE` — supported by the attached Ch.1 PDF
+- `NECESSARY_EXPLANATION` — minimal glue that does not change source meaning
+- `EXTERNAL_CONTEXT` — enrichment; sample Shannon/SNR/T=L/B/ipconfig/MB-Mb/bandwidth-card live here
+- `UNSUPPORTED` — never ships in the deep artifact
 
 ## Current chapter vs source
 

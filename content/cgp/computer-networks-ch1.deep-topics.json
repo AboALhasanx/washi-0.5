@@ -1,0 +1,5653 @@
+{
+  "schemaVersion": "cgp.deep-topics.v1",
+  "generatedAt": "2026-09-11T12:00:00.000Z",
+  "basedOnTopicMap": "cgp.topic-map.v1",
+  "chapter": {
+    "id": "computer-networks-ch1",
+    "title": "Introduction — Data Communications and Networking (Forouzan Ch.1)",
+    "language": "en",
+    "subject": "computer-networks"
+  },
+  "sources": [
+    {
+      "id": "src-forouzan-ch1-intro",
+      "document": "شبكات - مقدمة.pdf",
+      "availability": "available",
+      "pageCount": 23
+    },
+    {
+      "id": "src-sample-markdown",
+      "document": "public/samples/computer-networks-ch1.md",
+      "availability": "available"
+    },
+    {
+      "id": "src-claimed-textbook",
+      "document": "Computer Networks and Data Communication.pdf",
+      "availability": "unavailable"
+    },
+    {
+      "id": "src-claimed-lecture",
+      "document": "Data Communications Lecture Notes.pdf",
+      "availability": "unavailable"
+    }
+  ],
+  "processingOrder": [
+    "topic-chapter-frame",
+    "topic-data-communication",
+    "topic-data-representation",
+    "topic-data-flow",
+    "topic-networks-criteria",
+    "topic-physical-structures",
+    "topic-network-categories",
+    "topic-internetwork",
+    "topic-internet",
+    "topic-protocols",
+    "topic-standards"
+  ],
+  "topics": [
+    {
+      "topicId": "topic-chapter-frame",
+      "title": "Chapter frame: four issues the chapter must cover",
+      "importance": "context",
+      "sourceSection": "Chapter intro",
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            1
+          ],
+          "evidence": "This chapter addresses four issues: data communications, networks, the Internet, and protocols and standards."
+        }
+      ],
+      "learningObjectives": [
+        "State the four issues the chapter addresses",
+        "Place later sections on that roadmap"
+      ],
+      "concepts": [
+        {
+          "id": "concept-four-issues",
+          "title": "Four chapter pillars",
+          "meaning": "Data communications, networks, the Internet, protocols and standards.",
+          "explanation": {
+            "what": "The source explicitly organizes Chapter 1 around four sequential issues.",
+            "why": "Gives students a scaffold before dense definitions.",
+            "parts": [
+              "data communications",
+              "networks",
+              "the Internet",
+              "protocols and standards"
+            ],
+            "concrete": "Broad definition of data communications → networks as a highway → Internet as internetwork example → protocol vs standard."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Low direct exam value, high structural value for chapter coherence.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                1
+              ]
+            }
+          ],
+          "prerequisites": [],
+          "relatedConceptIds": [
+            "concept-data-communications",
+            "concept-network",
+            "concept-internet-global",
+            "concept-protocol-elements"
+          ],
+          "commonConfusionIds": []
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel-frame-sequence",
+          "from": "concept-four-issues",
+          "type": "precedes",
+          "to": "concept-data-communications",
+          "explanation": "Chapter introduces data communications first, then networks, Internet, protocols/standards.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                1
+              ]
+            }
+          ]
+        }
+      ],
+      "definitions": [],
+      "formulas": [],
+      "examples": [],
+      "comparisons": [],
+      "applications": [],
+      "confusions": [],
+      "exerciseSignals": [],
+      "prerequisites": [],
+      "dependents": [
+        "topic-data-communication",
+        "topic-networks-criteria",
+        "topic-internet",
+        "topic-protocols",
+        "topic-standards"
+      ],
+      "preservationRequirements": [
+        "Open with the four-issue roadmap so later sections are not orphaned facts."
+      ],
+      "simplificationControl": {
+        "acceptable": [
+          "Name the four issues in one short roadmap paragraph."
+        ],
+        "notAcceptable": [
+          "Drop the roadmap and jump straight into Shannon-style formulas."
+        ]
+      },
+      "evidenceQuality": "high",
+      "coverage": {
+        "definition": true,
+        "mechanism": false,
+        "relationships": true,
+        "examples": false,
+        "comparisons": false,
+        "formulas": false,
+        "confusions": false
+      },
+      "uncertainties": []
+    },
+    {
+      "topicId": "topic-data-communication",
+      "title": "Data communications: definition, effectiveness, five components",
+      "importance": "core",
+      "sourceSection": "1.1 DATA COMMUNICATIONS",
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            1,
+            2,
+            3
+          ],
+          "evidence": "Data communications are the exchange of data between two devices via some form of transmission medium."
+        }
+      ],
+      "learningObjectives": [
+        "Define data communications and data",
+        "List the four effectiveness characteristics including jitter",
+        "Name and explain the five components",
+        "Use the protocol analogy to explain why connection ≠ communication"
+      ],
+      "concepts": [
+        {
+          "id": "concept-data",
+          "title": "Data",
+          "meaning": "Information presented in whatever form is agreed upon by the parties creating and using the data.",
+          "explanation": {
+            "what": "Data is agreed-form information, not merely 'numbers'.",
+            "why": "Without an agreed form, bits cannot be interpreted.",
+            "concrete": "Text, numbers, pictures, audio, video are popular message forms."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Foundational term; appears in definitions and component lists.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ],
+              "evidence": "The word data refers to information presented in whatever form is agreed upon by the parties creating and using the data."
+            }
+          ],
+          "prerequisites": [],
+          "relatedConceptIds": [
+            "concept-data-communications",
+            "concept-message"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-telecommunication",
+          "title": "Telecommunication",
+          "meaning": "Communication at a distance (telephony, telegraphy, television).",
+          "explanation": {
+            "what": "tele = Greek for 'far'; includes telephony, telegraphy, television.",
+            "why": "Separates remote communication from face-to-face local communication."
+          },
+          "importance": "low",
+          "whyExamRelevant": "Occasional vocabulary item; not a computation target.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                1,
+                2
+              ]
+            }
+          ],
+          "prerequisites": [],
+          "relatedConceptIds": [
+            "concept-data-communications"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-data-communications",
+          "title": "Data communications",
+          "meaning": "Exchange of data between two devices via some form of transmission medium such as a wire cable.",
+          "explanation": {
+            "what": "Two-device exchange over a medium, requiring a hardware+software communication system.",
+            "why": "Defines the chapter's first pillar.",
+            "how": "Devices participate in a communication system made of hardware (physical equipment) and software (programs).",
+            "parts": [
+              "sender device",
+              "receiver device",
+              "transmission medium",
+              "communication system hardware/software"
+            ],
+            "notMeaning": "Not merely 'sending a file'; not the same as networking topology."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Core definition; review Q1 builds on the five components of this system.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ],
+              "evidence": "Data communications are the exchange of data between two devices via some form of transmission medium."
+            }
+          ],
+          "prerequisites": [
+            "concept-data"
+          ],
+          "relatedConceptIds": [
+            "concept-effectiveness",
+            "concept-five-components"
+          ],
+          "commonConfusionIds": [
+            "conf-network-vs-internet"
+          ]
+        },
+        {
+          "id": "concept-effectiveness",
+          "title": "Effectiveness characteristics",
+          "meaning": "Delivery, accuracy, timeliness, and jitter determine data-communications effectiveness.",
+          "explanation": {
+            "what": "Four fundamental characteristics of an effective system.",
+            "why": "Correct destination without accuracy or timing is still useless.",
+            "parts": [
+              "delivery",
+              "accuracy",
+              "timeliness",
+              "jitter"
+            ],
+            "whenChanges": "If any one fails, the communication is ineffective for real applications."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Direct source emphasis; easy multiple-choice set.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ],
+              "evidence": "The effectiveness of a data communications system depends on four fundamental characteristics: delivery, accuracy, timeliness, and jitter."
+            }
+          ],
+          "prerequisites": [
+            "concept-data-communications"
+          ],
+          "relatedConceptIds": [
+            "concept-jitter",
+            "concept-realtime"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-delivery",
+          "title": "Delivery",
+          "meaning": "System must deliver data to the correct destination — intended device/user and only that one.",
+          "explanation": {
+            "what": "Correct-destination requirement.",
+            "why": "Misdelivery is a security and correctness failure."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Part of the four-characteristic set.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-effectiveness"
+          ],
+          "relatedConceptIds": [
+            "concept-accuracy"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-accuracy",
+          "title": "Accuracy",
+          "meaning": "System must deliver data accurately; altered-and-uncorrected data are unusable.",
+          "explanation": {
+            "what": "Integrity of bits in transit.",
+            "notMeaning": "Not the same as timeliness — late-but-correct is still a different failure mode."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Part of the four-characteristic set.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-effectiveness"
+          ],
+          "relatedConceptIds": [
+            "concept-delivery"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-timeliness",
+          "title": "Timeliness",
+          "meaning": "Data delivered late are useless; for audio/video this means real-time transmission.",
+          "explanation": {
+            "what": "On-time delivery; real-time = as produced, same order, without significant delay.",
+            "why": "Interactive media fail without timing even if bits are correct."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Part of the four-characteristic set; links to jitter.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-effectiveness"
+          ],
+          "relatedConceptIds": [
+            "concept-jitter",
+            "concept-realtime"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-jitter",
+          "title": "Jitter",
+          "meaning": "Variation in packet arrival time — uneven delay in audio/video packet delivery.",
+          "explanation": {
+            "what": "Inconsistent inter-arrival times produce uneven quality.",
+            "why": "Constant average delay is not enough if delay varies packet-to-packet.",
+            "concrete": "Packets sent every 30 ms; some arrive with 30 ms delay, others 40 ms → uneven video.",
+            "notMeaning": "Not simply 'high delay'; it is delay variation."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Explicitly defined with a numeric illustration; frequently dropped by summarizers.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ],
+              "evidence": "Jitter refers to the variation in the packet arrival time."
+            }
+          ],
+          "prerequisites": [
+            "concept-timeliness"
+          ],
+          "relatedConceptIds": [
+            "concept-realtime"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-realtime",
+          "title": "Real-time transmission",
+          "meaning": "Timely delivery of audio/video as produced, in order, without significant delay.",
+          "explanation": {
+            "what": "Special case of timeliness for continuous media.",
+            "how": "Packets must keep production pace and ordering."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Often paired with jitter questions.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-timeliness"
+          ],
+          "relatedConceptIds": [
+            "concept-jitter"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-five-components",
+          "title": "Five components of a data communications system",
+          "meaning": "Message, sender, receiver, transmission medium, protocol.",
+          "explanation": {
+            "what": "Complete component taxonomy (Figure 1.1).",
+            "why": "Protocol is a component — connection without rules does not communicate.",
+            "parts": [
+              "message",
+              "sender",
+              "receiver",
+              "transmission medium",
+              "protocol"
+            ],
+            "concrete": "French speaker vs Japanese speaker: connected but not communicating without a shared protocol."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Review Q1 asks students to identify the five components.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2,
+                3
+              ],
+              "evidence": "A data communications system has five components."
+            }
+          ],
+          "prerequisites": [
+            "concept-data-communications"
+          ],
+          "relatedConceptIds": [
+            "concept-protocol-basic",
+            "concept-message",
+            "concept-sender",
+            "concept-receiver",
+            "concept-transmission-medium"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-message",
+          "title": "Message",
+          "meaning": "The information (data) to be communicated.",
+          "explanation": {
+            "what": "Payload of the communication.",
+            "parts": [
+              "text",
+              "numbers",
+              "pictures",
+              "audio",
+              "video"
+            ]
+          },
+          "importance": "high",
+          "whyExamRelevant": "Component #1 in the five-part taxonomy.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-five-components"
+          ],
+          "relatedConceptIds": [
+            "concept-data"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-sender",
+          "title": "Sender",
+          "meaning": "Device that sends the data message.",
+          "explanation": {
+            "what": "Source endpoint.",
+            "concrete": "Computer, workstation, telephone handset, video camera."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Component #2.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-five-components"
+          ],
+          "relatedConceptIds": [
+            "concept-receiver"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-receiver",
+          "title": "Receiver",
+          "meaning": "Device that receives the message.",
+          "explanation": {
+            "what": "Destination endpoint.",
+            "concrete": "Computer, workstation, telephone handset, television."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Component #3.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-five-components"
+          ],
+          "relatedConceptIds": [
+            "concept-sender"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-transmission-medium",
+          "title": "Transmission medium",
+          "meaning": "Physical path by which a message travels from sender to receiver.",
+          "explanation": {
+            "what": "Physical channel.",
+            "concrete": "Twisted-pair wire, coaxial cable, fiber-optic cable, radio waves.",
+            "notMeaning": "Not the same as protocol; medium is the path, protocol is the ruleset."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Component #4; media examples are common MCQs.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-five-components"
+          ],
+          "relatedConceptIds": [
+            "concept-protocol-basic"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-protocol-basic",
+          "title": "Protocol (basic role in data communications)",
+          "meaning": "Set of rules that govern data communications; agreement between communicating devices.",
+          "explanation": {
+            "what": "Without a protocol, two devices may be connected but not communicating.",
+            "why": "Shared rules enable interpretation of bits.",
+            "concrete": "French speaker cannot understand a Japanese-only speaker.",
+            "notMeaning": "Not a physical device; it is a ruleset (component #5)."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Component #5; also the bridge to section 1.4.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ],
+              "evidence": "A protocol is a set of rules that govern data communications."
+            }
+          ],
+          "prerequisites": [
+            "concept-five-components"
+          ],
+          "relatedConceptIds": [
+            "concept-protocol-elements"
+          ],
+          "commonConfusionIds": [
+            "conf-protocol-standard"
+          ]
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel-effectiveness-parts",
+          "from": "concept-effectiveness",
+          "type": "part-of",
+          "to": "concept-data-communications",
+          "explanation": "Effectiveness characteristics evaluate whether data communications succeed.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-components-complete-set",
+          "from": "concept-five-components",
+          "type": "part-of",
+          "to": "concept-data-communications",
+          "explanation": "The five components make up the communication system.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2,
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-jitter-from-timeliness",
+          "from": "concept-jitter",
+          "type": "special-case-of",
+          "to": "concept-timeliness",
+          "explanation": "Jitter is variation that breaks even when average delay looks acceptable.",
+          "claimClass": "NECESSARY_EXPLANATION",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-protocol-not-media",
+          "from": "concept-protocol-basic",
+          "type": "differs-from",
+          "to": "concept-transmission-medium",
+          "explanation": "Medium is physical path; protocol is governing rules. Both are required components.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2,
+                3
+              ]
+            }
+          ]
+        }
+      ],
+      "definitions": [
+        {
+          "id": "def-data-communications",
+          "term": "Data communications",
+          "definition": "Exchange of data between two devices via some form of transmission medium such as a wire cable.",
+          "scope": "Two devices + medium + communication system",
+          "qualifier": "Effectiveness depends on delivery, accuracy, timeliness, jitter",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-jitter",
+          "term": "Jitter",
+          "definition": "Variation in the packet arrival time (uneven delay in audio/video packets).",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-protocol-basic",
+          "term": "Protocol (basic)",
+          "definition": "A set of rules that govern data communications; an agreement between communicating devices.",
+          "qualifier": "Connection without protocol does not imply communication",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ]
+            }
+          ]
+        }
+      ],
+      "formulas": [],
+      "examples": [
+        {
+          "id": "ex-jitter-video",
+          "title": "Jitter with 30 ms packet interval",
+          "conceptIds": [
+            "concept-jitter"
+          ],
+          "scenario": "Video packets are produced every 30 ms.",
+          "inputs": [
+            "production interval 30 ms",
+            "some packets arrive with 30 ms delay",
+            "other packets with 40 ms delay"
+          ],
+          "reasoning": [
+            "Arrival times vary around the production interval.",
+            "Variable delay produces uneven quality even if mean delay is acceptable."
+          ],
+          "result": "Uneven video quality",
+          "lesson": "Timeliness for media includes stability of delay, not only average latency.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ],
+              "evidence": "let us assume that video packets are sent every 30 ms"
+            }
+          ]
+        },
+        {
+          "id": "ex-protocol-language",
+          "title": "French/Japanese protocol analogy",
+          "conceptIds": [
+            "concept-protocol-basic"
+          ],
+          "scenario": "Two devices (or people) physically connected but without shared rules.",
+          "inputs": [
+            "French-only speaker",
+            "Japanese-only speaker"
+          ],
+          "reasoning": [
+            "Physical connectivity is insufficient without a shared protocol."
+          ],
+          "result": "Connected but not communicating",
+          "lesson": "Protocol is a necessary component, not an optional software add-on.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ]
+            }
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "cmp-effectiveness-four",
+          "title": "Delivery vs Accuracy vs Timeliness vs Jitter",
+          "items": [
+            "delivery",
+            "accuracy",
+            "timeliness",
+            "jitter"
+          ],
+          "axes": [
+            {
+              "axis": "what fails",
+              "values": {
+                "delivery": "wrong destination",
+                "accuracy": "altered bits",
+                "timeliness": "too late",
+                "jitter": "uneven arrival"
+              }
+            },
+            {
+              "axis": "media sensitivity",
+              "values": {
+                "delivery": "all",
+                "accuracy": "all",
+                "timeliness": "audio/video",
+                "jitter": "audio/video"
+              }
+            }
+          ],
+          "similarities": [
+            "All four are required for effectiveness."
+          ],
+          "commonTrap": "Treating jitter as synonym of delay.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ]
+        }
+      ],
+      "applications": [],
+      "confusions": [
+        {
+          "id": "conf-jitter-vs-delay",
+          "left": "jitter",
+          "right": "delay/latency",
+          "whyConfused": "Both relate to timing of packet arrival.",
+          "correctDistinction": "Delay is how long; jitter is how much that long varies.",
+          "examTrap": "Selecting 'high delay' when the question describes uneven arrival times.",
+          "sourceRelevance": "explicit",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                2
+              ]
+            }
+          ]
+        }
+      ],
+      "exerciseSignals": [
+        {
+          "id": "exsig-q1-five-components",
+          "sourceQuestionNumber": 1,
+          "conceptIds": [
+            "concept-five-components"
+          ],
+          "skill": "identify",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ],
+              "evidence": "Identify the five components of a data communications system."
+            }
+          ]
+        }
+      ],
+      "prerequisites": [
+        "topic-chapter-frame"
+      ],
+      "dependents": [
+        "topic-data-representation",
+        "topic-data-flow",
+        "topic-protocols"
+      ],
+      "preservationRequirements": [
+        "All five components as a complete set (never drop protocol).",
+        "Four effectiveness characteristics including jitter with the 30/40 ms example.",
+        "Connected ≠ communicating analogy."
+      ],
+      "simplificationControl": {
+        "acceptable": [
+          "Effectiveness = delivery + accuracy + timeliness + jitter.",
+          "Five components are message, sender, receiver, medium, protocol."
+        ],
+        "notAcceptable": [
+          "Dropping jitter because it is 'advanced'.",
+          "Equating protocol with transmission medium."
+        ]
+      },
+      "evidenceQuality": "high",
+      "coverage": {
+        "definition": true,
+        "mechanism": true,
+        "relationships": true,
+        "examples": true,
+        "comparisons": true,
+        "formulas": false,
+        "confusions": true
+      },
+      "uncertainties": []
+    },
+    {
+      "topicId": "topic-data-representation",
+      "title": "Data representation: text, numbers, images, audio, video",
+      "importance": "core",
+      "sourceSection": "1.1 Data Representation",
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            3,
+            4
+          ],
+          "evidence": "Information today comes in different forms such as text, numbers, images, audio, and video."
+        }
+      ],
+      "learningObjectives": [
+        "Explain bit-pattern representation of text and numbers",
+        "Relate Unicode and ASCII as stated in the source",
+        "Describe images as pixel matrices with bit-depth color",
+        "Distinguish continuous vs discrete audio/video"
+      ],
+      "concepts": [
+        {
+          "id": "concept-bit-pattern",
+          "title": "Bit pattern representation",
+          "meaning": "Text and numbers are represented as sequences of bits (0s or 1s).",
+          "explanation": {
+            "what": "Digital systems encode information as bit sequences.",
+            "why": "Computers process bits; agreed codes make symbols meaningful.",
+            "how": "Codes map symbols to bit patterns; coding is the representation process."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Foundation for Unicode/ASCII and pixel questions (ex. 14–15).",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-data"
+          ],
+          "relatedConceptIds": [
+            "concept-unicode-ascii",
+            "concept-coding",
+            "concept-pixels"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-coding",
+          "title": "Code and coding",
+          "meaning": "A code is a set of bit patterns for text symbols; coding is representing symbols with those patterns.",
+          "explanation": {
+            "what": "Terminology for symbol→bit mapping systems.",
+            "concrete": "Unicode and ASCII are codes."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Vocabulary used when defining Unicode/ASCII.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-bit-pattern"
+          ],
+          "relatedConceptIds": [
+            "concept-unicode-ascii"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-unicode-ascii",
+          "title": "Unicode and ASCII (as stated in source)",
+          "meaning": "Unicode uses 32 bits (this source) to represent a symbol/character used in any language; ASCII is the first 127 characters / Basic Latin.",
+          "explanation": {
+            "what": "Text coding systems.",
+            "why": "World-language coverage vs older US-centric code.",
+            "how": "ASCII constitutes the first 127 Unicode characters (Basic Latin).",
+            "notMeaning": "This extract states 32-bit Unicode — do not silently 'correct' to UTF-8/UTF-16 without marking EXTERNAL_CONTEXT."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Exercise 14 asks maximum Unicode character/symbol capacity in this framing.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ],
+              "evidence": "Unicode, which uses 32 bits to represent a symbol or character"
+            }
+          ],
+          "prerequisites": [
+            "concept-coding"
+          ],
+          "relatedConceptIds": [
+            "concept-bit-pattern"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-numbers-binary",
+          "title": "Numbers as binary values",
+          "meaning": "Numbers are bit patterns but not via ASCII; the number is converted directly to binary to simplify math.",
+          "explanation": {
+            "what": "Numeric encoding differs from textual digit encoding.",
+            "why": "Direct binary conversion simplifies mathematical operations.",
+            "notMeaning": "ASCII is not used to represent numbers in this source's account."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Clarifies why '123' as text ≠ 123 as number.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-bit-pattern"
+          ],
+          "relatedConceptIds": [
+            "concept-bit-pattern"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-pixels",
+          "title": "Images as pixel matrices",
+          "meaning": "An image is a matrix of pixels; each pixel has a bit pattern whose size/value depend on color depth and content.",
+          "explanation": {
+            "what": "Resolution vs memory tradeoff; black-white needs 1 bit; gray levels need more bits; RGB mixes red/green/blue.",
+            "how": "1000 vs 10000 pixels → better resolution, more memory.",
+            "whenChanges": "More gray levels or colors ⇒ more bits per pixel ⇒ more memory.",
+            "concrete": "4 gray levels = 2-bit patterns: 00 black, 01 dark gray, 10 light gray, 11 white."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Exercise 15: 16 bits/pixel max colors.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3,
+                4
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-bit-pattern"
+          ],
+          "relatedConceptIds": [
+            "concept-bit-pattern"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-audio-video-continuous",
+          "title": "Audio/video continuous vs discrete",
+          "meaning": "Audio from a microphone is continuous; video can be continuous (camera) or a sequence of images. Both can later become digital or analog signals.",
+          "explanation": {
+            "what": "Source nature vs signal encoding.",
+            "how": "Chapters 4–5 (forward ref) cover changing sound/video to digital or analog."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Supports real-time/jitter context; not a heavy computation area in Ch.1.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                4
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-message"
+          ],
+          "relatedConceptIds": [
+            "concept-realtime"
+          ],
+          "commonConfusionIds": []
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel-ascii-inside-unicode",
+          "from": "concept-unicode-ascii",
+          "type": "special-case-of",
+          "to": "concept-bit-pattern",
+          "explanation": "ASCII is the first 127 Unicode characters (Basic Latin) in this source.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-pixels-bit-depth",
+          "from": "concept-pixels",
+          "type": "depends-on",
+          "to": "concept-bit-pattern",
+          "explanation": "Pixel color/gray encoding uses bit patterns; depth determines representable values.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3,
+                4
+              ]
+            }
+          ]
+        }
+      ],
+      "definitions": [
+        {
+          "id": "def-unicode",
+          "term": "Unicode",
+          "definition": "Coding system using 32 bits (per this source) to represent a symbol or character used in any language.",
+          "qualifier": "Source states 32-bit; preserve as source claim",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-ascii",
+          "term": "ASCII",
+          "definition": "American Standard Code for Information Interchange; first 127 Unicode characters / Basic Latin.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-code",
+          "term": "Code (text)",
+          "definition": "A set of bit patterns designed to represent text symbols.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ]
+            }
+          ]
+        }
+      ],
+      "formulas": [
+        {
+          "id": "formula-color-count",
+          "name": "Color count from pixel bit depth",
+          "latex": "colors = 2^{bits}",
+          "measures": "Maximum distinct colors representable per pixel",
+          "whenUsed": "Fixed bits-per-pixel color encoding questions",
+          "variables": [
+            {
+              "symbol": "bits",
+              "meaning": "bits per pixel",
+              "unit": "bits"
+            },
+            {
+              "symbol": "colors",
+              "meaning": "distinct color values",
+              "unit": "count"
+            }
+          ],
+          "conditions": [
+            "Uniform bits-per-pixel encoding"
+          ],
+          "interpretation": "Each additional bit doubles the representable color set.",
+          "variableChangeEffects": [
+            "bits=1 → 2 colors",
+            "bits=2 → 4 colors (gray example)",
+            "bits=16 → 65536 colors"
+          ],
+          "commonMistakes": [
+            "Confusing bits per pixel with total image memory",
+            "Using addition instead of exponentiation"
+          ],
+          "sourceExampleId": "ex-16bit-color",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ],
+              "evidence": "A color image uses 16 bits to represent a pixel. What is the maximum number of different colors"
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "id": "ex-gray-2bit",
+          "title": "Two-bit grayscale encoding",
+          "conceptIds": [
+            "concept-pixels"
+          ],
+          "scenario": "Image uses gray scale with four levels.",
+          "inputs": [
+            "4 gray levels"
+          ],
+          "reasoning": [
+            "Assign 00, 01, 10, 11 to black, dark gray, light gray, white."
+          ],
+          "result": "2-bit pattern per pixel",
+          "lesson": "Bit depth is determined by number of distinguishable values.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ex-16bit-color",
+          "title": "16-bit color image max colors",
+          "conceptIds": [
+            "concept-pixels"
+          ],
+          "scenario": "Exercise 15: color image uses 16 bits per pixel.",
+          "inputs": [
+            "16 bits/pixel"
+          ],
+          "reasoning": [
+            "colors = 2^16"
+          ],
+          "result": "65536 colors",
+          "lesson": "Apply exponential growth of bit patterns, not linear count of bits.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "cmp-info-forms",
+          "title": "Forms of information",
+          "items": [
+            "text",
+            "numbers",
+            "images",
+            "audio",
+            "video"
+          ],
+          "axes": [
+            {
+              "axis": "representation",
+              "values": {
+                "text": "bit patterns via codes (Unicode/ASCII)",
+                "numbers": "direct binary conversion",
+                "images": "pixel matrix + bit depth",
+                "audio": "continuous then digital/analog",
+                "video": "continuous or image sequence"
+              }
+            }
+          ],
+          "similarities": [
+            "All ultimately need digital encoding for data communication."
+          ],
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3,
+                4
+              ]
+            }
+          ]
+        }
+      ],
+      "applications": [],
+      "confusions": [
+        {
+          "id": "conf-ascii-vs-number",
+          "left": "ASCII digit characters",
+          "right": "binary numeric value",
+          "whyConfused": "Both involve 0/1 and digits.",
+          "correctDistinction": "Source says numbers are converted directly to binary, not represented with ASCII.",
+          "examTrap": "Assuming ASCII encodes numeric values for arithmetic.",
+          "sourceRelevance": "explicit",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                3
+              ]
+            }
+          ]
+        }
+      ],
+      "exerciseSignals": [
+        {
+          "id": "exsig-q14-unicode",
+          "sourceQuestionNumber": 14,
+          "conceptIds": [
+            "concept-unicode-ascii"
+          ],
+          "skill": "compute",
+          "distinctionTested": "Unicode capacity framing",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ],
+              "evidence": "What is the maximum number of characters or symbols that can be represented by Unicode?"
+            }
+          ]
+        },
+        {
+          "id": "exsig-q15-colors",
+          "sourceQuestionNumber": 15,
+          "conceptIds": [
+            "concept-pixels"
+          ],
+          "skill": "compute",
+          "formulaTested": "formula-color-count",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        }
+      ],
+      "prerequisites": [
+        "topic-data-communication"
+      ],
+      "dependents": [
+        "topic-data-flow",
+        "topic-networks-criteria"
+      ],
+      "preservationRequirements": [
+        "All five information forms with distinct representation rules.",
+        "Unicode 32-bit claim as stated + ASCII as Basic Latin.",
+        "Pixel bit-depth → color count formula with 16-bit exercise."
+      ],
+      "simplificationControl": {
+        "acceptable": [
+          "Images are pixel matrices; more bits/pixel ⇒ more colors and more memory."
+        ],
+        "notAcceptable": [
+          "Silently replacing source '32-bit Unicode' with UTF-8 without marking EXTERNAL_CONTEXT."
+        ]
+      },
+      "evidenceQuality": "high",
+      "coverage": {
+        "definition": true,
+        "mechanism": true,
+        "relationships": true,
+        "examples": true,
+        "comparisons": true,
+        "formulas": true,
+        "confusions": true
+      },
+      "uncertainties": [
+        "Unicode bit-width is a source claim; modern Unicode encodings differ — flag for CGP-2 if chapter needs accuracy notes."
+      ]
+    },
+    {
+      "topicId": "topic-data-flow",
+      "title": "Data flow: simplex, half-duplex, full-duplex",
+      "importance": "core",
+      "sourceSection": "1.1 Data Flow",
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            4,
+            5
+          ],
+          "evidence": "Communication between two devices can be simplex, half-duplex, or full-duplex."
+        }
+      ],
+      "learningObjectives": [
+        "Classify a link as simplex, half-duplex, or full-duplex",
+        "Explain capacity use in each mode",
+        "Give device examples for each mode"
+      ],
+      "concepts": [
+        {
+          "id": "concept-simplex",
+          "title": "Simplex",
+          "meaning": "Unidirectional communication; only one of two devices can transmit; the other can only receive.",
+          "explanation": {
+            "what": "One-way street.",
+            "how": "Entire channel capacity can be used to send data in one direction.",
+            "concrete": "Keyboards and traditional monitors.",
+            "notMeaning": "Not half of half-duplex; there is no reverse data path for the other device to send."
+          },
+          "importance": "high",
+          "whyExamRelevant": "One of three flow modes; direction/capacity details are exam favorites.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                4
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-transmission-medium"
+          ],
+          "relatedConceptIds": [
+            "concept-half-duplex",
+            "concept-full-duplex"
+          ],
+          "commonConfusionIds": [
+            "conf-half-vs-full"
+          ]
+        },
+        {
+          "id": "concept-half-duplex",
+          "title": "Half-duplex",
+          "meaning": "Each station can both transmit and receive, but not at the same time.",
+          "explanation": {
+            "what": "Two-way, one direction at a time.",
+            "how": "Entire capacity is taken over by whichever device transmits at the time.",
+            "concrete": "Walkie-talkies and CB radios.",
+            "whenChanges": "When both directions are never needed simultaneously, full capacity can be used per direction."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Review Q7 contrasts it with full-duplex.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                4,
+                5
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-simplex"
+          ],
+          "relatedConceptIds": [
+            "concept-full-duplex"
+          ],
+          "commonConfusionIds": [
+            "conf-half-vs-full"
+          ]
+        },
+        {
+          "id": "concept-full-duplex",
+          "title": "Full-duplex (duplex)",
+          "meaning": "Both stations can transmit and receive simultaneously.",
+          "explanation": {
+            "what": "Two-way street with simultaneous traffic.",
+            "how": "Either two physically separate transmission paths, or capacity divided between directions.",
+            "concrete": "Telephone network — both talk and listen at once.",
+            "whenChanges": "Capacity must be divided between directions when a single medium is shared."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Third mode; capacity-sharing mechanism is a common deep question.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-half-duplex"
+          ],
+          "relatedConceptIds": [
+            "concept-half-duplex"
+          ],
+          "commonConfusionIds": [
+            "conf-half-vs-full"
+          ]
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel-half-vs-full-capacity",
+          "from": "concept-half-duplex",
+          "type": "contrasts",
+          "to": "concept-full-duplex",
+          "explanation": "Half-duplex can dedicate entire capacity to one direction at a time; full-duplex must share capacity continuously.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                4,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-simplex-unidirectional",
+          "from": "concept-simplex",
+          "type": "differs-from",
+          "to": "concept-half-duplex",
+          "explanation": "Simplex never allows the receiving device to transmit on that link.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                4
+              ]
+            }
+          ]
+        }
+      ],
+      "definitions": [
+        {
+          "id": "def-simplex",
+          "term": "Simplex mode",
+          "definition": "Unidirectional communication on a link between two devices.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                4
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-half-duplex",
+          "term": "Half-duplex mode",
+          "definition": "Each station can transmit and receive, but not at the same time.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                4,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-full-duplex",
+          "term": "Full-duplex mode",
+          "definition": "Both stations can transmit and receive simultaneously (also called duplex).",
+          "qualifier": "Capacity shared via two paths or divided link capacity",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5
+              ]
+            }
+          ]
+        }
+      ],
+      "formulas": [],
+      "examples": [
+        {
+          "id": "ex-flow-devices",
+          "title": "Device examples per mode",
+          "conceptIds": [
+            "concept-simplex",
+            "concept-half-duplex",
+            "concept-full-duplex"
+          ],
+          "scenario": "Map everyday devices to directionality models.",
+          "inputs": [
+            "keyboard",
+            "monitor",
+            "walkie-talkie",
+            "telephone"
+          ],
+          "reasoning": [
+            "Keyboard only inputs; monitor only outputs → simplex.",
+            "Walkie-talkie: one talks, other listens, then swap → half-duplex.",
+            "Telephone: simultaneous talk/listen → full-duplex."
+          ],
+          "result": "simplex / half-duplex / full-duplex",
+          "lesson": "Classify by whether send and receive can occur simultaneously.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                4,
+                5
+              ]
+            }
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "cmp-data-flow",
+          "title": "Simplex vs Half-duplex vs Full-duplex",
+          "items": [
+            "simplex",
+            "half-duplex",
+            "full-duplex"
+          ],
+          "axes": [
+            {
+              "axis": "direction",
+              "values": {
+                "simplex": "one-way",
+                "half-duplex": "two-way alternate",
+                "full-duplex": "two-way simultaneous"
+              }
+            },
+            {
+              "axis": "capacity use",
+              "values": {
+                "simplex": "entire capacity one direction",
+                "half-duplex": "entire capacity to current transmitter",
+                "full-duplex": "shared/divided capacity"
+              }
+            },
+            {
+              "axis": "examples",
+              "values": {
+                "simplex": "keyboard, traditional monitor",
+                "half-duplex": "walkie-talkie, CB radio",
+                "full-duplex": "telephone network"
+              }
+            }
+          ],
+          "similarities": [
+            "All involve two devices on a link."
+          ],
+          "commonTrap": "Calling half-duplex 'full two-way' without the simultaneity qualifier.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                4,
+                5
+              ]
+            }
+          ]
+        }
+      ],
+      "applications": [],
+      "confusions": [
+        {
+          "id": "conf-half-vs-full",
+          "left": "half-duplex",
+          "right": "full-duplex",
+          "whyConfused": "Both allow two-way communication.",
+          "correctDistinction": "Only full-duplex allows simultaneous transmit and receive.",
+          "examTrap": "Choosing half-duplex when the scenario requires simultaneous talk/listen.",
+          "sourceRelevance": "explicit",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                4,
+                5,
+                22
+              ],
+              "evidence": "Review Q7: difference between half-duplex and full-duplex."
+            }
+          ]
+        }
+      ],
+      "exerciseSignals": [
+        {
+          "id": "exsig-q7-half-full",
+          "sourceQuestionNumber": 7,
+          "conceptIds": [
+            "concept-half-duplex",
+            "concept-full-duplex"
+          ],
+          "skill": "compare",
+          "distinctionTested": "half-duplex vs full-duplex",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        }
+      ],
+      "prerequisites": [
+        "topic-data-communication"
+      ],
+      "dependents": [
+        "topic-networks-criteria",
+        "topic-physical-structures"
+      ],
+      "preservationRequirements": [
+        "Three modes with direction + capacity semantics + one device example each.",
+        "Half vs full simultaneity distinction."
+      ],
+      "simplificationControl": {
+        "acceptable": [
+          "Half-duplex = two-way, not at the same time."
+        ],
+        "notAcceptable": [
+          "Saying full-duplex is just 'faster half-duplex'."
+        ]
+      },
+      "evidenceQuality": "high",
+      "coverage": {
+        "definition": true,
+        "mechanism": true,
+        "relationships": true,
+        "examples": true,
+        "comparisons": true,
+        "formulas": false,
+        "confusions": true
+      },
+      "uncertainties": []
+    },
+    {
+      "topicId": "topic-networks-criteria",
+      "title": "Networks: definition, distributed processing, criteria",
+      "importance": "core",
+      "sourceSection": "1.2 NETWORKS",
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            5,
+            6
+          ],
+          "evidence": "A network is a set of devices (often referred to as nodes) connected by communication links."
+        }
+      ],
+      "learningObjectives": [
+        "Define network and node",
+        "Explain distributed processing",
+        "State the three network criteria",
+        "Explain the throughput–delay tradeoff"
+      ],
+      "concepts": [
+        {
+          "id": "concept-network",
+          "title": "Network",
+          "meaning": "A set of devices (nodes) connected by communication links.",
+          "explanation": {
+            "what": "Devices + links.",
+            "notMeaning": "Not automatically the Internet; not automatically an internetwork."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Core definition; review Q11 contrasts network vs Internet.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5
+              ],
+              "evidence": "A network is a set of devices (often referred to as nodes) connected by communication links."
+            }
+          ],
+          "prerequisites": [
+            "concept-data-communications"
+          ],
+          "relatedConceptIds": [
+            "concept-node",
+            "concept-link",
+            "concept-internetwork"
+          ],
+          "commonConfusionIds": [
+            "conf-network-vs-internet"
+          ]
+        },
+        {
+          "id": "concept-node",
+          "title": "Node",
+          "meaning": "Computer, printer, or any other device capable of sending and/or receiving data generated by other nodes.",
+          "explanation": {
+            "what": "Any communicating device on the network."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Terminology used in topology counts (n nodes).",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-network"
+          ],
+          "relatedConceptIds": [
+            "concept-network"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-distributed-processing",
+          "title": "Distributed processing",
+          "meaning": "A task is divided among multiple computers; each handles a subset instead of one large machine owning all aspects.",
+          "explanation": {
+            "what": "Workload split across machines.",
+            "why": "Avoids single-machine responsibility for an entire process."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Review Q2 asks advantages of distributed processing.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5
+              ],
+              "evidence": "Most networks use distributed processing"
+            }
+          ],
+          "prerequisites": [
+            "concept-network"
+          ],
+          "relatedConceptIds": [
+            "concept-network"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-network-criteria",
+          "title": "Network criteria",
+          "meaning": "The most important criteria a network must meet are performance, reliability, and security.",
+          "explanation": {
+            "what": "Evaluation triad.",
+            "parts": [
+              "performance",
+              "reliability",
+              "security"
+            ]
+          },
+          "importance": "high",
+          "whyExamRelevant": "Review Q3; missing from the current sample chapter.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5,
+                6
+              ],
+              "evidence": "The most important of these are performance, reliability, and security."
+            }
+          ],
+          "prerequisites": [
+            "concept-network"
+          ],
+          "relatedConceptIds": [
+            "concept-performance-metrics",
+            "concept-reliability",
+            "concept-security"
+          ],
+          "commonConfusionIds": [
+            "conf-bandwidth-throughput"
+          ]
+        },
+        {
+          "id": "concept-performance-metrics",
+          "title": "Performance metrics",
+          "meaning": "Transit time and response time; often evaluated as throughput and delay.",
+          "explanation": {
+            "what": "Transit time = message travel time device-to-device; response time = elapsed time between inquiry and response.",
+            "why": "Performance depends on number of users, medium type, hardware capabilities, software efficiency.",
+            "whenChanges": "Sending more data may increase throughput but also delay via congestion.",
+            "notMeaning": "Performance is not only raw speed/bandwidth."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Throughput–delay contradiction is a classic conceptual item.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5,
+                6
+              ],
+              "evidence": "If we try to send more data to the network, we may increase throughput but we increase the delay"
+            }
+          ],
+          "prerequisites": [
+            "concept-network-criteria"
+          ],
+          "relatedConceptIds": [
+            "concept-throughput",
+            "concept-delay"
+          ],
+          "commonConfusionIds": [
+            "conf-bandwidth-throughput"
+          ]
+        },
+        {
+          "id": "concept-throughput",
+          "title": "Throughput",
+          "meaning": "Networking metric of data successfully handled (desired higher).",
+          "explanation": {
+            "what": "One of two evaluation metrics named with delay.",
+            "whenChanges": "Can rise with offered load, at cost of delay."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Paired with delay in tradeoff questions.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ],
+              "evidence": "Performance is often evaluated by two networking metrics: throughput and delay."
+            }
+          ],
+          "prerequisites": [
+            "concept-performance-metrics"
+          ],
+          "relatedConceptIds": [
+            "concept-delay"
+          ],
+          "commonConfusionIds": [
+            "conf-bandwidth-throughput"
+          ]
+        },
+        {
+          "id": "concept-delay",
+          "title": "Delay",
+          "meaning": "Networking performance metric of time cost (desired lower); increases under congestion.",
+          "explanation": {
+            "what": "Time penalty metric.",
+            "whenChanges": "Traffic congestion increases delay."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Tradeoff partner of throughput; exercise 23 is delay-sensitivity.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-performance-metrics"
+          ],
+          "relatedConceptIds": [
+            "concept-throughput"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-reliability",
+          "title": "Reliability",
+          "meaning": "Measured by frequency of failure, time to recover from a link failure, and robustness in a catastrophe.",
+          "explanation": {
+            "what": "Beyond accuracy of delivery — failure frequency, recovery time, catastrophe robustness."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "One of three criteria; often under-taught.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-network-criteria"
+          ],
+          "relatedConceptIds": [
+            "concept-network-criteria"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-security",
+          "title": "Security",
+          "meaning": "Protect data from unauthorized access and damage; implement policies/procedures for recovery from breaches and losses.",
+          "explanation": {
+            "what": "Confidentiality/integrity/recovery policy layer."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "One of three criteria.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-network-criteria"
+          ],
+          "relatedConceptIds": [
+            "concept-network-criteria"
+          ],
+          "commonConfusionIds": []
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel-throughput-delay-tradeoff",
+          "from": "concept-throughput",
+          "type": "contrasts",
+          "to": "concept-delay",
+          "explanation": "Often contradictory: more offered data can raise throughput and raise delay via congestion.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-performance-factors",
+          "from": "concept-performance-metrics",
+          "type": "depends-on",
+          "to": "concept-network",
+          "explanation": "Depends on users, medium, hardware capabilities, software efficiency.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5,
+                6
+              ]
+            }
+          ]
+        }
+      ],
+      "definitions": [
+        {
+          "id": "def-network",
+          "term": "Network",
+          "definition": "A set of devices (nodes) connected by communication links.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-distributed-processing",
+          "term": "Distributed processing",
+          "definition": "Division of a task among multiple computers so each handles a subset.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-throughput",
+          "term": "Throughput",
+          "definition": "Networking performance metric of data successfully transferred (often desired higher).",
+          "qualifier": "Not defined as link bandwidth in this chapter",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-delay",
+          "term": "Delay",
+          "definition": "Networking performance metric of time cost (often desired lower).",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ]
+        }
+      ],
+      "formulas": [],
+      "examples": [],
+      "comparisons": [
+        {
+          "id": "cmp-network-criteria",
+          "title": "Performance vs Reliability vs Security",
+          "items": [
+            "performance",
+            "reliability",
+            "security"
+          ],
+          "axes": [
+            {
+              "axis": "focus",
+              "values": {
+                "performance": "transit/response time, throughput, delay",
+                "reliability": "failure frequency, recovery, robustness",
+                "security": "unauthorized access, damage, recovery policies"
+              }
+            }
+          ],
+          "similarities": [
+            "All three are required criteria in the source."
+          ],
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5,
+                6
+              ]
+            }
+          ]
+        }
+      ],
+      "applications": [],
+      "confusions": [
+        {
+          "id": "conf-bandwidth-throughput",
+          "left": "bandwidth (not defined in this Ch.1 extract)",
+          "right": "throughput",
+          "whyConfused": "Sample chapter centers bandwidth; source centers throughput/delay.",
+          "correctDistinction": "In this source, performance evaluation uses throughput and delay; bandwidth is not given a Ch.1 definition.",
+          "examTrap": "Answering performance questions with a bandwidth-only story.",
+          "sourceRelevance": "implied",
+          "claimClass": "NECESSARY_EXPLANATION",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ]
+        }
+      ],
+      "exerciseSignals": [
+        {
+          "id": "exsig-q2-distributed",
+          "sourceQuestionNumber": 2,
+          "conceptIds": [
+            "concept-distributed-processing"
+          ],
+          "skill": "define",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        },
+        {
+          "id": "exsig-q3-criteria",
+          "sourceQuestionNumber": 3,
+          "conceptIds": [
+            "concept-network-criteria"
+          ],
+          "skill": "identify",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        },
+        {
+          "id": "exsig-q23-delay-apps",
+          "sourceQuestionNumber": 23,
+          "conceptIds": [
+            "concept-delay"
+          ],
+          "skill": "analyze",
+          "difficultySignal": "intermediate",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                23
+              ],
+              "evidence": "Performance is inversely related to delay... more sensitive to delay?"
+            }
+          ]
+        }
+      ],
+      "prerequisites": [
+        "topic-data-communication"
+      ],
+      "dependents": [
+        "topic-physical-structures",
+        "topic-network-categories"
+      ],
+      "preservationRequirements": [
+        "Three criteria: performance, reliability, security.",
+        "Throughput–delay contradiction under load.",
+        "Distributed processing definition."
+      ],
+      "simplificationControl": {
+        "acceptable": [
+          "More traffic can raise throughput and delay together."
+        ],
+        "notAcceptable": [
+          "Higher bandwidth always makes every network faster (not source-stated here)."
+        ]
+      },
+      "evidenceQuality": "high",
+      "coverage": {
+        "definition": true,
+        "mechanism": true,
+        "relationships": true,
+        "examples": false,
+        "comparisons": true,
+        "formulas": false,
+        "confusions": true
+      },
+      "uncertainties": []
+    },
+    {
+      "topicId": "topic-physical-structures",
+      "title": "Physical structures: connections and topologies",
+      "importance": "core",
+      "sourceSection": "1.2 Physical Structures",
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "evidence": "There are two possible types of connections: point-to-point and multipoint."
+        }
+      ],
+      "learningObjectives": [
+        "Distinguish point-to-point and multipoint connections",
+        "Classify mesh, star, bus, ring (and hybrid) topologies",
+        "Apply mesh link and port formulas",
+        "Explain advantages/disadvantages and failure modes of each basic topology"
+      ],
+      "concepts": [
+        {
+          "id": "concept-link",
+          "title": "Link",
+          "meaning": "A communications pathway that transfers data from one device to another.",
+          "explanation": {
+            "what": "Edge in the network graph.",
+            "how": "Imagined as a line between two points for visualization."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Needed to count cables in topology exercises.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-network"
+          ],
+          "relatedConceptIds": [
+            "concept-point-to-point",
+            "concept-topology"
+          ],
+          "commonConfusionIds": [
+            "conf-links-vs-ports"
+          ]
+        },
+        {
+          "id": "concept-point-to-point",
+          "title": "Point-to-point connection",
+          "meaning": "Dedicated link between two devices; entire capacity reserved for those two.",
+          "explanation": {
+            "what": "Two-device exclusive link.",
+            "how": "Usually wire/cable; can be microwave or satellite.",
+            "concrete": "Infrared remote establishing a connection to a TV control system."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Review Q4–Q5; prerequisite for mesh/star classification.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ],
+              "evidence": "A point-to-point connection provides a dedicated link between two devices."
+            }
+          ],
+          "prerequisites": [
+            "concept-link"
+          ],
+          "relatedConceptIds": [
+            "concept-multipoint",
+            "concept-mesh",
+            "concept-star",
+            "concept-ring"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-multipoint",
+          "title": "Multipoint (multidrop) connection",
+          "meaning": "More than two specific devices share a single link.",
+          "explanation": {
+            "what": "Shared link among 3+ devices.",
+            "how": "Capacity shared spatially (simultaneous) or temporally (turns)."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Prerequisite for bus topology; review Q4.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ],
+              "evidence": "A multipoint (also called multidrop) connection is one in which more than two specific devices share a single link."
+            }
+          ],
+          "prerequisites": [
+            "concept-link"
+          ],
+          "relatedConceptIds": [
+            "concept-point-to-point",
+            "concept-bus"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-topology",
+          "title": "Physical topology",
+          "meaning": "Geometric representation of the relationship of all links and linking devices (nodes) to one another.",
+          "explanation": {
+            "what": "Arrangement pattern of the network.",
+            "parts": [
+              "mesh",
+              "star",
+              "bus",
+              "ring",
+              "hybrid"
+            ]
+          },
+          "importance": "high",
+          "whyExamRelevant": "Largest knowledge block; review Q6/Q8/Q9.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                7
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-point-to-point",
+            "concept-multipoint"
+          ],
+          "relatedConceptIds": [
+            "concept-mesh",
+            "concept-star",
+            "concept-bus",
+            "concept-ring",
+            "concept-hybrid"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-mesh",
+          "title": "Mesh topology",
+          "meaning": "Every device has a dedicated point-to-point link to every other device.",
+          "explanation": {
+            "what": "Fully connected dedicated links.",
+            "how": "n(n−1)/2 duplex links; n−1 I/O ports per device.",
+            "parts": [
+              "dedicated links",
+              "n-1 ports",
+              "robustness",
+              "privacy",
+              "fault isolation"
+            ],
+            "whenChanges": "Adding a node increases links ~quadratically.",
+            "concrete": "Telephone regional offices needing mutual connectivity (limited mesh backbone).",
+            "notMeaning": "Not the same as 'many links' without full connectivity."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Only source body formulas live here; exercises 9/16/17.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                7,
+                8,
+                9
+              ],
+              "evidence": "In a mesh topology, every device has a dedicated point-to-point link to every other device."
+            }
+          ],
+          "prerequisites": [
+            "concept-point-to-point",
+            "concept-topology"
+          ],
+          "relatedConceptIds": [
+            "concept-star",
+            "concept-bus",
+            "concept-ring"
+          ],
+          "commonConfusionIds": [
+            "conf-links-vs-ports"
+          ]
+        },
+        {
+          "id": "concept-star",
+          "title": "Star topology",
+          "meaning": "Each device has a dedicated point-to-point link only to a central controller (hub); devices are not directly linked.",
+          "explanation": {
+            "what": "Hub-centered exchange.",
+            "how": "Controller relays data between devices.",
+            "whenChanges": "If hub dies, whole system dies (single point of failure).",
+            "concrete": "High-speed LANs with central hub."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Common LAN topology; failure-mode questions.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                8,
+                9
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-point-to-point",
+            "concept-topology"
+          ],
+          "relatedConceptIds": [
+            "concept-hub",
+            "concept-mesh"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-hub",
+          "title": "Hub (central controller)",
+          "meaning": "Central device in a star topology that acts as an exchange between stations.",
+          "explanation": {
+            "what": "Single point of dependency for star.",
+            "how": "Can monitor link problems and bypass defective links while working."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Explains star advantages/disadvantages.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                8,
+                9
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-star"
+          ],
+          "relatedConceptIds": [
+            "concept-star"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-bus",
+          "title": "Bus topology",
+          "meaning": "Multipoint topology with one long cable as backbone; nodes connect via drop lines and taps.",
+          "explanation": {
+            "what": "Shared backbone.",
+            "how": "Signal weakens along the backbone (energy → heat); tap count/distance limited.",
+            "whenChanges": "Break in bus cable stops all transmission; reflections create noise.",
+            "concrete": "Early Ethernet LANs (less popular now per source)."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Line-configuration classification + failure analysis (ex. 17c, 20).",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                9,
+                10
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-multipoint",
+            "concept-topology"
+          ],
+          "relatedConceptIds": [
+            "concept-drop-line",
+            "concept-tap"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-drop-line",
+          "title": "Drop line",
+          "meaning": "Connection running between the device and the main bus cable.",
+          "explanation": {
+            "what": "Device attachment path to backbone."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Bus anatomy vocabulary.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                9
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-bus"
+          ],
+          "relatedConceptIds": [
+            "concept-tap",
+            "concept-bus"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-tap",
+          "title": "Tap",
+          "meaning": "Connector that splices into or punctures the cable sheathing to contact the metallic core.",
+          "explanation": {
+            "what": "Physical connector onto the bus backbone."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Bus anatomy vocabulary.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                9
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-bus"
+          ],
+          "relatedConceptIds": [
+            "concept-drop-line"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-ring",
+          "title": "Ring topology",
+          "meaning": "Each device has dedicated point-to-point connections only to the two neighbors; signal passed along the ring; each device incorporates a repeater.",
+          "explanation": {
+            "what": "Closed loop with regeneration at each device.",
+            "how": "Unidirectional traffic; dual ring or switch can mitigate breaks.",
+            "whenChanges": "Simple ring break can disable entire network.",
+            "concrete": "IBM Token Ring (historical prevalence)."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Failure modes and line configuration (ex. 6, 17d, 19).",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                10,
+                11
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-point-to-point",
+            "concept-topology"
+          ],
+          "relatedConceptIds": [
+            "concept-star",
+            "concept-bus"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-hybrid",
+          "title": "Hybrid topology",
+          "meaning": "Combination of topologies, e.g., main star with each branch connecting several stations in bus topology.",
+          "explanation": {
+            "what": "Composite physical design.",
+            "concrete": "Star backbone with three bus networks."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Exercises 21–22 ask students to draw hybrids.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                11
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-star",
+            "concept-bus",
+            "concept-ring"
+          ],
+          "relatedConceptIds": [
+            "concept-topology"
+          ],
+          "commonConfusionIds": []
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel-mesh-from-p2p",
+          "from": "concept-mesh",
+          "type": "depends-on",
+          "to": "concept-point-to-point",
+          "explanation": "Mesh is built from dedicated p2p links between every pair.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                7
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-bus-is-multipoint",
+          "from": "concept-bus",
+          "type": "special-case-of",
+          "to": "concept-multipoint",
+          "explanation": "Bus is the multipoint topology; star/mesh/ring use p2p links.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                9
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-star-hub-spof",
+          "from": "concept-hub",
+          "type": "affects",
+          "to": "concept-star",
+          "explanation": "Hub failure kills the entire star system.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                9
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-ring-repeater",
+          "from": "concept-ring",
+          "type": "depends-on",
+          "to": "concept-ring",
+          "explanation": "Each device regenerates bits via an internal repeater before passing them along.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                10
+              ]
+            }
+          ]
+        }
+      ],
+      "definitions": [
+        {
+          "id": "def-point-to-point",
+          "term": "Point-to-point",
+          "definition": "Dedicated link between two devices; entire capacity reserved for those two.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-multipoint",
+          "term": "Multipoint / multidrop",
+          "definition": "Connection in which more than two specific devices share a single link.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-topology",
+          "term": "Physical topology",
+          "definition": "Geometric representation of the relationship of all links and nodes to one another.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                7
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-drop-line",
+          "term": "Drop line",
+          "definition": "Connection running between the device and the main bus cable.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                9
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-tap",
+          "term": "Tap",
+          "definition": "Connector that splices into or punctures cable sheathing to contact the metallic core.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                9
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-hub",
+          "term": "Hub",
+          "definition": "Central controller in a star topology that exchanges data between devices.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                8
+              ]
+            }
+          ]
+        }
+      ],
+      "formulas": [
+        {
+          "id": "formula-mesh-links",
+          "name": "Fully connected mesh duplex links",
+          "latex": "\\frac{n(n-1)}{2}",
+          "measures": "Number of duplex-mode physical links in a fully connected mesh",
+          "whenUsed": "Cable/link count for mesh with n nodes",
+          "variables": [
+            {
+              "symbol": "n",
+              "meaning": "number of nodes/devices",
+              "unit": "count"
+            }
+          ],
+          "conditions": [
+            "Fully connected mesh",
+            "Each physical link is duplex (bidirectional)"
+          ],
+          "interpretation": "Each of n nodes connects to n−1 others; each link counted twice, so divide by 2.",
+          "variableChangeEffects": [
+            "n=2 → 1 link",
+            "n=5 → 10 links",
+            "n=6 → 15 links (exercise 16)"
+          ],
+          "commonMistakes": [
+            "Using n(n−1) without /2 for duplex links",
+            "Answering ports when links were asked"
+          ],
+          "sourceExampleId": "ex-mesh-six",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                7
+              ],
+              "evidence": "we need n(n-1)/2 duplex-mode links"
+            }
+          ]
+        },
+        {
+          "id": "formula-mesh-ports",
+          "name": "Mesh I/O ports per device",
+          "latex": "ports = n - 1",
+          "measures": "I/O ports required on each mesh device",
+          "whenUsed": "Port-count questions for fully connected mesh",
+          "variables": [
+            {
+              "symbol": "n",
+              "meaning": "number of nodes/devices",
+              "unit": "count"
+            }
+          ],
+          "conditions": [
+            "Fully connected mesh"
+          ],
+          "interpretation": "Each device must reach the other n−1 stations.",
+          "variableChangeEffects": [
+            "n=6 → 5 ports each"
+          ],
+          "commonMistakes": [
+            "Giving cable count instead of port count"
+          ],
+          "sourceExampleId": "ex-mesh-six",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                7,
+                8
+              ],
+              "evidence": "every device on the network must have n - 1 input/output ports"
+            }
+          ]
+        }
+      ],
+      "examples": [
+        {
+          "id": "ex-mesh-six",
+          "title": "Six devices in mesh",
+          "conceptIds": [
+            "concept-mesh"
+          ],
+          "scenario": "Exercise 16: six devices arranged in mesh topology.",
+          "inputs": [
+            "n = 6"
+          ],
+          "reasoning": [
+            "links = n(n−1)/2 = 6·5/2 = 15",
+            "ports per device = n−1 = 5"
+          ],
+          "result": "15 cables; 5 ports needed on each device",
+          "lesson": "Compute links and ports separately; both use n but differently.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ],
+              "evidence": "Exercise 16: six devices mesh — cables and ports"
+            }
+          ]
+        },
+        {
+          "id": "ex-ir-tv",
+          "title": "IR remote point-to-point",
+          "conceptIds": [
+            "concept-point-to-point"
+          ],
+          "scenario": "Changing TV channels by infrared remote.",
+          "inputs": [
+            "remote control",
+            "TV control system"
+          ],
+          "reasoning": [
+            "Dedicated link between exactly two devices."
+          ],
+          "result": "point-to-point connection",
+          "lesson": "Point-to-point is not only long-haul cable; short dedicated links count.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ex-two-lan-wan-topo",
+          "title": "Heterogeneous enterprise internetwork (topology angle)",
+          "conceptIds": [
+            "concept-bus",
+            "concept-star"
+          ],
+          "scenario": "West office bus LAN; east office star LAN; president remote via WANs.",
+          "inputs": [
+            "bus LAN",
+            "star LAN",
+            "switched WAN",
+            "point-to-point WANs"
+          ],
+          "reasoning": [
+            "Different topologies can coexist when interconnected."
+          ],
+          "result": "Internetwork of heterogeneous LAN/WAN technologies",
+          "lesson": "Topology choice is local; internetworking is global.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                13,
+                14
+              ]
+            }
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "cmp-connections",
+          "title": "Point-to-point vs Multipoint",
+          "items": [
+            "point-to-point",
+            "multipoint"
+          ],
+          "axes": [
+            {
+              "axis": "devices on link",
+              "values": {
+                "point-to-point": "exactly two",
+                "multipoint": "more than two"
+              }
+            },
+            {
+              "axis": "capacity",
+              "values": {
+                "point-to-point": "entire capacity reserved",
+                "multipoint": "shared spatially or temporally"
+              }
+            }
+          ],
+          "commonTrap": "Calling a bus 'point-to-point' because each drop line is short.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                6
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cmp-topologies",
+          "title": "Mesh vs Star vs Bus vs Ring",
+          "items": [
+            "mesh",
+            "star",
+            "bus",
+            "ring"
+          ],
+          "axes": [
+            {
+              "axis": "line configuration",
+              "values": {
+                "mesh": "all p2p",
+                "star": "all p2p to hub",
+                "bus": "multipoint",
+                "ring": "p2p to two neighbors"
+              }
+            },
+            {
+              "axis": "cabling",
+              "values": {
+                "mesh": "very high",
+                "star": "less than mesh; may exceed ring/bus",
+                "bus": "low (backbone + drops)",
+                "ring": "two connections per device"
+              }
+            },
+            {
+              "axis": "failure mode",
+              "values": {
+                "mesh": "robust; one link down does not incapacitate system",
+                "star": "hub down kills system",
+                "bus": "backbone break stops all transmission",
+                "ring": "simple ring break can disable network"
+              }
+            },
+            {
+              "axis": "fault isolation",
+              "values": {
+                "mesh": "easy (dedicated links)",
+                "star": "easy while hub works",
+                "bus": "difficult",
+                "ring": "simplified via circulating signal/alarms"
+              }
+            }
+          ],
+          "similarities": [
+            "All are basic physical topologies; hybrid combines them."
+          ],
+          "commonTrap": "Mixing mesh link count with star hub dependency.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                7,
+                8,
+                9,
+                10,
+                11
+              ]
+            }
+          ]
+        }
+      ],
+      "applications": [
+        {
+          "id": "app-telephone-mesh",
+          "title": "Telephone regional offices as limited mesh",
+          "conceptIds": [
+            "concept-mesh"
+          ],
+          "detail": "Each regional office needs connection to every other regional office — practical limited mesh backbone.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                8
+              ]
+            }
+          ]
+        },
+        {
+          "id": "app-lan-star",
+          "title": "High-speed LAN star",
+          "conceptIds": [
+            "concept-star"
+          ],
+          "detail": "Source: star topology is used in LANs; high-speed LANs often use star with central hub.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                9
+              ]
+            }
+          ]
+        },
+        {
+          "id": "app-early-ethernet-bus",
+          "title": "Early Ethernet bus LANs",
+          "conceptIds": [
+            "concept-bus"
+          ],
+          "detail": "Bus was among first LAN topologies; Ethernet can use bus but less popular now (Ch.13 forward ref).",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                10
+              ]
+            }
+          ]
+        }
+      ],
+      "confusions": [
+        {
+          "id": "conf-links-vs-ports",
+          "left": "mesh links n(n−1)/2",
+          "right": "mesh ports n−1 per device",
+          "whyConfused": "Both depend on n and appear in the same exercises.",
+          "correctDistinction": "Links are cables between pairs; ports are I/O interfaces on each device.",
+          "examTrap": "Answering 15 ports when 15 cables were asked (or vice versa) for n=6.",
+          "sourceRelevance": "explicit",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                7,
+                23
+              ]
+            }
+          ]
+        }
+      ],
+      "exerciseSignals": [
+        {
+          "id": "exsig-q4-multipoint-adv",
+          "sourceQuestionNumber": 4,
+          "conceptIds": [
+            "concept-multipoint",
+            "concept-point-to-point"
+          ],
+          "skill": "compare",
+          "difficultySignal": "intermediate",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        },
+        {
+          "id": "exsig-q5-line-config",
+          "sourceQuestionNumber": 5,
+          "conceptIds": [
+            "concept-point-to-point",
+            "concept-multipoint"
+          ],
+          "skill": "identify",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        },
+        {
+          "id": "exsig-q6-topo-line-config",
+          "sourceQuestionNumber": 6,
+          "conceptIds": [
+            "concept-topology"
+          ],
+          "skill": "compare",
+          "distinctionTested": "topology by line configuration",
+          "difficultySignal": "intermediate",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        },
+        {
+          "id": "exsig-q8-topo-advantages",
+          "sourceQuestionNumber": 8,
+          "conceptIds": [
+            "concept-mesh",
+            "concept-star",
+            "concept-bus",
+            "concept-ring"
+          ],
+          "skill": "identify",
+          "difficultySignal": "intermediate",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        },
+        {
+          "id": "exsig-q9-link-counts",
+          "sourceQuestionNumber": 9,
+          "conceptIds": [
+            "concept-mesh",
+            "concept-star",
+            "concept-bus",
+            "concept-ring"
+          ],
+          "skill": "compute",
+          "formulaTested": "formula-mesh-links",
+          "difficultySignal": "intermediate",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ],
+              "evidence": "For n devices... number of cable links required for a mesh, ring, bus, and star"
+            }
+          ]
+        },
+        {
+          "id": "exsig-q16-mesh-six",
+          "sourceQuestionNumber": 16,
+          "conceptIds": [
+            "concept-mesh"
+          ],
+          "skill": "compute",
+          "formulaTested": "formula-mesh-links",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        },
+        {
+          "id": "exsig-q17-failure-modes",
+          "sourceQuestionNumber": 17,
+          "conceptIds": [
+            "concept-mesh",
+            "concept-star",
+            "concept-bus",
+            "concept-ring"
+          ],
+          "skill": "analyze",
+          "distinctionTested": "failure consequences per topology",
+          "difficultySignal": "advanced",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        }
+      ],
+      "prerequisites": [
+        "topic-networks-criteria",
+        "topic-data-flow"
+      ],
+      "dependents": [
+        "topic-network-categories",
+        "topic-internetwork"
+      ],
+      "preservationRequirements": [
+        "Point-to-point vs multipoint before topologies.",
+        "All four basic topologies + hybrid with advantages/disadvantages/failure modes.",
+        "Mesh formulas n(n−1)/2 and n−1 with conditions and n=6 example.",
+        "Bus anatomy: drop line, tap, signal attenuation.",
+        "Star hub single point of failure."
+      ],
+      "simplificationControl": {
+        "acceptable": [
+          "Mesh is expensive but robust; star is cheap but hub-dependent."
+        ],
+        "notAcceptable": [
+          "Saying mesh is always best; omitting bus/ring failure modes."
+        ]
+      },
+      "evidenceQuality": "high",
+      "coverage": {
+        "definition": true,
+        "mechanism": true,
+        "relationships": true,
+        "examples": true,
+        "comparisons": true,
+        "formulas": true,
+        "confusions": true
+      },
+      "uncertainties": []
+    },
+    {
+      "topicId": "topic-network-categories",
+      "title": "Categories of networks: LAN, WAN, MAN",
+      "importance": "core",
+      "sourceSection": "1.2 Categories of Networks",
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            11,
+            12,
+            13
+          ],
+          "evidence": "A LAN normally covers an area less than 2 mi; a WAN can be worldwide."
+        }
+      ],
+      "learningObjectives": [
+        "Classify networks by size into LAN, MAN, WAN",
+        "Explain LAN resource sharing and typical topologies",
+        "Distinguish switched WAN and point-to-point WAN",
+        "Give MAN examples (DSL, cable TV)"
+      ],
+      "concepts": [
+        {
+          "id": "concept-lan",
+          "title": "LAN",
+          "meaning": "Usually privately owned; links devices in a single office, building, or campus; currently limited to a few kilometers.",
+          "explanation": {
+            "what": "Local area network for resource sharing.",
+            "how": "Share hardware/software/data among PCs/workstations; one machine may become server to clients.",
+            "parts": [
+              "size",
+              "transmission media",
+              "topology"
+            ],
+            "concrete": "Home office of two PCs + printer, or company LAN with audio/video peripherals.",
+            "notMeaning": "Not defined primarily by brand of switch; size/ownership/scope matter."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Exercise 18 classification; review Q10.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                11,
+                12
+              ],
+              "evidence": "A local area network (LAN) is usually privately owned"
+            }
+          ],
+          "prerequisites": [
+            "concept-network",
+            "concept-topology"
+          ],
+          "relatedConceptIds": [
+            "concept-wan",
+            "concept-man"
+          ],
+          "commonConfusionIds": [
+            "conf-lan-wan-classify"
+          ]
+        },
+        {
+          "id": "concept-wan",
+          "title": "WAN",
+          "meaning": "Long-distance transmission of data/image/audio/video over large geographic areas (country, continent, world).",
+          "explanation": {
+            "what": "Wide area network spanning large regions.",
+            "parts": [
+              "switched WAN",
+              "point-to-point WAN"
+            ],
+            "concrete": "Internet backbones; dial-up home line to ISP."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Core category; subtype distinction is exam-useful.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                12
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-network"
+          ],
+          "relatedConceptIds": [
+            "concept-switched-wan",
+            "concept-p2p-wan",
+            "concept-lan"
+          ],
+          "commonConfusionIds": [
+            "conf-lan-wan-classify"
+          ]
+        },
+        {
+          "id": "concept-switched-wan",
+          "title": "Switched WAN",
+          "meaning": "WAN connecting end systems, usually comprising a router connecting to another LAN or WAN.",
+          "explanation": {
+            "what": "Provider-operated switched network.",
+            "concrete": "Early X.25; Frame Relay replacement; ATM with fixed-size cells."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Distinction from p2p WAN.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                12,
+                13
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-wan"
+          ],
+          "relatedConceptIds": [
+            "concept-p2p-wan"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-p2p-wan",
+          "title": "Point-to-point WAN",
+          "meaning": "Normally a leased line from telephone/cable provider connecting a home computer or small LAN to an ISP.",
+          "explanation": {
+            "what": "Leased access line.",
+            "concrete": "High-speed DSL or cable modem line."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Connects end-user edge to Internet access story.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                12,
+                13
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-wan"
+          ],
+          "relatedConceptIds": [
+            "concept-switched-wan",
+            "concept-isp-hierarchy"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-man",
+          "title": "MAN",
+          "meaning": "Network with size between LAN and WAN; normally covers a town or city; high-speed connectivity for endpoints across a city.",
+          "explanation": {
+            "what": "Metropolitan area network.",
+            "concrete": "Telephone company high-speed DSL to customer; cable TV network used for data."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Middle category; often dropped when chapters only say LAN vs WAN.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                13
+              ],
+              "evidence": "A metropolitan area network (MAN) is a network with a size between a LAN and a WAN."
+            }
+          ],
+          "prerequisites": [
+            "concept-lan",
+            "concept-wan"
+          ],
+          "relatedConceptIds": [
+            "concept-lan",
+            "concept-wan"
+          ],
+          "commonConfusionIds": []
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel-size-spectrum",
+          "from": "concept-man",
+          "type": "special-case-of",
+          "to": "concept-network",
+          "explanation": "Category is determined primarily by size: LAN < MAN < WAN.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                11,
+                13
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-lan-resources",
+          "from": "concept-lan",
+          "type": "enables",
+          "to": "concept-network",
+          "explanation": "LANs designed to share hardware, software, and data among workstations.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                12
+              ]
+            }
+          ]
+        }
+      ],
+      "definitions": [
+        {
+          "id": "def-lan",
+          "term": "LAN",
+          "definition": "Local area network: privately owned, links devices in a single office/building/campus; currently limited to a few kilometers.",
+          "qualifier": "Distinguished by size, media, and topology",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                11,
+                12
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-wan",
+          "term": "WAN",
+          "definition": "Wide area network: long-distance transmission over large geographic areas.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                12
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-man",
+          "term": "MAN",
+          "definition": "Metropolitan area network: size between LAN and WAN, covering a town or city.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                13
+              ]
+            }
+          ]
+        }
+      ],
+      "formulas": [],
+      "examples": [
+        {
+          "id": "ex-man-dsl-cable",
+          "title": "MAN via DSL or cable TV",
+          "conceptIds": [
+            "concept-man"
+          ],
+          "scenario": "City-scale high-speed connectivity examples from the source.",
+          "inputs": [
+            "telephone DSL line",
+            "cable TV network upgraded for data"
+          ],
+          "reasoning": [
+            "Endpoints spread over a city need more than a building LAN."
+          ],
+          "result": "MAN examples",
+          "lesson": "MAN is defined by geographic span, not a single technology.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                13
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ex-home-hub-classify",
+          "title": "Home Ethernet hub classification",
+          "conceptIds": [
+            "concept-lan"
+          ],
+          "scenario": "Exercise 18: two computers connected by an Ethernet hub at home.",
+          "inputs": [
+            "two PCs",
+            "Ethernet hub",
+            "single home"
+          ],
+          "reasoning": [
+            "Small privately owned local scope ⇒ LAN, not MAN/WAN."
+          ],
+          "result": "LAN",
+          "lesson": "Classify by size/ownership/scope.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                23
+              ]
+            }
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "cmp-lan-man-wan",
+          "title": "LAN vs MAN vs WAN",
+          "items": [
+            "LAN",
+            "MAN",
+            "WAN"
+          ],
+          "axes": [
+            {
+              "axis": "geographic size",
+              "values": {
+                "LAN": "building/campus, a few km (source: often < 2 mi)",
+                "MAN": "town/city",
+                "WAN": "country/continent/world"
+              }
+            },
+            {
+              "axis": "ownership",
+              "values": {
+                "LAN": "usually private",
+                "MAN": "often telco/cable provider",
+                "WAN": "service providers / backbones"
+              }
+            },
+            {
+              "axis": "examples",
+              "values": {
+                "LAN": "office workgroup, home hub",
+                "MAN": "DSL city network, cable TV data",
+                "WAN": "Internet backbones, dial-up to ISP"
+              }
+            }
+          ],
+          "similarities": [
+            "All are networks of nodes and links."
+          ],
+          "commonTrap": "Inventing precise speed tables not present in this source.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                11,
+                12,
+                13
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cmp-switched-vs-p2p-wan",
+          "title": "Switched WAN vs Point-to-point WAN",
+          "items": [
+            "switched WAN",
+            "point-to-point WAN"
+          ],
+          "axes": [
+            {
+              "axis": "role",
+              "values": {
+                "switched WAN": "connects end systems via routers; backbone-like",
+                "point-to-point WAN": "leased line from home/small LAN to ISP"
+              }
+            },
+            {
+              "axis": "examples",
+              "values": {
+                "switched WAN": "X.25, Frame Relay, ATM",
+                "point-to-point WAN": "DSL, cable modem line"
+              }
+            }
+          ],
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                12,
+                13
+              ]
+            }
+          ]
+        }
+      ],
+      "applications": [],
+      "confusions": [
+        {
+          "id": "conf-lan-wan-classify",
+          "left": "LAN",
+          "right": "MAN/WAN",
+          "whyConfused": "Marketing language and 'network' umbrella term.",
+          "correctDistinction": "Size/ownership/scope decide category; a home Ethernet hub is a LAN.",
+          "examTrap": "Choosing WAN because Ethernet sounds 'professional'.",
+          "sourceRelevance": "explicit",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                23
+              ]
+            }
+          ]
+        }
+      ],
+      "exerciseSignals": [
+        {
+          "id": "exsig-q10-lan-wan-factors",
+          "sourceQuestionNumber": 10,
+          "conceptIds": [
+            "concept-lan",
+            "concept-wan"
+          ],
+          "skill": "analyze",
+          "distinctionTested": "factors determining LAN vs WAN",
+          "difficultySignal": "intermediate",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        },
+        {
+          "id": "exsig-q18-home-lan",
+          "sourceQuestionNumber": 18,
+          "conceptIds": [
+            "concept-lan"
+          ],
+          "skill": "apply",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                23
+              ]
+            }
+          ]
+        }
+      ],
+      "prerequisites": [
+        "topic-physical-structures"
+      ],
+      "dependents": [
+        "topic-internetwork",
+        "topic-internet"
+      ],
+      "preservationRequirements": [
+        "LAN/MAN/WAN definitions by size/scope.",
+        "Switched WAN vs point-to-point WAN.",
+        "MAN examples DSL and cable TV."
+      ],
+      "simplificationControl": {
+        "acceptable": [
+          "LAN is local and usually private; WAN spans large areas; MAN sits between."
+        ],
+        "notAcceptable": [
+          "Invented Mbps comparison tables not in this source."
+        ]
+      },
+      "evidenceQuality": "high",
+      "coverage": {
+        "definition": true,
+        "mechanism": true,
+        "relationships": true,
+        "examples": true,
+        "comparisons": true,
+        "formulas": false,
+        "confusions": true
+      },
+      "uncertainties": []
+    },
+    {
+      "topicId": "topic-internetwork",
+      "title": "Internetwork: connecting heterogeneous networks",
+      "importance": "core",
+      "sourceSection": "1.2 Interconnection of Networks",
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            13,
+            14
+          ],
+          "evidence": "When two or more networks are connected, they become an internetwork, or internet."
+        }
+      ],
+      "learningObjectives": [
+        "Define internetwork vs a single network",
+        "Explain the two-LAN + WAN heterogeneous scenario",
+        "Connect internetwork concept to the Internet"
+      ],
+      "concepts": [
+        {
+          "id": "concept-internetwork",
+          "title": "Internetwork / internet (lowercase)",
+          "meaning": "Two or more networks that can communicate with each other.",
+          "explanation": {
+            "what": "Network of networks at any scale.",
+            "why": "Rare to see LAN/MAN/WAN in isolation.",
+            "notMeaning": "Not automatically the global Internet (uppercase)."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Review Q11; bridge to section 1.3.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                13,
+                15
+              ],
+              "evidence": "An internet (note the lowercase letter i) is two or more networks that can communicate with each other."
+            }
+          ],
+          "prerequisites": [
+            "concept-network",
+            "concept-lan",
+            "concept-wan"
+          ],
+          "relatedConceptIds": [
+            "concept-internet-global",
+            "concept-heterogeneous-mix"
+          ],
+          "commonConfusionIds": [
+            "conf-network-vs-internet",
+            "conf-internet-capitalization"
+          ]
+        },
+        {
+          "id": "concept-heterogeneous-mix",
+          "title": "Heterogeneous enterprise mix",
+          "meaning": "Different LAN topologies and WAN services joined into one internetwork.",
+          "explanation": {
+            "what": "Practical composition pattern.",
+            "how": "Lease switched WAN backbone; attach sites with point-to-point WANs.",
+            "concrete": "West bus LAN + east star LAN + president computer = 2 LANs + 4 WANs (Figure 1.12)."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Source's primary worked illustration of internetworking.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                13,
+                14
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-internetwork"
+          ],
+          "relatedConceptIds": [
+            "concept-switched-wan",
+            "concept-p2p-wan"
+          ],
+          "commonConfusionIds": []
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel-internet-is-notable-internetwork",
+          "from": "concept-internetwork",
+          "type": "special-case-of",
+          "to": "concept-internet-global",
+          "explanation": "The Internet is the most notable internetwork.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                15
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-hetero-needs-wan",
+          "from": "concept-heterogeneous-mix",
+          "type": "depends-on",
+          "to": "concept-switched-wan",
+          "explanation": "Geographically separated LANs need WAN services to interconnect.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                13,
+                14
+              ]
+            }
+          ]
+        }
+      ],
+      "definitions": [
+        {
+          "id": "def-internetwork",
+          "term": "Internetwork (internet)",
+          "definition": "Two or more networks that can communicate with each other.",
+          "qualifier": "Lowercase i in source terminology",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                15
+              ]
+            }
+          ]
+        }
+      ],
+      "formulas": [],
+      "examples": [
+        {
+          "id": "ex-two-lan-wan",
+          "title": "East/west offices + president remote",
+          "conceptIds": [
+            "concept-heterogeneous-mix"
+          ],
+          "scenario": "Organization with two offices and a remote president.",
+          "inputs": [
+            "bus LAN (west)",
+            "star LAN (east)",
+            "president computer",
+            "switched WAN",
+            "three point-to-point WANs"
+          ],
+          "reasoning": [
+            "Lease a switched WAN backbone from a provider.",
+            "Connect each entity with a point-to-point WAN (DSL or cable modem)."
+          ],
+          "result": "Heterogeneous network of four WANs and two LANs",
+          "lesson": "Internetworks compose different local designs via WAN services.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                13,
+                14
+              ],
+              "evidence": "Figure 1.12 A heterogeneous network made of four WANs and two LANs"
+            }
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "cmp-network-vs-internetwork",
+          "title": "Network vs Internetwork",
+          "items": [
+            "network",
+            "internetwork"
+          ],
+          "axes": [
+            {
+              "axis": "definition",
+              "values": {
+                "network": "devices connected by links",
+                "internetwork": "two or more interconnected networks"
+              }
+            }
+          ],
+          "commonTrap": "Calling any single LAN an internet.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                5,
+                15
+              ]
+            }
+          ]
+        }
+      ],
+      "applications": [],
+      "confusions": [
+        {
+          "id": "conf-network-vs-internet",
+          "left": "network",
+          "right": "Internet",
+          "whyConfused": "Colloquial use of 'the network' for the Internet.",
+          "correctDistinction": "Network = devices+links; Internet = huge collection of interconnected networks.",
+          "examTrap": "Defining Internet as 'a LAN with a router'.",
+          "sourceRelevance": "explicit",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                15,
+                22
+              ]
+            }
+          ]
+        }
+      ],
+      "exerciseSignals": [
+        {
+          "id": "exsig-q11-internet",
+          "sourceQuestionNumber": 11,
+          "conceptIds": [
+            "concept-internetwork",
+            "concept-internet-global"
+          ],
+          "skill": "define",
+          "distinctionTested": "internet vs Internet",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ],
+              "evidence": "What is an internet? What is the Internet?"
+            }
+          ]
+        }
+      ],
+      "prerequisites": [
+        "topic-network-categories"
+      ],
+      "dependents": [
+        "topic-internet"
+      ],
+      "preservationRequirements": [
+        "Internetwork definition with lowercase-i distinction.",
+        "Heterogeneous two-LAN + WAN scenario as the worked example."
+      ],
+      "simplificationControl": {
+        "acceptable": [
+          "An internetwork is two or more connected networks."
+        ],
+        "notAcceptable": [
+          "Equating every internetwork with the Internet."
+        ]
+      },
+      "evidenceQuality": "high",
+      "coverage": {
+        "definition": true,
+        "mechanism": true,
+        "relationships": true,
+        "examples": true,
+        "comparisons": true,
+        "formulas": false,
+        "confusions": true
+      },
+      "uncertainties": []
+    },
+    {
+      "topicId": "topic-internet",
+      "title": "The Internet: history and ISP hierarchy",
+      "importance": "core",
+      "sourceSection": "1.3 THE INTERNET",
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            14,
+            15,
+            16,
+            17
+          ],
+          "evidence": "The Internet is a structured, organized system."
+        }
+      ],
+      "learningObjectives": [
+        "Summarize ARPANET timeline 1960s–1973",
+        "Explain TCP/IP split roles",
+        "Describe four-level ISP hierarchy with NAP/peering"
+      ],
+      "concepts": [
+        {
+          "id": "concept-internet-global",
+          "title": "The Internet",
+          "meaning": "Uppercase-I Internet: collaboration of hundreds of thousands of interconnected networks.",
+          "explanation": {
+            "what": "Global internetwork used by individuals and organizations worldwide.",
+            "why": "Structured system, not a random mesh.",
+            "notMeaning": "Not government-run today (source: run by private companies)."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Core object of the chapter's third pillar.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                14,
+                15
+              ],
+              "evidence": "The most notable internet is called the Internet (uppercase letter I)"
+            }
+          ],
+          "prerequisites": [
+            "concept-internetwork"
+          ],
+          "relatedConceptIds": [
+            "concept-arpanet-history",
+            "concept-isp-hierarchy"
+          ],
+          "commonConfusionIds": [
+            "conf-internet-capitalization",
+            "conf-network-vs-internet"
+          ]
+        },
+        {
+          "id": "concept-arpanet-history",
+          "title": "ARPANET history",
+          "meaning": "ARPA/DoD-funded path from isolated mainframes (mid-1960s) to a four-node ARPANET in 1969.",
+          "explanation": {
+            "what": "Origin story of the Internet.",
+            "how": "Hosts attach to IMPs; IMPs interconnect; NCP for host communication.",
+            "parts": [
+              "ARPA/DoD motivation",
+              "1967 ACM proposal",
+              "1969 four nodes",
+              "NCP",
+              "1972 Internetting Project",
+              "1973 TCP paper"
+            ],
+            "concrete": "Four nodes: UCLA, UCSB, SRI, University of Utah."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Dense factual timeline; high MCQ potential; absent from sample chapter.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                15,
+                16
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-internet-global"
+          ],
+          "relatedConceptIds": [
+            "concept-imp",
+            "concept-tcp-ip-split"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-imp",
+          "title": "IMP (Interface Message Processor)",
+          "meaning": "Specialized computer attached to each host; IMPs connect to one another and to their hosts.",
+          "explanation": {
+            "what": "Early packet-switching node hardware concept.",
+            "why": "Allowed heterogeneous hosts to communicate via a common intermediate."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Supports ARPANET narrative.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                15
+              ],
+              "evidence": "attached to a specialized computer, called an interface message processor (IMP)"
+            }
+          ],
+          "prerequisites": [
+            "concept-arpanet-history"
+          ],
+          "relatedConceptIds": [
+            "concept-arpanet-history"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-tcp-ip-split",
+          "title": "TCP/IP split",
+          "meaning": "TCP split into Transmission Control Protocol and Internetworking Protocol (IP).",
+          "explanation": {
+            "what": "Division of labor in the protocol stack origin story.",
+            "how": "IP handles datagram routing; TCP handles segmentation, reassembly, error detection.",
+            "parts": [
+              "encapsulation",
+              "datagram",
+              "gateway (1973 paper concepts)"
+            ]
+          },
+          "importance": "high",
+          "whyExamRelevant": "Foundational protocol architecture fact.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                15
+              ],
+              "evidence": "IP would handle datagram routing while TCP would be responsible for higher-level functions"
+            }
+          ],
+          "prerequisites": [
+            "concept-arpanet-history"
+          ],
+          "relatedConceptIds": [
+            "concept-protocol-elements"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-isp-hierarchy",
+          "title": "ISP hierarchy",
+          "meaning": "International → national (backbones) → regional → local service providers.",
+          "explanation": {
+            "what": "Conceptual (not geographic) organization of today's Internet.",
+            "how": "Most end users connect via local ISPs; local connect to regional or national.",
+            "parts": [
+              "international",
+              "national",
+              "regional",
+              "local"
+            ],
+            "notMeaning": "Not a government hierarchy; private companies run it today."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Structural knowledge for 'how the Internet is organized today'.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                16,
+                17
+              ],
+              "evidence": "There are international service providers, national service providers, regional service providers, and local service providers."
+            }
+          ],
+          "prerequisites": [
+            "concept-internet-global"
+          ],
+          "relatedConceptIds": [
+            "concept-nap-peering",
+            "concept-p2p-wan"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-nap-peering",
+          "title": "NAPs and peering points",
+          "meaning": "NAPs are third-party complex switching stations connecting national backbones; peering points are private interconnects between national ISP networks.",
+          "explanation": {
+            "what": "Interconnection fabric among national backbones.",
+            "concrete": "Source states peering points normally operate up to 600 Mbps."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Detail supporting ISP hierarchy.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                16
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-isp-hierarchy"
+          ],
+          "relatedConceptIds": [
+            "concept-isp-hierarchy"
+          ],
+          "commonConfusionIds": []
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel-ncp-precedes-tcpip",
+          "from": "concept-arpanet-history",
+          "type": "precedes",
+          "to": "concept-tcp-ip-split",
+          "explanation": "NCP provided early host communication; TCP/IP later replaced it.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                15,
+                16
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-isp-part-of-internet",
+          "from": "concept-isp-hierarchy",
+          "type": "part-of",
+          "to": "concept-internet-global",
+          "explanation": "Today's Internet is organized via ISP layers and interconnects.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                16,
+                17
+              ]
+            }
+          ]
+        }
+      ],
+      "definitions": [
+        {
+          "id": "def-internet",
+          "term": "The Internet",
+          "definition": "The most notable internetwork: a collaboration of hundreds of thousands of interconnected networks (uppercase I).",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                15
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-isp",
+          "term": "Internet service provider (ISP)",
+          "definition": "Organization providing Internet connectivity; may be international, national, regional, or local.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                16,
+                17
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-nap",
+          "term": "Network access point (NAP)",
+          "definition": "Complex switching station (normally third-party) connecting national backbone ISPs.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                16
+              ]
+            }
+          ]
+        }
+      ],
+      "formulas": [],
+      "examples": [
+        {
+          "id": "ex-1969-four-nodes",
+          "title": "First ARPANET nodes (1969)",
+          "conceptIds": [
+            "concept-arpanet-history"
+          ],
+          "scenario": "Operational ARPANET after 1967 proposal.",
+          "inputs": [
+            "UCLA",
+            "UCSB",
+            "SRI",
+            "University of Utah"
+          ],
+          "reasoning": [
+            "Connect via IMPs; NCP for host-to-host communication."
+          ],
+          "result": "ARPANET reality with four nodes",
+          "lesson": "Internet began as a small research internetwork.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                15
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ex-tcp-ip-roles",
+          "title": "TCP vs IP responsibilities",
+          "conceptIds": [
+            "concept-tcp-ip-split"
+          ],
+          "scenario": "Post-split protocol design.",
+          "inputs": [
+            "datagram routing need",
+            "segmentation/reassembly/error detection need"
+          ],
+          "reasoning": [
+            "IP: routing datagrams",
+            "TCP: higher-level functions"
+          ],
+          "result": "TCP/IP pair",
+          "lesson": "Do not treat TCP and IP as synonyms.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                16
+              ]
+            }
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "cmp-isp-levels",
+          "title": "International vs National vs Regional vs Local ISPs",
+          "items": [
+            "international",
+            "national",
+            "regional",
+            "local"
+          ],
+          "axes": [
+            {
+              "axis": "role",
+              "values": {
+                "international": "connect nations together (top of hierarchy)",
+                "national": "backbone networks; NAPs/peering",
+                "regional": "smaller ISPs connected to national",
+                "local": "direct service to end users"
+              }
+            },
+            {
+              "axis": "typical users",
+              "values": {
+                "international": "national ISPs",
+                "national": "regional ISPs / large customers",
+                "regional": "local ISPs",
+                "local": "home/business end users"
+              }
+            }
+          ],
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                16,
+                17
+              ]
+            }
+          ]
+        }
+      ],
+      "applications": [],
+      "confusions": [
+        {
+          "id": "conf-internet-capitalization",
+          "left": "internet (lowercase)",
+          "right": "Internet (uppercase)",
+          "whyConfused": "Same English word.",
+          "correctDistinction": "Lowercase = any internetwork; uppercase = the global Internet.",
+          "examTrap": "Using them interchangeably in definition questions.",
+          "sourceRelevance": "explicit",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                15
+              ]
+            }
+          ]
+        }
+      ],
+      "exerciseSignals": [
+        {
+          "id": "exsig-q11-internet-vs-internet",
+          "sourceQuestionNumber": 11,
+          "conceptIds": [
+            "concept-internet-global",
+            "concept-internetwork"
+          ],
+          "skill": "define",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ]
+            }
+          ]
+        },
+        {
+          "id": "exsig-q25-phone-vs-internet",
+          "sourceQuestionNumber": 25,
+          "conceptIds": [
+            "concept-internet-global"
+          ],
+          "skill": "compare",
+          "difficultySignal": "intermediate",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                23
+              ],
+              "evidence": "Compare the telephone network and the Internet."
+            }
+          ]
+        }
+      ],
+      "prerequisites": [
+        "topic-internetwork"
+      ],
+      "dependents": [
+        "topic-protocols",
+        "topic-standards"
+      ],
+      "preservationRequirements": [
+        "1960s–1973 timeline: ARPA, ARPANET, IMP, NCP, Cerf/Kahn, TCP/IP split with roles.",
+        "Four-level ISP hierarchy + NAP/peering.",
+        "Uppercase Internet vs lowercase internet."
+      ],
+      "simplificationControl": {
+        "acceptable": [
+          "IP routes datagrams; TCP handles segmentation/reassembly/errors."
+        ],
+        "notAcceptable": [
+          "Skipping history entirely; saying the Internet is 'just a big LAN'."
+        ]
+      },
+      "evidenceQuality": "high",
+      "coverage": {
+        "definition": true,
+        "mechanism": true,
+        "relationships": true,
+        "examples": true,
+        "comparisons": true,
+        "formulas": false,
+        "confusions": true
+      },
+      "uncertainties": []
+    },
+    {
+      "topicId": "topic-protocols",
+      "title": "Protocols: syntax, semantics, timing",
+      "importance": "core",
+      "sourceSection": "1.4 Protocols",
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            17
+          ],
+          "evidence": "The key elements of a protocol are syntax, semantics, and timing."
+        }
+      ],
+      "learningObjectives": [
+        "Define protocol with three key elements",
+        "Explain syntax, semantics, timing separately",
+        "Use the rate-mismatch example for timing"
+      ],
+      "concepts": [
+        {
+          "id": "concept-protocol-elements",
+          "title": "Protocol key elements",
+          "meaning": "Syntax, semantics, and timing.",
+          "explanation": {
+            "what": "Complete triad defining a protocol.",
+            "why": "Rules must specify structure, meaning, and temporal behavior.",
+            "parts": [
+              "syntax",
+              "semantics",
+              "timing"
+            ]
+          },
+          "importance": "high",
+          "whyExamRelevant": "Review Q12; core definition depth beyond 'rules'.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-protocol-basic"
+          ],
+          "relatedConceptIds": [
+            "concept-syntax",
+            "concept-semantics",
+            "concept-timing"
+          ],
+          "commonConfusionIds": [
+            "conf-protocol-standard"
+          ]
+        },
+        {
+          "id": "concept-entity",
+          "title": "Entity",
+          "meaning": "Anything capable of sending or receiving information.",
+          "explanation": {
+            "what": "Communication endpoint abstraction in systems."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Vocabulary for protocol discussion.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17
+              ]
+            }
+          ],
+          "prerequisites": [],
+          "relatedConceptIds": [
+            "concept-protocol-elements"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-syntax",
+          "title": "Syntax",
+          "meaning": "Structure or format of the data — the order in which data are presented.",
+          "explanation": {
+            "what": "Bit-layout rules.",
+            "concrete": "First 8 bits sender address, second 8 bits receiver address, rest message."
+          },
+          "importance": "high",
+          "whyExamRelevant": "One of three exam-asked elements.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17
+              ],
+              "evidence": "The term syntax refers to the structure or format of the data"
+            }
+          ],
+          "prerequisites": [
+            "concept-protocol-elements"
+          ],
+          "relatedConceptIds": [
+            "concept-semantics",
+            "concept-timing"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-semantics",
+          "title": "Semantics",
+          "meaning": "Meaning of each section of bits and the action to take based on that interpretation.",
+          "explanation": {
+            "what": "Interpretation rules.",
+            "concrete": "Does an address identify the route or the final destination?"
+          },
+          "importance": "high",
+          "whyExamRelevant": "One of three elements; often confused with syntax.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-protocol-elements"
+          ],
+          "relatedConceptIds": [
+            "concept-syntax"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-timing",
+          "title": "Timing",
+          "meaning": "When data should be sent and how fast they can be sent.",
+          "explanation": {
+            "what": "Temporal constraints including rate matching.",
+            "whenChanges": "Sender faster than receiver ⇒ overload and data loss risk.",
+            "concrete": "Sender 100 Mbps vs receiver 1 Mbps."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Third element; concrete rate example.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-protocol-elements"
+          ],
+          "relatedConceptIds": [
+            "concept-syntax",
+            "concept-semantics"
+          ],
+          "commonConfusionIds": []
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel-protocol-triad",
+          "from": "concept-syntax",
+          "type": "part-of",
+          "to": "concept-protocol-elements",
+          "explanation": "Syntax + semantics + timing together define what/how/when to communicate.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-protocol-vs-standard",
+          "from": "concept-protocol-elements",
+          "type": "differs-from",
+          "to": "concept-standards-need",
+          "explanation": "Protocol = rules; standard = agreed-upon rules for interoperability.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17,
+                18
+              ]
+            }
+          ]
+        }
+      ],
+      "definitions": [
+        {
+          "id": "def-protocol-full",
+          "term": "Protocol (full)",
+          "definition": "Set of rules governing data communication; defines what is communicated, how, and when. Key elements: syntax, semantics, timing.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17
+              ]
+            }
+          ]
+        }
+      ],
+      "formulas": [],
+      "examples": [
+        {
+          "id": "ex-timing-mismatch",
+          "title": "100 Mbps sender vs 1 Mbps receiver",
+          "conceptIds": [
+            "concept-timing"
+          ],
+          "scenario": "Rate mismatch between communicating entities.",
+          "inputs": [
+            "sender produces at 100 Mbps",
+            "receiver processes at 1 Mbps"
+          ],
+          "reasoning": [
+            "Production rate far exceeds processing rate."
+          ],
+          "result": "Transmission overloads the receiver; some data lost",
+          "lesson": "Protocols must address timing/rate, not only format.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17
+              ]
+            }
+          ]
+        },
+        {
+          "id": "ex-syntax-header",
+          "title": "Simple header layout",
+          "conceptIds": [
+            "concept-syntax"
+          ],
+          "scenario": "Illustrative protocol field order.",
+          "inputs": [
+            "first 8 bits sender address",
+            "second 8 bits receiver address",
+            "remainder = message"
+          ],
+          "reasoning": [
+            "Syntax specifies presentation order of fields."
+          ],
+          "result": "Parseable frame structure",
+          "lesson": "Syntax is about structure/order of bits.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17
+              ]
+            }
+          ]
+        }
+      ],
+      "comparisons": [
+        {
+          "id": "cmp-protocol-elements",
+          "title": "Syntax vs Semantics vs Timing",
+          "items": [
+            "syntax",
+            "semantics",
+            "timing"
+          ],
+          "axes": [
+            {
+              "axis": "question answered",
+              "values": {
+                "syntax": "What is the structure/format?",
+                "semantics": "What does it mean / what action?",
+                "timing": "When and how fast?"
+              }
+            },
+            {
+              "axis": "source example",
+              "values": {
+                "syntax": "8+8 bit address header",
+                "semantics": "route vs destination address",
+                "timing": "100 Mbps sender vs 1 Mbps receiver"
+              }
+            }
+          ],
+          "commonTrap": "Calling semantics 'grammar' or syntax 'meaning'.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17
+              ]
+            }
+          ]
+        }
+      ],
+      "applications": [],
+      "confusions": [
+        {
+          "id": "conf-protocol-standard",
+          "left": "protocol",
+          "right": "standard",
+          "whyConfused": "Both are 'rules' in casual speech.",
+          "correctDistinction": "Protocol governs communication; standard is an agreed-upon rule ensuring interoperation across manufacturers.",
+          "examTrap": "Defining protocol as 'a document approved by ISO'.",
+          "sourceRelevance": "explicit",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17,
+                18
+              ]
+            }
+          ]
+        }
+      ],
+      "exerciseSignals": [
+        {
+          "id": "exsig-q12-why-protocols",
+          "sourceQuestionNumber": 12,
+          "conceptIds": [
+            "concept-protocol-elements"
+          ],
+          "skill": "define",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ],
+              "evidence": "Why are protocols needed?"
+            }
+          ]
+        }
+      ],
+      "prerequisites": [
+        "topic-data-communication",
+        "topic-internet"
+      ],
+      "dependents": [
+        "topic-standards"
+      ],
+      "preservationRequirements": [
+        "Always teach syntax/semantics/timing together.",
+        "Rate-mismatch timing example.",
+        "Protocol vs standard distinction preview."
+      ],
+      "simplificationControl": {
+        "acceptable": [
+          "Protocol = what, how, when."
+        ],
+        "notAcceptable": [
+          "Protocol = just 'a set of rules' without the three elements."
+        ]
+      },
+      "evidenceQuality": "high",
+      "coverage": {
+        "definition": true,
+        "mechanism": true,
+        "relationships": true,
+        "examples": true,
+        "comparisons": true,
+        "formulas": false,
+        "confusions": true
+      },
+      "uncertainties": []
+    },
+    {
+      "topicId": "topic-standards",
+      "title": "Standards, organizations, forums, Internet standards",
+      "importance": "core",
+      "sourceSection": "1.4 PROTOCOLS AND STANDARDS",
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            18,
+            19
+          ],
+          "evidence": "Data communication standards fall into two categories: de facto and de jure."
+        }
+      ],
+      "learningObjectives": [
+        "Explain why standards are needed",
+        "Distinguish de facto and de jure",
+        "Name major standards organizations",
+        "Describe draft → RFC → Internet standard process"
+      ],
+      "concepts": [
+        {
+          "id": "concept-standards-need",
+          "title": "Why standards are needed",
+          "meaning": "To ensure products from different manufacturers work together as expected.",
+          "explanation": {
+            "what": "Interoperability requirement in a heterogeneous vendor market.",
+            "why": "Without standards, vendor products cannot reliably interconnect."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Review Q13.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                18,
+                22
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-protocol-elements"
+          ],
+          "relatedConceptIds": [
+            "concept-de-facto",
+            "concept-de-jure"
+          ],
+          "commonConfusionIds": [
+            "conf-protocol-standard"
+          ]
+        },
+        {
+          "id": "concept-de-facto",
+          "title": "De facto standards",
+          "meaning": "Standards not approved by an organized body but adopted through widespread use.",
+          "explanation": {
+            "what": "By fact / by convention.",
+            "how": "Often established originally by manufacturers defining new product functionality."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Paired classification with de jure.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                18
+              ],
+              "evidence": "De facto. Standards that have not been approved by an organized body"
+            }
+          ],
+          "prerequisites": [
+            "concept-standards-need"
+          ],
+          "relatedConceptIds": [
+            "concept-de-jure"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-de-jure",
+          "title": "De jure standards",
+          "meaning": "Standards legislated by an officially recognized body.",
+          "explanation": {
+            "what": "By law / by regulation."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Paired classification with de facto.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                18
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-standards-need"
+          ],
+          "relatedConceptIds": [
+            "concept-de-facto"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-standards-orgs",
+          "title": "Standards organizations",
+          "meaning": "ISO, ITU-T (formerly CCITT), ANSI, IEEE, EIA; plus forums and regulatory agencies such as FCC.",
+          "explanation": {
+            "what": "Bodies that create or influence standards.",
+            "parts": [
+              "ISO",
+              "ITU-T",
+              "ANSI",
+              "IEEE",
+              "EIA",
+              "forums",
+              "FCC"
+            ],
+            "concrete": "ITU-T name change from CCITT on March 1, 1993; ANSI is private nonprofit, not US federal."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Factual MCQs on org roles; key-terms list includes them.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                18,
+                19
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-standards-need"
+          ],
+          "relatedConceptIds": [
+            "concept-forums",
+            "concept-rfc"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-forums",
+          "title": "Forums",
+          "meaning": "Special-interest groups of corporate representatives that evaluate and help standardize technologies faster than formal committees.",
+          "explanation": {
+            "what": "Acceleration layer for emerging tech.",
+            "how": "Work with universities/users; present conclusions to standards bodies."
+          },
+          "importance": "medium",
+          "whyExamRelevant": "Distinguishes forums from formal committees.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                19
+              ]
+            }
+          ],
+          "prerequisites": [
+            "concept-standards-orgs"
+          ],
+          "relatedConceptIds": [
+            "concept-standards-orgs"
+          ],
+          "commonConfusionIds": []
+        },
+        {
+          "id": "concept-rfc",
+          "title": "RFC and Internet standard process",
+          "meaning": "Internet draft (working document, no official status, 6-month lifetime) may become a Request for Comment; RFCs have maturity levels and requirement categories.",
+          "explanation": {
+            "what": "Internet standards pipeline.",
+            "how": "Draft → RFC (edited, numbered, published) → maturity levels.",
+            "notMeaning": "RFC does not automatically mean full Internet standard."
+          },
+          "importance": "high",
+          "whyExamRelevant": "Process knowledge; key term in glossary.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                19
+              ],
+              "evidence": "An Internet draft is a working document... a 6-month lifetime."
+            }
+          ],
+          "prerequisites": [
+            "concept-standards-need"
+          ],
+          "relatedConceptIds": [
+            "concept-standards-orgs"
+          ],
+          "commonConfusionIds": []
+        }
+      ],
+      "relationships": [
+        {
+          "id": "rel-draft-to-rfc",
+          "from": "concept-rfc",
+          "type": "precedes",
+          "to": "concept-standards-need",
+          "explanation": "Specification begins as draft, may become RFC, then Internet standard.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                19
+              ]
+            }
+          ]
+        },
+        {
+          "id": "rel-forums-to-bodies",
+          "from": "concept-forums",
+          "type": "enables",
+          "to": "concept-standards-orgs",
+          "explanation": "Forums speed evaluation and present conclusions to formal standards bodies.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                19
+              ]
+            }
+          ]
+        }
+      ],
+      "definitions": [
+        {
+          "id": "def-de-facto",
+          "term": "De facto standard",
+          "definition": "Standard established by widespread use rather than approval by an organized body.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                18
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-de-jure",
+          "term": "De jure standard",
+          "definition": "Standard legislated by an officially recognized body.",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                18
+              ]
+            }
+          ]
+        },
+        {
+          "id": "def-rfc",
+          "term": "Request for Comment (RFC)",
+          "definition": "Published specification in the Internet standards process; idea/concept precursor to an Internet standard.",
+          "qualifier": "Goes through maturity levels and requirement categories",
+          "authoritative": true,
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                19
+              ]
+            }
+          ]
+        }
+      ],
+      "formulas": [],
+      "examples": [],
+      "comparisons": [
+        {
+          "id": "cmp-de-facto-de-jure",
+          "title": "De facto vs De jure",
+          "items": [
+            "de facto",
+            "de jure"
+          ],
+          "axes": [
+            {
+              "axis": "approval",
+              "values": {
+                "de facto": "not approved by organized body",
+                "de jure": "legislated by recognized body"
+              }
+            },
+            {
+              "axis": "origin",
+              "values": {
+                "de facto": "widespread use / manufacturers",
+                "de jure": "official standards process"
+              }
+            }
+          ],
+          "commonTrap": "Calling a popular product feature automatically de jure.",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                18
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cmp-protocol-vs-standard",
+          "title": "Protocol vs Standard",
+          "items": [
+            "protocol",
+            "standard"
+          ],
+          "axes": [
+            {
+              "axis": "meaning",
+              "values": {
+                "protocol": "rules governing data communication",
+                "standard": "agreed-upon rules ensuring interoperation"
+              }
+            }
+          ],
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17,
+                18
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cmp-forum-vs-committee",
+          "title": "Forum vs Standards committee",
+          "items": [
+            "forum",
+            "standards creation committee"
+          ],
+          "axes": [
+            {
+              "axis": "speed/process",
+              "values": {
+                "forum": "faster special-interest evaluation",
+                "standards creation committee": "procedural, slower, formal ratification"
+              }
+            }
+          ],
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                19
+              ]
+            }
+          ]
+        }
+      ],
+      "applications": [],
+      "confusions": [
+        {
+          "id": "conf-protocol-standard-2",
+          "left": "protocol",
+          "right": "standard",
+          "whyConfused": "Overlapping rule language.",
+          "correctDistinction": "Protocol is the communication ruleset; standard is the agreed/recognized specification enabling multi-vendor interoperation.",
+          "examTrap": "Using the terms as perfect synonyms.",
+          "sourceRelevance": "explicit",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                17,
+                18
+              ]
+            }
+          ]
+        }
+      ],
+      "exerciseSignals": [
+        {
+          "id": "exsig-q13-why-standards",
+          "sourceQuestionNumber": 13,
+          "conceptIds": [
+            "concept-standards-need"
+          ],
+          "skill": "define",
+          "difficultySignal": "basic",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                22
+              ],
+              "evidence": "Why are standards needed?"
+            }
+          ]
+        },
+        {
+          "id": "exsig-q29-ietf-rfc",
+          "sourceQuestionNumber": 29,
+          "conceptIds": [
+            "concept-rfc"
+          ],
+          "skill": "analyze",
+          "difficultySignal": "intermediate",
+          "claimClass": "DIRECT_SOURCE",
+          "sourceRefs": [
+            {
+              "sourceId": "src-forouzan-ch1-intro",
+              "pages": [
+                23
+              ],
+              "evidence": "discuss the different types of RFCs"
+            }
+          ]
+        }
+      ],
+      "prerequisites": [
+        "topic-protocols"
+      ],
+      "dependents": [],
+      "preservationRequirements": [
+        "De facto vs de jure with definitions.",
+        "Major orgs ISO, ITU-T, ANSI, IEEE, EIA (+ FCC regulatory).",
+        "Draft → RFC → Internet standard process with 6-month draft lifetime.",
+        "Forums as accelerators, not replacements for committees."
+      ],
+      "simplificationControl": {
+        "acceptable": [
+          "De facto = by use; de jure = by official body."
+        ],
+        "notAcceptable": [
+          "Saying all Internet standards are de jure laws."
+        ]
+      },
+      "evidenceQuality": "high",
+      "coverage": {
+        "definition": true,
+        "mechanism": true,
+        "relationships": true,
+        "examples": false,
+        "comparisons": true,
+        "formulas": false,
+        "confusions": true
+      },
+      "uncertainties": []
+    }
+  ],
+  "externalUnverifiedMaterial": [
+    {
+      "id": "extra-shannon",
+      "title": "Shannon capacity formula and numeric Shannon examples",
+      "presentInSample": true,
+      "claimClass": "EXTERNAL_CONTEXT",
+      "note": "Not in the attached 23-page Ch.1 source. Treat as enrichment only after source-backed topics; requires another verified source to become DIRECT_SOURCE.",
+      "sourceRefs": []
+    },
+    {
+      "id": "extra-snr-db",
+      "title": "SNR in dB formula",
+      "presentInSample": true,
+      "claimClass": "EXTERNAL_CONTEXT",
+      "note": "Not in attached source.",
+      "sourceRefs": []
+    },
+    {
+      "id": "extra-transmission-time",
+      "title": "T = L/B and 10 MB / 20 Mbps worked example",
+      "presentInSample": true,
+      "claimClass": "EXTERNAL_CONTEXT",
+      "note": "Not in attached source.",
+      "sourceRefs": []
+    },
+    {
+      "id": "extra-ipconfig",
+      "title": "Windows ipconfig practical lab",
+      "presentInSample": true,
+      "claimClass": "EXTERNAL_CONTEXT",
+      "note": "Sample-only application block; not in attached source.",
+      "sourceRefs": []
+    },
+    {
+      "id": "extra-mb-mb-trap",
+      "title": "MB vs Mb exam trap emphasis",
+      "presentInSample": true,
+      "claimClass": "EXTERNAL_CONTEXT",
+      "note": "Common industry trap but not stated in this Ch.1 extract.",
+      "sourceRefs": []
+    },
+    {
+      "id": "extra-bandwidth-definition",
+      "title": "Bandwidth definition card",
+      "presentInSample": true,
+      "claimClass": "EXTERNAL_CONTEXT",
+      "note": "Not defined in attached Ch.1; sample invents a Bandwidth definition.",
+      "sourceRefs": []
+    }
+  ],
+  "crossTopicFlags": [
+    {
+      "id": "flag-bandwidth-absent",
+      "severity": "info",
+      "message": "Sample chapter teaches Bandwidth; Forouzan Ch.1 extract teaches throughput/delay. CGP-2 should decide whether Bandwidth stays as EXTERNAL_CONTEXT enrichment.",
+      "relatedTopicIds": [
+        "topic-networks-criteria"
+      ]
+    },
+    {
+      "id": "flag-unicode-bits",
+      "severity": "review",
+      "message": "Source states Unicode uses 32 bits. Modern encodings differ. Preserve as DIRECT_SOURCE claim of this textbook; optional EXTERNAL_CONTEXT note may be added in composition with explicit marking.",
+      "relatedTopicIds": [
+        "topic-data-representation"
+      ]
+    },
+    {
+      "id": "flag-sample-shannon-displaces-source",
+      "severity": "review",
+      "message": "Current sample over-weights Shannon/SNR/T=L/B (not in this source) while omitting topology, Internet history, and standards. CGP-2 coverage validation must not treat sample completeness as source completeness.",
+      "relatedTopicIds": [
+        "topic-physical-structures",
+        "topic-internet",
+        "topic-standards",
+        "topic-networks-criteria"
+      ]
+    }
+  ],
+  "qualityChecks": {
+    "cgp3CanTeachWithoutSource": true,
+    "notes": [
+      "Each core topic carries definitions, relationships, examples/comparisons where source supports them, preservation requirements, and simplification control.",
+      "A CGP-3 composer can teach conceptual structure without reopening the PDF for basic meaning.",
+      "Page refs are PDF extract pages 1–23 from content/cgp/sources/forouzan-ch1.pages.json.",
+      "Sample Shannon/SNR/T=L/B/ipconfig/MB-Mb/bandwidth-card remain EXTERNAL_CONTEXT for this source."
+    ]
+  }
+}
