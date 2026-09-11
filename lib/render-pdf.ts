@@ -97,7 +97,7 @@ export async function renderChapterPdf(
       coverHeight = pageSize.h - TOP - bottom - 3;
     }
 
-    const formulaArt = await buildFormulaArt(ast);
+    const formulaArt = await buildFormulaArt(ast, theme.fonts.bodySize);
 
     const element = React.createElement(ChapterDoc, {
       ast,

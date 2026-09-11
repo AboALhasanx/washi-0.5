@@ -4,9 +4,11 @@
  * math into takumi-pdf documents. takumi renders SVG images through resvg,
  * so the PDF keeps the math as crisp vector paths.
  *
- * MathJax emits the SVG root sized in `ex` units, which resvg cannot resolve;
- * we strip width/height and rewrite them in px from the viewBox aspect, at a
- * display scale that approximates the surrounding 13.5px body text.
+ * MathJax SVG viewBox uses ~1000 units per em. We normalize physical size
+ * from the document body size (theme.fonts.bodySize) so math obeys the same
+ * typographic scale as the rest of Washi:
+ *   inline  ≈ 1 em = bodySize
+ *   display ≈ 1 em = bodySize × DISPLAY_EM_BOOST (modest lift, not 3–6×)
  *
  * Fallback contract: on ANY conversion failure this module returns null and
  * the renderer falls back to the LaTeX-lite text card. Never throws.
@@ -59,26 +61,46 @@ function getDoc() {
 export interface FormulaSvg {
   /** SVG bytes (self-contained: paths inlined, px dimensions). */
   data: Uint8Array;
-  /** Display size in CSS px, derived from the viewBox at DISPLAY_SCALE. */
+  /** Display size in CSS px, derived from the viewBox at the em scale. */
   width: number;
   height: number;
 }
 
-/** Scales MathJax's internal units so a typical display equation lands
- *  around 40-48px tall next to 13.5px body text. */
-const DISPLAY_SCALE = 0.048;
+/** MathJax SVG viewBox units per em (measured: Shannon height ≈ 1000). */
+const UNITS_PER_EM = 1000;
 
-/** Content caps inside a formula card: A4 595 - 2×56 margins - card
- *  padding/borders (~40). Both dimensions are capped — width for long
- *  expressions, height for fractions/matrices/cases that would otherwise
- *  explode vertically next to the body text. */
+/** Display math sits modestly above body em — not the old 3.6× accident. */
+const DISPLAY_EM_BOOST = 1.35;
+
+/** Default body em in px when caller does not supply theme size. */
+const DEFAULT_BODY_PX = 13.5;
+
+/**
+ * Caps prevent pathological layout (long lines, stacked fractions) from
+ * exploding a page. They are NOT the ordinary size — ordinary size comes
+ * from bodySize × em scale. Width cap stays A4-content-ish; height cap is
+ * generous relative to body (~4.5em) so fractions stay legible but not huge.
+ */
 const MAX_FORMULA_W = 438;
-const MAX_FORMULA_H = 84;
 
-export function texToSvg(latex: string): FormulaSvg | null {
+export interface TexToSvgOptions {
+  /** false = inline (paragraph scale); true/undefined = display. */
+  display?: boolean;
+  /** Document body font size in px (theme.fonts.bodySize). */
+  bodySize?: number;
+}
+
+/** em → px for this mode. Inline matches body; display is a modest lift. */
+export function formulaEmPx(opts: TexToSvgOptions = {}): number {
+  const body = opts.bodySize && opts.bodySize > 0 ? opts.bodySize : DEFAULT_BODY_PX;
+  return opts.display === false ? body : body * DISPLAY_EM_BOOST;
+}
+
+export function texToSvg(latex: string, opts: TexToSvgOptions = {}): FormulaSvg | null {
   try {
     const d = getDoc();
-    const node = d.convert(latex, { display: true });
+    const display = opts.display !== false;
+    const node = d.convert(latex, { display });
     const html: string = d.__adaptor.outerHTML(node);
     const start = html.indexOf("<svg");
     // Slice to the LAST closing tag: stretchy delimiters (cases/pmatrix) nest
@@ -97,9 +119,14 @@ export function texToSvg(latex: string): FormulaSvg | null {
     if (!vb) return null;
     const [minX, minY, w, h] = vb[1].trim().split(/\s+/).map(Number);
     const viewBox = `${minX} ${minY} ${w} ${h}`;
-    const scale = Math.min(DISPLAY_SCALE, MAX_FORMULA_W / w, MAX_FORMULA_H / h);
-    const width = Math.max(24, Math.round(w * scale));
-    const height = Math.max(16, Math.round(h * scale));
+
+    // Normalize: 1 em in viewBox ≈ UNITS_PER_EM → target px = formulaEmPx
+    const emPx = formulaEmPx(opts);
+    const baseScale = emPx / UNITS_PER_EM;
+    const maxH = Math.max(emPx * 4.5, 40);
+    const scale = Math.min(baseScale, MAX_FORMULA_W / w, maxH / h);
+    const width = Math.max(8, Math.round(w * scale));
+    const height = Math.max(10, Math.round(h * scale));
     markup = markup
       .replace(/\swidth="[^"]*"/, ` width="${width}"`)
       .replace(/\sheight="[^"]*"/, ` height="${height}"`)
@@ -118,28 +145,39 @@ export interface FormulaArtEntry {
 }
 
 export interface FormulaArt {
-  /** latex (normalized key) -> registered src + display size */
+  /** cache key (latex + mode + body) -> registered src + display size */
   map: Map<string, FormulaArtEntry>;
   /** Pre-fetched images for takumi's `images` render option */
   images: Array<{ src: string; data: Uint8Array }>;
 }
 
-/** Normalizes a LaTeX string into a map key. */
+/** Normalizes a LaTeX string into a map key fragment. */
 export const norm = (s: string) => s.replace(/\s+/g, " ").trim();
 
-/** Walks the AST, converts every unique display formula, registers each as a
- *  named image. Formulas that fail conversion are simply absent from the map
- *  (renderer falls back to the LaTeX-lite text card). */
-export async function buildFormulaArt(ast: ChapterAST): Promise<FormulaArt> {
+/** Cache key includes displayMode + bodySize so dimensions cannot collide. */
+export function formulaArtKey(latex: string, display: boolean, bodySize: number): string {
+  return `${norm(latex)}|${display ? "d" : "i"}|${bodySize}`;
+}
+
+/**
+ * Walks the AST, converts every unique formula, registers each as a named
+ * image. Dimensions depend on displayMode and bodySize — both are part of
+ * the cache key. Formulas that fail conversion are absent (text fallback).
+ */
+export async function buildFormulaArt(
+  ast: ChapterAST,
+  bodySize: number = DEFAULT_BODY_PX
+): Promise<FormulaArt> {
   const map = new Map<string, FormulaArtEntry>();
   const images: Array<{ src: string; data: Uint8Array }> = [];
   let i = 0;
   for (const sec of ast.sections) {
     for (const node of sec.nodes as any[]) {
       if (node.type !== "formula" || !node.latex) continue;
-      const key = norm(node.latex);
+      const display = node.displayMode !== false;
+      const key = formulaArtKey(node.latex, display, bodySize);
       if (map.has(key)) continue;
-      const svg = texToSvg(node.latex);
+      const svg = texToSvg(node.latex, { display, bodySize });
       if (!svg) continue;
       const src = `washi-formula-${i}.svg`;
       i += 1;

@@ -69,7 +69,7 @@ async function main() {
     const bottom = Math.max(48, Math.ceil(band.height) + 20);
     const coverHeight = PAGE_H - TOP - bottom - 3;
 
-    const formulaArt = await buildFormulaArt(ast);
+    const formulaArt = await buildFormulaArt(ast, 13.5);
     console.log("formula SVGs:", formulaArt.images.length);
 
     const element = React.createElement(ChapterDoc, {

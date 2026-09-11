@@ -28,7 +28,7 @@
 import React from "react";
 import { AsyncLocalStorage } from "node:async_hooks";
 import type { ChapterAST, AstNode } from "./schemas";
-import { norm } from "./formula-svg";
+import { formulaArtKey } from "./formula-svg";
 import { formatProvenance } from "./provenance";
 
 // ---------------------------------------------------------------------------
@@ -1051,7 +1051,9 @@ function RenderNode({
         glueDepth,
       });
     case "formula": {
-      const art = formulaArt?.get(norm(n.latex ?? ""));
+      const display = n.displayMode !== false;
+      const bodySize = env.theme.fonts.bodySize;
+      const art = formulaArt?.get(formulaArtKey(n.latex ?? "", display, bodySize));
       if (formulaPresentationKind(n) === "inline") {
         return InlineFormula({ latex: n.latex, art, env });
       }
