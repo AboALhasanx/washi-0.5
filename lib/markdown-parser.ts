@@ -151,16 +151,20 @@ function isPaginationSafeType(type: AstNode["type"]): boolean {
 }
 
 /**
- * Split a list item into its plain text and any inline-math bodies. Math is
- * hoisted out by the caller so raw LaTeX never reaches text rendering (§19 —
- * real typeset math, never a text approximation).
+ * Flatten a list item to plain text. Inline math is kept as $latex$ in the
+ * item string (P2) so list continuity is not destroyed by hoisting formulas
+ * out as sibling nodes. Renderer shows $…$ compactly inside the item.
  */
 function extractListItem(node: any): { text: string; math: string[] } {
   const math: string[] = [];
   const walk = (n: any): string => {
     if (!n) return "";
     if (n.type === "inlineMath") {
-      math.push((n.value ?? "").trim());
+      const latex = (n.value ?? "").trim();
+      if (latex) {
+        math.push(latex);
+        return `$${latex}$`;
+      }
       return "";
     }
     if (typeof n.value === "string" && !n.children) return n.value;
@@ -771,39 +775,24 @@ export function parseMarkdown(md: string): ParseResult {
 
       case "list": {
         const ordered = Boolean(child.ordered);
+        const start = typeof child.start === "number" && child.start > 0 ? child.start : 1;
         const items: string[] = [];
-        const hoistedMath: string[] = [];
         for (const item of child.children ?? []) {
-          // §13 constrained vocabulary: list items are text. Inline math must
-          // never leak into the PDF as raw LaTeX — hoist it into formula
-          // nodes rendered right after the list instead.
-          const { text: itemText, math: itemMath } = extractListItem(item);
-          hoistedMath.push(...itemMath);
+          const { text: itemText } = extractListItem(item);
           const txt = itemText.trim();
           if (txt) items.push(txt);
         }
-        if (items.length === 0 && hoistedMath.length === 0) break;
-        // Check if this list is under Summary section — keep as list, renderer will treat Summary as Card+List
+        if (items.length === 0) break;
         const lNode: AstNode = {
           type: "list",
           ordered,
-          items: items.length ? items : ["—"],
+          start,
+          items,
           source: pendingSource,
         } as AstNode;
-        // Lists are pagination-safe as Summary grouping? but spec says Summary => KeepTogether(Card(Heading+List))
-        // So mark list as paginationSafe if inside summary/key-points
         const inSummary = currentSection?.name === "review" || currentSection?.name === "key-points" || currentSection?.name === "overview";
         (lNode as any).paginationSafe = inSummary ? true : false;
         pushNode(lNode);
-        for (const latex of hoistedMath) {
-          const fNode: AstNode = {
-            type: "formula",
-            latex,
-            displayMode: false,
-            source: undefined,
-          } as AstNode;
-          pushNode(fNode);
-        }
         break;
       }
 

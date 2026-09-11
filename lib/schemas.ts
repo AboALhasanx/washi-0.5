@@ -161,6 +161,9 @@ export const codeBlockNodeSchema = z.object({
 export const listNodeSchema = z.object({
   type: z.literal("list"),
   ordered: z.boolean().default(false),
+  /** First ordinal for ordered lists (mdast `start`). Continuity across
+   *  interrupted lists (1,2,formula,3) depends on this. */
+  start: z.number().int().positive().default(1),
   items: z.array(z.string().min(1)).min(1),
   source: z.string().optional(),
   provenance: z.array(provenanceRefSchema).optional(),

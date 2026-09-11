@@ -889,16 +889,36 @@ const CodeCard = ({
 // ListBlock — gradient circle chips (ordered/key-points) or styled bullets
 // ---------------------------------------------------------------------------
 
-const ListBlock: React.FC<{ items: string[]; ordered?: boolean; variant?: "plain" | "review" }> = ({
-  items,
-  ordered,
-  variant = "plain",
-}) => {
+/** Split item text on $latex$ segments for compact inline math in lists. */
+function renderItemText(text: string, env: RenderEnv): React.ReactNode[] {
+  if (!text.includes("$")) return [arabicize(text, env.arBodyMode)];
+  const parts: React.ReactNode[] = [];
+  const re = /\$([^$]+)\$/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  let k = 0;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push(arabicize(text.slice(last, m.index), env.arBodyMode));
+    parts.push(
+      <InlineFormula key={`li-${k++}`} latex={m[1].trim()} env={env} />
+    );
+    last = re.lastIndex;
+  }
+  if (last < text.length) parts.push(arabicize(text.slice(last), env.arBodyMode));
+  return parts;
+}
+
+const ListBlock: React.FC<{
+  items: string[];
+  ordered?: boolean;
+  start?: number;
+  variant?: "plain" | "review";
+}> = ({ items, ordered, start = 1, variant = "plain" }) => {
   const env = getRenderEnv();
   return (
     <div style={{ margin: "2px 0 12px 0" } as React.CSSProperties}>
       {items.map((item, i) => {
-        const num = toArabicDigits(i + 1);
+        const num = toArabicDigits(start + i);
         const chip =
           variant === "review" ? (
             <span
@@ -970,7 +990,7 @@ const ListBlock: React.FC<{ items: string[]; ordered?: boolean; variant?: "plain
             } as React.CSSProperties}
           >
             {chip}
-            <span style={{ flex: 1 } as React.CSSProperties}>{arabicize(item, env.arBodyMode)}</span>
+            <span style={{ flex: 1 } as React.CSSProperties}>{renderItemText(item, env)}</span>
           </div>
         );
       })}
@@ -1060,7 +1080,7 @@ function RenderNode({
         glueDepth,
       });
     case "list":
-      return <ListBlock items={n.items} ordered={n.ordered} />;
+      return <ListBlock items={n.items} ordered={n.ordered} start={n.start ?? 1} />;
     case "source": {
       const text = sourceLine(n);
       return text ? <SourceNote text={text} /> : null;
@@ -1488,7 +1508,7 @@ function SectionBody({
     if (node && node.type === "list" && isReview) {
       parts.push(
         renderGlued(
-          <ListBlock items={(node as any).items} ordered={(node as any).ordered} variant="review" />,
+          <ListBlock items={(node as any).items} ordered={(node as any).ordered} start={(node as any).start ?? 1} variant="review" />,
           blk.sources,
           b
         )
