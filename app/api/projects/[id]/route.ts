@@ -24,9 +24,13 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   try {
     const body = await req.json().catch(() => null);
     if (!body) return NextResponse.json({ error: "Missing body" }, { status: 400 });
+    // snapshotVersion: true → create snapshot + bump version
+    // snapshotVersion: false → draft save only (no snapshot)
+    // omitted → legacy default (snapshot) for older clients
     const metadata = saveProject(params.id, {
       content: typeof body.content === "string" ? body.content : undefined,
       template: body.template,
+      snapshotVersion: body.snapshotVersion,
     });
     return NextResponse.json({ project: metadata });
   } catch (e: any) {

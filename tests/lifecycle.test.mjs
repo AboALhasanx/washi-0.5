@@ -127,8 +127,20 @@ describe("create", () => {
 });
 
 describe("save", () => {
-  /* ⚠️ CHANGE DETECTOR — M4.1 will make saving NOT bump the version. */
-  test("saving bumps currentVersion (current behaviour — see M4.1)", () => {
+  test("save without snapshot does not bump currentVersion (P5)", () => {
+    const meta = make(SAMPLE);
+    const after = saveProject(meta.id, { content: SAMPLE, snapshotVersion: false });
+    assert.equal(after.currentVersion, meta.currentVersion);
+    assert.equal(listSnapshots(meta.id).length, 1); // only create-time v1
+  });
+
+  test("save with snapshot bumps currentVersion (P5)", () => {
+    const meta = make(SAMPLE);
+    const after = saveProject(meta.id, { content: SAMPLE, snapshotVersion: true });
+    assert.equal(after.currentVersion, meta.currentVersion + 1);
+  });
+
+  test("legacy save without snapshotVersion field still snapshots", () => {
     const meta = make(SAMPLE);
     const after = saveProject(meta.id, { content: SAMPLE });
     assert.equal(after.currentVersion, meta.currentVersion + 1);
