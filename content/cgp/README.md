@@ -10,6 +10,8 @@ Research artifacts for chapter generation. **Not** Washi ChapterAST, renderer, o
 | CGP-3 Chapter composition architecture | done | `computer-networks-ch1.composition.json` + `computer-networks-ch1.chapter-plan.json` |
 | CGP-4 Chapter authoring | done | `computer-networks-ch1.chapter.md` |
 | CGP-4A Content review audit | done | `computer-networks-ch1.content-review.json` |
+| CGP-4B Targeted revision | done | chapter.md surgical fixes |
+| CGP-4C Final acceptance | done | `computer-networks-ch1.final-acceptance.json` (ACCEPT) |
 
 ## Source
 

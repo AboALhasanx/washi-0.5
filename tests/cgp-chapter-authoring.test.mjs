@@ -46,7 +46,7 @@ describe("CGP-4 authored chapter", () => {
     const md = loadChapter().toLowerCase();
     const checks = [
       ["five components", ["الرسالة", "المُرسِل", "المُستقبِل", "الوسيط", "البروتوكول"]],
-      ["effectiveness", ["التسليم", "الدقة", "التوقيت", "التموج"]],
+      ["effectiveness", ["التسليم", "الدقة", "التوقيت", "التذبذب"]],
       ["flow three", ["أحادي", "شبه ثنائي", "ثنائي الاتجاه كامل"]],
       ["topologies", ["كاملة", "نجمية", "ناقلية", "حلقية"]],
       ["throughput delay", ["الإنتاجية", "التأخير"]],
