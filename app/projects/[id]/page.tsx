@@ -18,6 +18,7 @@ import { Logo } from "@/components/studio/Logo";
 import { MarkdownEditor } from "@/components/MarkdownEditor";
 import { LivePreview } from "@/components/studio/LivePreview";
 import { PdfPagesCanvas } from "@/components/PdfPagesCanvas";import type { StudioTheme } from "@/lib/theme";
+import { splitOutline, reorderMarkdownSections } from "@/lib/outline";
 
 interface ProjectMeta {
   id: string;
@@ -400,6 +401,50 @@ export default function ProjectWorkspace() {
             </section>
 
             <section className="space-y-4">
+              {/* M4.1 — section outline + reorder (markdown remains authority) */}
+              <div className="border hairline rounded-xl bg-paper p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[0.7rem] font-semibold text-ink">أقسام المستند</p>
+                  <span className="text-[0.65rem] text-ink-3 tabular">
+                    {splitOutline(content).length} قسم
+                  </span>
+                </div>
+                {splitOutline(content).length === 0 ? (
+                  <p className="text-xs text-ink-3">لا أقسام ## بعد</p>
+                ) : (
+                  <ul className="space-y-1">
+                    {splitOutline(content).map((sec, i, arr) => (
+                      <li
+                        key={`${sec.start}-${sec.title}`}
+                        className="flex items-center gap-2 text-xs rounded-md px-2 py-1.5 hover:bg-paper-2"
+                      >
+                        <span className="flex-1 truncate text-ink" title={sec.title}>
+                          {sec.title || "—"}
+                        </span>
+                        <button
+                          type="button"
+                          className="btn-ghost !py-0.5 !px-1.5 !text-[0.65rem]"
+                          disabled={i === 0}
+                          onClick={() => setContent((c) => reorderMarkdownSections(c, i, i - 1))}
+                          aria-label={`نقل ${sec.title} لأعلى`}
+                        >
+                          ↑
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-ghost !py-0.5 !px-1.5 !text-[0.65rem]"
+                          disabled={i === arr.length - 1}
+                          onClick={() => setContent((c) => reorderMarkdownSections(c, i, i + 1))}
+                          aria-label={`نقل ${sec.title} لأسفل`}
+                        >
+                          ↓
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
               {validation && (
                 <div className="border hairline rounded-2xl bg-paper p-4">
                   <div className="flex items-center justify-between mb-2">

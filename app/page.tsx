@@ -15,6 +15,10 @@ import { Logo } from "@/components/studio/Logo";
 import { LivePreview } from "@/components/studio/LivePreview";
 import { StudioTheme, DEFAULT_THEME, AVAILABLE_FONT_STACKS } from "@/lib/theme";
 import { cn } from "@/lib/utils";
+import {
+  splitOutline as splitOutlineLib,
+  reorderMarkdownSections,
+} from "@/lib/outline";
 
 type View = "preview" | "edit" | "pdf";
 type RailTab = "insert" | "outline" | "sources" | "themes";
@@ -64,17 +68,7 @@ const INSERT_TOOLS: Array<{ label: string; icon: string; snippet: string; hint: 
 ];
 
 function splitOutline(md: string): Array<{ title: string; start: number; end: number }> {
-  const lines = md.split("\n");
-  const idx: number[] = [];
-  lines.forEach((l, i) => {
-    if (/^##\s+/.test(l)) idx.push(i);
-  });
-  const sections = idx.map((start, k) => ({
-    title: lines[start].replace(/^##\s+/, "").trim(),
-    start,
-    end: k + 1 < idx.length ? idx[k + 1] - 1 : lines.length - 1,
-  }));
-  return sections;
+  return splitOutlineLib(md);
 }
 
 export default function StudioPage() {
@@ -245,20 +239,9 @@ export default function StudioPage() {
     reorderSections(index, target);
   };
 
-  /** Rebuild the markdown with section `from` moved to position `to`
-   *  (content before the first ## — frontmatter/h1 — stays untouched). */
+  /** Rebuild the markdown with section `from` moved to position `to`. */
   const reorderSections = (from: number, to: number) => {
-    if (from === to || from < 0 || to < 0 || from >= outline.length || to >= outline.length) return;
-    const lines = markdown.split("\n");
-    const starts = outline.map((o) => o.start);
-    const lastEnd = lines.length - 1;
-    const preamble = lines.slice(0, starts[0]);
-    const blocks = outline.map((sec, i) =>
-      lines.slice(sec.start, (i + 1 < outline.length ? outline[i + 1].start : lastEnd + 1))
-    );
-    const [moved] = blocks.splice(from, 1);
-    blocks.splice(to, 0, moved);
-    setMarkdown([...preamble, ...blocks.flat()].join("\n"));
+    setMarkdown((m) => reorderMarkdownSections(m, from, to));
   };
 
   /* ─── Outline drag state (pointer-based, keyboard alternatives kept) ───
