@@ -22,11 +22,16 @@ npm-debug.log*
 /.washi/
 
 # local test artifacts
-/content/
+/content/*
+# CGP-0+ content-generation pipeline artifacts are tracked
+!/content/cgp/
 /output/
 
 # washi 0.5 runtime data (document projects live on the user's disk)
 /projects/
+
+# local agent tooling
+.workbuddy-ai/
 
 # ephemeral e2e test scratch
 /.e2e/
