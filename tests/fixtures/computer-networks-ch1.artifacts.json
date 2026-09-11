@@ -321,7 +321,7 @@
           {
             "type": "formula",
             "latex": "C = W \\log_2\\left(1 + \\frac{S}{N}\\right)",
-            "displayMode": false,
+            "displayMode": true,
             "id": "b4-3",
             "sourcePosition": {
               "startLine": 54,
@@ -379,7 +379,7 @@
           {
             "type": "formula",
             "latex": "SNR_{dB} = 10 \\log_{10}\\frac{S}{N}",
-            "displayMode": false,
+            "displayMode": true,
             "id": "b4-9",
             "sourcePosition": {
               "startLine": 60,
@@ -417,7 +417,7 @@
           {
             "type": "formula",
             "latex": "T = \\frac{L}{B}",
-            "displayMode": false,
+            "displayMode": true,
             "source": "source: Data Communications Lecture Notes.pdf p.12",
             "id": "b4-12",
             "sourcePosition": {
@@ -519,7 +519,7 @@
           {
             "type": "formula",
             "latex": "T = \\frac{L}{B} = \\frac{80 \\text{ Mbit}}{20 \\text{ Mbit/s}}",
-            "displayMode": false,
+            "displayMode": true,
             "id": "b5-5",
             "sourcePosition": {
               "startLine": 79,
@@ -575,7 +575,7 @@
           {
             "type": "formula",
             "latex": "C = 3000 \\times \\log_2(1 + 1000) \\approx 3000 \\times 9.97 \\approx 29{,}900 \\text{ bps}",
-            "displayMode": false,
+            "displayMode": true,
             "id": "b5-10",
             "sourcePosition": {
               "startLine": 90,
@@ -1157,7 +1157,7 @@
             "id": "b4-3",
             "type": "formula",
             "latex": "C = W \\log_2\\left(1 + \\frac{S}{N}\\right)",
-            "displayMode": false,
+            "displayMode": true,
             "sourcePosition": {
               "startLine": 54,
               "endLine": 54
@@ -1215,7 +1215,7 @@
             "id": "b4-9",
             "type": "formula",
             "latex": "SNR_{dB} = 10 \\log_{10}\\frac{S}{N}",
-            "displayMode": false,
+            "displayMode": true,
             "sourcePosition": {
               "startLine": 60,
               "endLine": 60
@@ -1243,7 +1243,7 @@
             "id": "b4-12",
             "type": "formula",
             "latex": "T = \\frac{L}{B}",
-            "displayMode": false,
+            "displayMode": true,
             "sourcePosition": {
               "startLine": 65,
               "endLine": 65
@@ -1342,7 +1342,7 @@
             "id": "b5-5",
             "type": "formula",
             "latex": "T = \\frac{L}{B} = \\frac{80 \\text{ Mbit}}{20 \\text{ Mbit/s}}",
-            "displayMode": false,
+            "displayMode": true,
             "sourcePosition": {
               "startLine": 79,
               "endLine": 79
@@ -1398,7 +1398,7 @@
             "id": "b5-10",
             "type": "formula",
             "latex": "C = 3000 \\times \\log_2(1 + 1000) \\approx 3000 \\times 9.97 \\approx 29{,}900 \\text{ bps}",
-            "displayMode": false,
+            "displayMode": true,
             "sourcePosition": {
               "startLine": 90,
               "endLine": 90

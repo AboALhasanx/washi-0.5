@@ -151,6 +151,31 @@ function isPaginationSafeType(type: AstNode["type"]): boolean {
 }
 
 /**
+ * NEW-01 Washi convention: remark-math exposes one-line `$$…$$` as inlineMath
+ * (multi-line `$$\n…\n$$` is a `math` block). Promote only when the source
+ * slice of the inlineMath node itself is wrapped in `$$…$$` delimiters.
+ * Standalone `$C$` and prose-embedded `$$C$$` stay inline.
+ */
+function isDoubleDollarSourceMath(im: any, body: string): boolean {
+  const start = im?.position?.start?.offset;
+  const end = im?.position?.end?.offset;
+  if (typeof start !== "number" || typeof end !== "number" || end - start < 5) return false;
+  const slice = body.slice(start, end);
+  return slice.startsWith("$$") && slice.endsWith("$$");
+}
+
+/** True when a paragraph's only phrasing content is one double-dollar inlineMath. */
+function isStandaloneDisplayParagraph(paragraph: any, body: string): boolean {
+  const children = (paragraph?.children ?? []).filter(Boolean);
+  const meaningful = children.filter(
+    (c: any) => !(c.type === "text" && !String(c.value ?? "").trim())
+  );
+  if (meaningful.length !== 1) return false;
+  const only = meaningful[0];
+  return only.type === "inlineMath" && isDoubleDollarSourceMath(only, body);
+}
+
+/**
  * Flatten a list item to plain text. Inline math is kept as $latex$ in the
  * item string (P2) so list continuity is not destroyed by hoisting formulas
  * out as sibling nodes. Renderer shows $…$ compactly inside the item.
@@ -647,6 +672,21 @@ export function parseMarkdown(md: string): ParseResult {
         // Check for inline image already handled above; else handle inlineMath
         const inlineMathChildren = (child.children ?? []).filter((c: any) => c.type === "inlineMath");
         if (inlineMathChildren.length > 0) {
+          // NEW-01: standalone one-line $$…$$ → display (Washi convention)
+          if (isStandaloneDisplayParagraph(child, body)) {
+            const im = inlineMathChildren[0];
+            const fNode: AstNode = {
+              type: "formula",
+              latex: (im.value ?? "").trim(),
+              displayMode: true,
+              caption: undefined,
+              source: pendingSource,
+            } as AstNode;
+            if (pendingSource) { pendingSource = undefined; pendingProv = []; }
+            pushNode(fNode);
+            break;
+          }
+
           // Emit paragraph text without math, plus formula nodes for each inline math
           // Build paragraph text excluding inlineMath
           let paraText = "";

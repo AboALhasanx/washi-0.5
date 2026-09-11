@@ -140,8 +140,9 @@ export const definitionNodeSchema = z.object({
 export const formulaNodeSchema = z.object({
   type: z.literal("formula"),
   // LaTeX preserved exactly — inline $...$ or block $$...$$
+  // Washi: standalone one-line $$…$$ is display (promoted from remark-math inlineMath).
   latex: z.string().min(1),
-  displayMode: z.boolean().default(true).describe("true = $$ block, false = $ inline"),
+  displayMode: z.boolean().default(true).describe("true = display ($$ block or standalone one-line $$…$$), false = $ inline"),
   caption: z.string().optional().describe("Arabic explanation after LaTeX when language=ar"),
   source: z.string().optional(),
   provenance: z.array(provenanceRefSchema).optional(),
