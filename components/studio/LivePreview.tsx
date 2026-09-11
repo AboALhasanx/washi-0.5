@@ -342,7 +342,9 @@ export function LivePreview({ markdown, theme }: { markdown: string; theme: Stud
               <span style={{ flex: 1, height: 3, borderRadius: 999, background: `linear-gradient(-90deg, ${theme.colors.accent} 0%, rgba(194,65,12,0.08) 100%)`, marginTop: 4 }} />
             </div>
             {sec.nodes.map((node: AstNode, i: number) => (
-              <PreviewNode key={i} node={node} theme={theme} />
+              <div key={(node as any).id ?? i} data-node-id={(node as any).id ?? undefined}>
+                <PreviewNode node={node} theme={theme} />
+              </div>
             ))}
           </section>
         ))}

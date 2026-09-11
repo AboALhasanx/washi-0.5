@@ -85,6 +85,19 @@ export const provenanceRefSchema = z
 
 export type ProvenanceRef = z.infer<typeof provenanceRefSchema>;
 
+/** P4 — source span from mdast (1-based lines). Mapping metadata, not identity alone. */
+export const sourcePositionSchema = z.object({
+  startLine: z.number().int().positive(),
+  endLine: z.number().int().positive().optional(),
+});
+export type SourcePosition = z.infer<typeof sourcePositionSchema>;
+
+/** Optional identity/mapping fields (P4). Id is re-parse stable (`n{line}-{type}`). */
+const identityFields = {
+  id: z.string().min(1).optional(),
+  sourcePosition: sourcePositionSchema.optional(),
+};
+
 export const headingNodeSchema = z.object({
   type: z.literal("heading"),
   level: z.union([z.literal(1), z.literal(2), z.literal(3)]),
@@ -92,6 +105,7 @@ export const headingNodeSchema = z.object({
   // optional source traceability comment attached to section
   source: z.string().optional(),
   provenance: z.array(provenanceRefSchema).optional(),
+  ...identityFields,
 });
 
 export const paragraphNodeSchema = z.object({
@@ -99,6 +113,7 @@ export const paragraphNodeSchema = z.object({
   text: z.string().min(1),
   source: z.string().optional(),
   provenance: z.array(provenanceRefSchema).optional(),
+  ...identityFields,
 });
 
 export const calloutNodeSchema = z.object({
@@ -109,6 +124,7 @@ export const calloutNodeSchema = z.object({
   content: z.string().min(1),
   source: z.string().optional(),
   provenance: z.array(provenanceRefSchema).optional(),
+  ...identityFields,
 });
 
 export const definitionNodeSchema = z.object({
@@ -118,6 +134,7 @@ export const definitionNodeSchema = z.object({
   variant: z.literal("NOTE").default("NOTE"),
   source: z.string().optional(),
   provenance: z.array(provenanceRefSchema).optional(),
+  ...identityFields,
 });
 
 export const formulaNodeSchema = z.object({
@@ -128,6 +145,7 @@ export const formulaNodeSchema = z.object({
   caption: z.string().optional().describe("Arabic explanation after LaTeX when language=ar"),
   source: z.string().optional(),
   provenance: z.array(provenanceRefSchema).optional(),
+  ...identityFields,
 });
 
 export const tableNodeSchema = z.object({
@@ -138,6 +156,7 @@ export const tableNodeSchema = z.object({
   caption: z.string().optional(),
   source: z.string().optional(),
   provenance: z.array(provenanceRefSchema).optional(),
+  ...identityFields,
 });
 
 export const figureNodeSchema = z.object({
@@ -148,6 +167,7 @@ export const figureNodeSchema = z.object({
   caption: z.string().min(1, "caption required"),
   source: z.string().optional(),
   provenance: z.array(provenanceRefSchema).optional(),
+  ...identityFields,
 });
 
 export const codeBlockNodeSchema = z.object({
@@ -156,6 +176,7 @@ export const codeBlockNodeSchema = z.object({
   code: z.string().min(1),
   source: z.string().optional(),
   provenance: z.array(provenanceRefSchema).optional(),
+  ...identityFields,
 });
 
 export const listNodeSchema = z.object({
@@ -167,6 +188,7 @@ export const listNodeSchema = z.object({
   items: z.array(z.string().min(1)).min(1),
   source: z.string().optional(),
   provenance: z.array(provenanceRefSchema).optional(),
+  ...identityFields,
 });
 
 export const sourceCommentNodeSchema = z.object({
@@ -175,6 +197,7 @@ export const sourceCommentNodeSchema = z.object({
   raw: z.string().min(1),
   document: z.string().optional(),
   pages: z.array(z.number().int().positive()).optional(),
+  ...identityFields,
 });
 
 export const astNodeSchema = z.discriminatedUnion("type", [

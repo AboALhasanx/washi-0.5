@@ -403,6 +403,21 @@ export function parseMarkdown(md: string): ParseResult {
     }
   };
 
+  /** P4 — mdast position of the current top-level child (for id + sourcePosition). */
+  let currentMdastPos: { start?: { line?: number }; end?: { line?: number } } | undefined;
+
+  const assignIdentity = (node: any) => {
+    const line = currentMdastPos?.start?.line;
+    if (!line || line < 1) return;
+    node.sourcePosition = {
+      startLine: line,
+      ...(currentMdastPos?.end?.line ? { endLine: currentMdastPos.end.line } : {}),
+    };
+    // Re-parse stable: same source → same id. Text edits that keep the start
+    // line keep the id; inserts above shift lines (documented limit).
+    node.id = `n${line}-${node.type}`;
+  };
+
   const pushNode = (node: AstNode) => {
     // §15: pending provenance refs attach to the NEXT meaningful node, then
     // are consumed — always cleared here, even when the node literal already
@@ -421,6 +436,7 @@ export function parseMarkdown(md: string): ParseResult {
     (node as any).paginationSafe = isPaginationSafeType(node.type);
     // Also set breakInside avoid flag for renderer convenience
     (node as any).breakInside = isPaginationSafeType(node.type) ? "avoid" : undefined;
+    assignIdentity(node);
 
     nodes.push(node);
     ensureSection();
@@ -473,6 +489,7 @@ export function parseMarkdown(md: string): ParseResult {
   // Walk top-level children
   for (let idx = 0; idx < tree.children.length; idx++) {
     const child: any = tree.children[idx];
+    currentMdastPos = child.position;
 
     switch (child.type) {
       case "heading": {
@@ -498,6 +515,7 @@ export function parseMarkdown(md: string): ParseResult {
           // But ensure sections will be created after
           // Add paginationSafe false for heading
           (h1Node as any).paginationSafe = false;
+          assignIdentity(h1Node);
           break;
         }
         if (level === 2) {
@@ -541,6 +559,7 @@ export function parseMarkdown(md: string): ParseResult {
           // h2 heading is section title — add to both flat nodes and section nodes
           nodes.push(h2Node);
           currentSection.nodes.push(h2Node);
+          assignIdentity(h2Node);
           break;
         }
         if (level === 3) {
