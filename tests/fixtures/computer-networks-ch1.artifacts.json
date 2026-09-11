@@ -43,17 +43,29 @@
             "level": 2,
             "text": "نظرة عامة",
             "source": "source: Computer Networks and Data Communication.pdf p.1",
-            "id": "b1-1"
+            "id": "b1-1",
+            "sourcePosition": {
+              "startLine": 5,
+              "endLine": 5
+            }
           },
           {
             "type": "paragraph",
             "text": "تُعدّ شبكات الحاسوب (Computer Networks) أحد أعمدة العصر الرقمي الحديث؛ فقد تحوّلت من ترف تقني في ستينيات القرن الماضي إلى بنية تحتية أساسية تمس كل جانب من جوانب الحياة: التعليم، الصحة، التجارة، الحكم، والترفيه. ويقوم هذا الفصل على بناء الأساس المفاهيمي الذي ستبني عليه بقية فصول المادة، بدءاً من تعريف الاتصال البياناتي، مروراً بمكوّنات الشبكة وأنماطها، وانتهاءً بمقاييس الأداء الأساسية مثل عرض النطاق الترددي والإنتاجية وزمن التأخير.",
-            "id": "b1-2"
+            "id": "b1-2",
+            "sourcePosition": {
+              "startLine": 7,
+              "endLine": 7
+            }
           },
           {
             "type": "paragraph",
             "text": "والهدف من هذا الفصل ثلاثي الأبعاد: مفاهيمي — فهم المصطلحات بدقة، وتحليلي — القدرة على المقارنة بين الأنماط والحلول، وتطبيقي — ربط المفاهيم بأمثلة واقعية من الشبكات المحلية والعالمية.",
-            "id": "b1-3"
+            "id": "b1-3",
+            "sourcePosition": {
+              "startLine": 9,
+              "endLine": 9
+            }
           }
         ]
       },
@@ -68,31 +80,51 @@
             "level": 2,
             "text": "المفاهيم الأساسية",
             "source": "source: Computer Networks and Data Communication.pdf p.2",
-            "id": "b2-1"
+            "id": "b2-1",
+            "sourcePosition": {
+              "startLine": 12,
+              "endLine": 12
+            }
           },
           {
             "type": "paragraph",
             "text": "قبل الغوص في تفاصيل البروتوكولات والطبقات، لا بد من ضبط المفاهيم التأسيسية الخمسة التي يتكرر ذكرها في كل فصول المادة:",
-            "id": "b2-2"
+            "id": "b2-2",
+            "sourcePosition": {
+              "startLine": 14,
+              "endLine": 14
+            }
           },
           {
             "type": "definition",
             "term": "الاتصال البياناتي (Data Communication)",
             "definition": "تبادل البيانات بين جهازين أو أكثر عبر وسيط ناقل، وفق قواعد متفق عليها تضمن وصول البيانات صحيحة وكاملة وفي الوقت المناسب.",
             "variant": "NOTE",
-            "id": "b2-3"
+            "id": "b2-3",
+            "sourcePosition": {
+              "startLine": 16,
+              "endLine": 16
+            }
           },
           {
             "type": "paragraph",
             "text": "وتقوم عملية الاتصال البياناتي على خمسة عناصر لا يكتمل الاتصال بغياب أي منها: المُرسِل (Sender)، والمُستقبِل (Receiver)، والرسالة (Message)، ووسيط النقل (Transmission Medium)، والبروتوكول (Protocol). فإذا افترضنا رسالة بريد إلكتروني تُرسل من حاسوب طالب في بغداد إلى خادم بريد في ألمانيا، فإن المُرسِل هو حاسوب الطالب، والمُستقبِل هو خادم البريد، والرسالة هي محتوى البريد، ووسيط النقل هو سلسلة الكابلات والألياف الضوئية، والبروتوكول هو مجموعة قواعد TCP/IP التي تحكم الرحلة كلها.",
-            "id": "b2-4"
+            "id": "b2-4",
+            "sourcePosition": {
+              "startLine": 18,
+              "endLine": 18
+            }
           },
           {
             "type": "definition",
             "term": "الشبكة (Network)",
             "definition": "مجموعة من الأجهزة (حواسيب، طابعات، هواتف، خوادم) المترابطة بوسائط سلكية أو لاسلكية بهدف مشاركة الموارد وتبادل البيانات.",
             "variant": "NOTE",
-            "id": "b2-5"
+            "id": "b2-5",
+            "sourcePosition": {
+              "startLine": 20,
+              "endLine": 20
+            }
           },
           {
             "type": "source",
@@ -117,18 +149,30 @@
                 "kind": "source-derived"
               }
             ],
-            "id": "b2-7"
+            "id": "b2-7",
+            "sourcePosition": {
+              "startLine": 23,
+              "endLine": 23
+            }
           },
           {
             "type": "paragraph",
             "text": "في المقابل يقف العميل (Client) وهو الجهاز الذي يطلب الخدمة ويستهلكها، وتُسمى هذه البنية بنموذج العميل/الخادم (Client/Server) الذي يحكم معظم تطبيقات الإنترنت الحالية. أما النموذج الآخر فهو الند للند (Peer-to-Peer) حيث يكون كل جهاز عميلاً وخادماً في آن واحد، ويُستخدم في الشبكات الصغيرة وتطبيقات مشاركة الملفات.",
-            "id": "b2-8"
+            "id": "b2-8",
+            "sourcePosition": {
+              "startLine": 25,
+              "endLine": 25
+            }
           },
           {
             "type": "callout",
             "variant": "WARNING",
             "content": "خطر شائع: الخلط بين \"الشبكة\" و\"الإنترنت\". الشبكة مفهوم عام يشمل أي مجموعة أجهزة مترابطة، بينما الإنترنت هو شبكة الشبكات — أكبر بنية مترابطة في العالم تربط مليارات الأجهزة عبر بروتوكولات موحدة.",
-            "id": "b2-9"
+            "id": "b2-9",
+            "sourcePosition": {
+              "startLine": 27,
+              "endLine": 27
+            }
           },
           {
             "type": "source",
@@ -152,7 +196,11 @@
                 "kind": "source-derived"
               }
             ],
-            "id": "b2-11"
+            "id": "b2-11",
+            "sourcePosition": {
+              "startLine": 30,
+              "endLine": 30
+            }
           },
           {
             "type": "list",
@@ -164,7 +212,11 @@
               "الشبكة الواسعة (WAN - Wide Area Network): تربط مدناً ودولاً وقارات، والإنترنت هو أكبر مثال عليها، وتعتمد على بنية تحتية معقدة من الكابلات البحرية والأقمار الصناعية."
             ],
             "source": "source: Computer Networks and Data Communication.pdf p.4",
-            "id": "b2-12"
+            "id": "b2-12",
+            "sourcePosition": {
+              "startLine": 32,
+              "endLine": 34
+            }
           }
         ]
       },
@@ -179,40 +231,64 @@
             "level": 2,
             "text": "التعاريف",
             "source": "source: Data Communications Lecture Notes.pdf p.10",
-            "id": "b3-1"
+            "id": "b3-1",
+            "sourcePosition": {
+              "startLine": 37,
+              "endLine": 37
+            }
           },
           {
             "type": "paragraph",
             "text": "يجمع هذا القسم التعاريف الدقيقة التي تتكرر في أسئلة التنافسي بصيغها المختلفة:",
-            "id": "b3-2"
+            "id": "b3-2",
+            "sourcePosition": {
+              "startLine": 39,
+              "endLine": 39
+            }
           },
           {
             "type": "definition",
             "term": "البروتوكول (Protocol)",
             "definition": "مجموعة القواعد والاتفاقيات المنظمة لتبادل البيانات بين الأجهزة، تحدد شكل الرسالة وتوقيت إرسالها والإجراء المتخذ عند وقوع خطأ. ويمكن تشبيهه باللغة المشتركة بين متحدثين من أمتين مختلفتين.",
             "variant": "NOTE",
-            "id": "b3-3"
+            "id": "b3-3",
+            "sourcePosition": {
+              "startLine": 41,
+              "endLine": 41
+            }
           },
           {
             "type": "definition",
             "term": "عرض النطاق الترددي (Bandwidth)",
             "definition": "أقصى كمية بيانات يمكن لوسيط النقل تمريرها في وحدة زمنية معينة، ويُقاس بالبت في الثانية (bps) ومضاعفاتها (Kbps, Mbps, Gbps). وكلما زاد عرض النطاق زادت كمية البيانات القابلة للنقل في نفس الزمن.",
             "variant": "NOTE",
-            "id": "b3-4"
+            "id": "b3-4",
+            "sourcePosition": {
+              "startLine": 43,
+              "endLine": 43
+            }
           },
           {
             "type": "definition",
             "term": "عقدة الشبكة (Node)",
             "definition": "أي نقطة اتصال نشطة داخل الشبكة قادرة على إرسال البيانات أو استقبالها أو إعادة توجيهها، وتشمل الحواسيب والطابعات والموجهات والمبدّلات.",
             "variant": "NOTE",
-            "id": "b3-5"
+            "id": "b3-5",
+            "sourcePosition": {
+              "startLine": 45,
+              "endLine": 45
+            }
           },
           {
             "type": "definition",
             "term": "الموجِّه (Router)",
             "definition": "جهاز شبكي يربط شبكات مختلفة معاً ويتخذ قرارات توجيه الحزم (Packets) بينها اعتماداً على عناوين المنطق (IP Addresses) وجداول التوجيه.",
             "variant": "NOTE",
-            "id": "b3-6"
+            "id": "b3-6",
+            "sourcePosition": {
+              "startLine": 47,
+              "endLine": 47
+            }
           }
         ]
       },
@@ -227,52 +303,88 @@
             "level": 2,
             "text": "المعادلات",
             "source": "source: Data Communications Lecture Notes.pdf p.11",
-            "id": "b4-1"
+            "id": "b4-1",
+            "sourcePosition": {
+              "startLine": 50,
+              "endLine": 50
+            }
           },
           {
             "type": "paragraph",
             "text": "يستند قياس أداء قنوات الاتصال إلى أسس رياضية دقيقة، وأهمها معادلة شانون لسعة القناة التي تحدد الحد الأقصى النظري لمعدل نقل البيانات في قناة تتأثر بالضوضاء:",
-            "id": "b4-2"
+            "id": "b4-2",
+            "sourcePosition": {
+              "startLine": 52,
+              "endLine": 52
+            }
           },
           {
             "type": "formula",
             "latex": "C = W \\log_2\\left(1 + \\frac{S}{N}\\right)",
             "displayMode": false,
-            "id": "b4-3"
+            "id": "b4-3",
+            "sourcePosition": {
+              "startLine": 54,
+              "endLine": 54
+            }
           },
           {
             "type": "paragraph",
             "text": "حيث  تمثل سعة القناة بالبت في الثانية، و عرض النطاق الترددي بالهرتز، و نسبة الإشارة إلى الضوضاء. ولاحظ أن العلاقة لوغاريتمية؛ أي أن مضاعفة نسبة الإشارة إلى الضوضاء لا تضاعف السعة بل تزيدها زيادة محدودة.",
-            "id": "b4-4"
+            "id": "b4-4",
+            "sourcePosition": {
+              "startLine": 56,
+              "endLine": 56
+            }
           },
           {
             "type": "formula",
             "latex": "C",
             "displayMode": false,
-            "id": "b4-5"
+            "id": "b4-5",
+            "sourcePosition": {
+              "startLine": 56,
+              "endLine": 56
+            }
           },
           {
             "type": "formula",
             "latex": "W",
             "displayMode": false,
-            "id": "b4-6"
+            "id": "b4-6",
+            "sourcePosition": {
+              "startLine": 56,
+              "endLine": 56
+            }
           },
           {
             "type": "formula",
             "latex": "\\frac{S}{N}",
             "displayMode": false,
-            "id": "b4-7"
+            "id": "b4-7",
+            "sourcePosition": {
+              "startLine": 56,
+              "endLine": 56
+            }
           },
           {
             "type": "paragraph",
             "text": "أما قياس نسبة الإشارة إلى الضوضاء نفسها فيعبَّر عنها عادة بالديسيبل:",
-            "id": "b4-8"
+            "id": "b4-8",
+            "sourcePosition": {
+              "startLine": 58,
+              "endLine": 58
+            }
           },
           {
             "type": "formula",
             "latex": "SNR_{dB} = 10 \\log_{10}\\frac{S}{N}",
             "displayMode": false,
-            "id": "b4-9"
+            "id": "b4-9",
+            "sourcePosition": {
+              "startLine": 60,
+              "endLine": 60
+            }
           },
           {
             "type": "source",
@@ -296,37 +408,61 @@
                 "kind": "source-derived"
               }
             ],
-            "id": "b4-11"
+            "id": "b4-11",
+            "sourcePosition": {
+              "startLine": 63,
+              "endLine": 63
+            }
           },
           {
             "type": "formula",
             "latex": "T = \\frac{L}{B}",
             "displayMode": false,
             "source": "source: Data Communications Lecture Notes.pdf p.12",
-            "id": "b4-12"
+            "id": "b4-12",
+            "sourcePosition": {
+              "startLine": 65,
+              "endLine": 65
+            }
           },
           {
             "type": "paragraph",
             "text": "حيث  زمن الإرسال بالثانية، و حجم الملف بالبت، و سرعة القناة بالبت في الثانية — وهذه معادلة تتكرر في مسائل أمثلة محلولة بصيغ مختلفة.",
-            "id": "b4-13"
+            "id": "b4-13",
+            "sourcePosition": {
+              "startLine": 67,
+              "endLine": 67
+            }
           },
           {
             "type": "formula",
             "latex": "T",
             "displayMode": false,
-            "id": "b4-14"
+            "id": "b4-14",
+            "sourcePosition": {
+              "startLine": 67,
+              "endLine": 67
+            }
           },
           {
             "type": "formula",
             "latex": "L",
             "displayMode": false,
-            "id": "b4-15"
+            "id": "b4-15",
+            "sourcePosition": {
+              "startLine": 67,
+              "endLine": 67
+            }
           },
           {
             "type": "formula",
             "latex": "B",
             "displayMode": false,
-            "id": "b4-16"
+            "id": "b4-16",
+            "sourcePosition": {
+              "startLine": 67,
+              "endLine": 67
+            }
           }
         ]
       },
@@ -341,18 +477,30 @@
             "level": 2,
             "text": "أمثلة محلولة",
             "source": "source: Computer Networks and Data Communication.pdf p.5",
-            "id": "b5-1"
+            "id": "b5-1",
+            "sourcePosition": {
+              "startLine": 70,
+              "endLine": 70
+            }
           },
           {
             "type": "callout",
             "variant": "EXAMPLE",
             "content": "مثال 1: احسب زمن إرسال ملف حجمه 10 ميجابايت عبر قناة سرعتها 20 ميجابت في الثانية.",
-            "id": "b5-2"
+            "id": "b5-2",
+            "sourcePosition": {
+              "startLine": 72,
+              "endLine": 72
+            }
           },
           {
             "type": "paragraph",
             "text": "الحل خطوة بخطوة:",
-            "id": "b5-3"
+            "id": "b5-3",
+            "sourcePosition": {
+              "startLine": 74,
+              "endLine": 74
+            }
           },
           {
             "type": "list",
@@ -362,13 +510,21 @@
               "حوّل حجم الملف من ميجابايت إلى بت: الميجابايت الواحد يساوي 8 ميجابت، إذن الحجم = 10 × 8 = 80 ميجابت.",
               "طبّق معادلة زمن الإرسال: زمن الإرسال يساوي حجم الملف مقسوماً على سرعة القناة."
             ],
-            "id": "b5-4"
+            "id": "b5-4",
+            "sourcePosition": {
+              "startLine": 76,
+              "endLine": 77
+            }
           },
           {
             "type": "formula",
             "latex": "T = \\frac{L}{B} = \\frac{80 \\text{ Mbit}}{20 \\text{ Mbit/s}}",
             "displayMode": false,
-            "id": "b5-5"
+            "id": "b5-5",
+            "sourcePosition": {
+              "startLine": 79,
+              "endLine": 79
+            }
           },
           {
             "type": "list",
@@ -377,18 +533,30 @@
             "items": [
               "النتيجة: يستغرق إرسال الملف 4 ثوانٍ نظرياً، دون احتساب زمن التأخير في العقد الوسيطة."
             ],
-            "id": "b5-6"
+            "id": "b5-6",
+            "sourcePosition": {
+              "startLine": 81,
+              "endLine": 81
+            }
           },
           {
             "type": "callout",
             "variant": "EXAMPLE",
             "content": "مثال 2: قناة عرضها الترددي 3000 هرتز ونسبة الإشارة إلى الضوضاء 30 ديسيبل. احسب سعتها القصوى وفق نظرية شانون.",
-            "id": "b5-7"
+            "id": "b5-7",
+            "sourcePosition": {
+              "startLine": 83,
+              "endLine": 83
+            }
           },
           {
             "type": "paragraph",
             "text": "الحل:",
-            "id": "b5-8"
+            "id": "b5-8",
+            "sourcePosition": {
+              "startLine": 85,
+              "endLine": 85
+            }
           },
           {
             "type": "list",
@@ -398,13 +566,21 @@
               "حوّل نسبة الديسيبل إلى نسبة خطية: بما أن 30 = 10 لوغاريتم النسبة، فإن نسبة الإشارة إلى الضوضاء = 10³ = 1000.",
               "طبّق معادلة شانون بالتعويض عن القيم."
             ],
-            "id": "b5-9"
+            "id": "b5-9",
+            "sourcePosition": {
+              "startLine": 87,
+              "endLine": 88
+            }
           },
           {
             "type": "formula",
             "latex": "C = 3000 \\times \\log_2(1 + 1000) \\approx 3000 \\times 9.97 \\approx 29{,}900 \\text{ bps}",
             "displayMode": false,
-            "id": "b5-10"
+            "id": "b5-10",
+            "sourcePosition": {
+              "startLine": 90,
+              "endLine": 90
+            }
           },
           {
             "type": "list",
@@ -413,7 +589,11 @@
             "items": [
               "النتيجة: الحد الأقصى النظري للسعة يقارب 30 كيلوبت في الثانية — وهذا سبب تاريخي لحدود خطوط الهاتف القديمة."
             ],
-            "id": "b5-11"
+            "id": "b5-11",
+            "sourcePosition": {
+              "startLine": 92,
+              "endLine": 92
+            }
           }
         ]
       },
@@ -428,12 +608,20 @@
             "level": 2,
             "text": "الجداول المقارنة",
             "source": "source: Computer Networks and Data Communication.pdf p.6",
-            "id": "b6-1"
+            "id": "b6-1",
+            "sourcePosition": {
+              "startLine": 95,
+              "endLine": 95
+            }
           },
           {
             "type": "paragraph",
             "text": "يُطلب في الامتحان غالباً المقارنة بين أنماط الشبكات، والجدول التالي يلخص الفروق الجوهرية:",
-            "id": "b6-2"
+            "id": "b6-2",
+            "sourcePosition": {
+              "startLine": 97,
+              "endLine": 97
+            }
           },
           {
             "type": "table",
@@ -481,7 +669,11 @@
                 "الإنترنت نفسه"
               ]
             ],
-            "id": "b6-3"
+            "id": "b6-3",
+            "sourcePosition": {
+              "startLine": 99,
+              "endLine": 106
+            }
           },
           {
             "type": "source",
@@ -505,7 +697,11 @@
                 "kind": "source-derived"
               }
             ],
-            "id": "b6-5"
+            "id": "b6-5",
+            "sourcePosition": {
+              "startLine": 109,
+              "endLine": 109
+            }
           },
           {
             "type": "table",
@@ -532,7 +728,11 @@
               ]
             ],
             "source": "source: Computer Networks and Data Communication.pdf p.7",
-            "id": "b6-6"
+            "id": "b6-6",
+            "sourcePosition": {
+              "startLine": 111,
+              "endLine": 115
+            }
           }
         ]
       },
@@ -547,29 +747,49 @@
             "level": 2,
             "text": "تطبيق عملي",
             "source": "source: Computer Networks and Data Communication.pdf p.8",
-            "id": "b7-1"
+            "id": "b7-1",
+            "sourcePosition": {
+              "startLine": 118,
+              "endLine": 118
+            }
           },
           {
             "type": "paragraph",
             "text": "للتحقق من إعدادات الشبكة على جهاز يعمل بنظام ويندوز يُستخدم الأمر التالي في موجه الأوامر:",
-            "id": "b7-2"
+            "id": "b7-2",
+            "sourcePosition": {
+              "startLine": 120,
+              "endLine": 120
+            }
           },
           {
             "type": "code",
             "language": "bash",
             "code": "ipconfig /all",
-            "id": "b7-3"
+            "id": "b7-3",
+            "sourcePosition": {
+              "startLine": 122,
+              "endLine": 124
+            }
           },
           {
             "type": "paragraph",
             "text": "والخرج النموذجي للأمر يعرض العناصر التالية:",
-            "id": "b7-4"
+            "id": "b7-4",
+            "sourcePosition": {
+              "startLine": 126,
+              "endLine": 126
+            }
           },
           {
             "type": "code",
             "language": "text",
             "code": "Ethernet adapter Ethernet:\n   IPv4 Address. . . . . . . . . . . : 192.168.1.15\n   Subnet Mask . . . . . . . . . . . : 255.255.255.0\n   Default Gateway . . . . . . . . . : 192.168.1.1\n   DNS Servers . . . . . . . . . . . : 8.8.8.8",
-            "id": "b7-5"
+            "id": "b7-5",
+            "sourcePosition": {
+              "startLine": 128,
+              "endLine": 134
+            }
           }
         ]
       },
@@ -584,25 +804,41 @@
             "level": 2,
             "text": "نقاط مهمة",
             "source": "source: Data Communications Lecture Notes.pdf p.12",
-            "id": "b8-1"
+            "id": "b8-1",
+            "sourcePosition": {
+              "startLine": 137,
+              "endLine": 137
+            }
           },
           {
             "type": "callout",
             "variant": "IMPORTANT",
             "content": "قاعدة ذهبية: كل ضعف في عرض النطاق الترددي يؤدي — نظرياً — إلى خفض زمن الإرسال إلى النصف، شريطة ثبات باقي العوامل.",
-            "id": "b8-2"
+            "id": "b8-2",
+            "sourcePosition": {
+              "startLine": 139,
+              "endLine": 139
+            }
           },
           {
             "type": "callout",
             "variant": "WARNING",
             "content": "انتبه في مسائل الامتحان إلى الفرق بين الميجابايت (MB) والميجابت (Mb): الفرق بينهما عامل 8، وكثير من الأسئلة المصطادة تُزرع في هذا الخلط تحديداً.",
-            "id": "b8-3"
+            "id": "b8-3",
+            "sourcePosition": {
+              "startLine": 141,
+              "endLine": 141
+            }
           },
           {
             "type": "callout",
             "variant": "NOTE",
             "content": "نموذج الاتصال الكامل يتطلب البروتوكول دائماً — حتى أفضل وسيط ناقل في العالم لن ينقل حرفاً واحداً دون قواعد تتفق عليها الطرفان.",
-            "id": "b8-4"
+            "id": "b8-4",
+            "sourcePosition": {
+              "startLine": 143,
+              "endLine": 143
+            }
           }
         ]
       },
@@ -615,7 +851,11 @@
             "type": "heading",
             "level": 2,
             "text": "أسئلة مراجعة",
-            "id": "b9-1"
+            "id": "b9-1",
+            "sourcePosition": {
+              "startLine": 145,
+              "endLine": 145
+            }
           },
           {
             "type": "list",
@@ -630,7 +870,11 @@
               "صنّف الشبكات حسب الامتداد الجغرافي مع ذكر خاصية مميزة لكل فئة.",
               "لماذا يُعد الإنترنت مثالاً مثالياً على الشبكة الواسعة WAN وليس على الشبكة المحلية؟"
             ],
-            "id": "b9-2"
+            "id": "b9-2",
+            "sourcePosition": {
+              "startLine": 147,
+              "endLine": 153
+            }
           }
         ]
       }
@@ -661,17 +905,29 @@
             "id": "b1-1",
             "type": "heading",
             "level": 2,
-            "text": "نظرة عامة"
+            "text": "نظرة عامة",
+            "sourcePosition": {
+              "startLine": 5,
+              "endLine": 5
+            }
           },
           {
             "id": "b1-2",
             "type": "paragraph",
-            "text": "تُعدّ شبكات الحاسوب (Computer Networks) أحد أعمدة العصر الرقمي الحديث؛ فقد تحوّلت من ترف تقني في ستينيات القرن الماضي إلى بنية تحتية أساسية تمس كل جانب من جوانب الحياة: التعليم، الصحة، التجارة، الحكم، والترفيه. ويقوم هذا الفصل على بناء الأساس المفاهيمي الذي ستبني عليه بقية فصول المادة، بدءاً من تعريف الاتصال البياناتي، مروراً بمكوّنات الشبكة وأنماطها، وانتهاءً بمقاييس الأداء الأساسية مثل عرض النطاق الترددي والإنتاجية وزمن التأخير."
+            "text": "تُعدّ شبكات الحاسوب (Computer Networks) أحد أعمدة العصر الرقمي الحديث؛ فقد تحوّلت من ترف تقني في ستينيات القرن الماضي إلى بنية تحتية أساسية تمس كل جانب من جوانب الحياة: التعليم، الصحة، التجارة، الحكم، والترفيه. ويقوم هذا الفصل على بناء الأساس المفاهيمي الذي ستبني عليه بقية فصول المادة، بدءاً من تعريف الاتصال البياناتي، مروراً بمكوّنات الشبكة وأنماطها، وانتهاءً بمقاييس الأداء الأساسية مثل عرض النطاق الترددي والإنتاجية وزمن التأخير.",
+            "sourcePosition": {
+              "startLine": 7,
+              "endLine": 7
+            }
           },
           {
             "id": "b1-3",
             "type": "paragraph",
-            "text": "والهدف من هذا الفصل ثلاثي الأبعاد: مفاهيمي — فهم المصطلحات بدقة، وتحليلي — القدرة على المقارنة بين الأنماط والحلول، وتطبيقي — ربط المفاهيم بأمثلة واقعية من الشبكات المحلية والعالمية."
+            "text": "والهدف من هذا الفصل ثلاثي الأبعاد: مفاهيمي — فهم المصطلحات بدقة، وتحليلي — القدرة على المقارنة بين الأنماط والحلول، وتطبيقي — ربط المفاهيم بأمثلة واقعية من الشبكات المحلية والعالمية.",
+            "sourcePosition": {
+              "startLine": 9,
+              "endLine": 9
+            }
           }
         ]
       },
@@ -684,31 +940,51 @@
             "id": "b2-1",
             "type": "heading",
             "level": 2,
-            "text": "المفاهيم الأساسية"
+            "text": "المفاهيم الأساسية",
+            "sourcePosition": {
+              "startLine": 12,
+              "endLine": 12
+            }
           },
           {
             "id": "b2-2",
             "type": "paragraph",
-            "text": "قبل الغوص في تفاصيل البروتوكولات والطبقات، لا بد من ضبط المفاهيم التأسيسية الخمسة التي يتكرر ذكرها في كل فصول المادة:"
+            "text": "قبل الغوص في تفاصيل البروتوكولات والطبقات، لا بد من ضبط المفاهيم التأسيسية الخمسة التي يتكرر ذكرها في كل فصول المادة:",
+            "sourcePosition": {
+              "startLine": 14,
+              "endLine": 14
+            }
           },
           {
             "id": "b2-3",
             "type": "definition",
             "term": "الاتصال البياناتي (Data Communication)",
             "definition": "تبادل البيانات بين جهازين أو أكثر عبر وسيط ناقل، وفق قواعد متفق عليها تضمن وصول البيانات صحيحة وكاملة وفي الوقت المناسب.",
-            "variant": "NOTE"
+            "variant": "NOTE",
+            "sourcePosition": {
+              "startLine": 16,
+              "endLine": 16
+            }
           },
           {
             "id": "b2-4",
             "type": "paragraph",
-            "text": "وتقوم عملية الاتصال البياناتي على خمسة عناصر لا يكتمل الاتصال بغياب أي منها: المُرسِل (Sender)، والمُستقبِل (Receiver)، والرسالة (Message)، ووسيط النقل (Transmission Medium)، والبروتوكول (Protocol). فإذا افترضنا رسالة بريد إلكتروني تُرسل من حاسوب طالب في بغداد إلى خادم بريد في ألمانيا، فإن المُرسِل هو حاسوب الطالب، والمُستقبِل هو خادم البريد، والرسالة هي محتوى البريد، ووسيط النقل هو سلسلة الكابلات والألياف الضوئية، والبروتوكول هو مجموعة قواعد TCP/IP التي تحكم الرحلة كلها."
+            "text": "وتقوم عملية الاتصال البياناتي على خمسة عناصر لا يكتمل الاتصال بغياب أي منها: المُرسِل (Sender)، والمُستقبِل (Receiver)، والرسالة (Message)، ووسيط النقل (Transmission Medium)، والبروتوكول (Protocol). فإذا افترضنا رسالة بريد إلكتروني تُرسل من حاسوب طالب في بغداد إلى خادم بريد في ألمانيا، فإن المُرسِل هو حاسوب الطالب، والمُستقبِل هو خادم البريد، والرسالة هي محتوى البريد، ووسيط النقل هو سلسلة الكابلات والألياف الضوئية، والبروتوكول هو مجموعة قواعد TCP/IP التي تحكم الرحلة كلها.",
+            "sourcePosition": {
+              "startLine": 18,
+              "endLine": 18
+            }
           },
           {
             "id": "b2-5",
             "type": "definition",
             "term": "الشبكة (Network)",
             "definition": "مجموعة من الأجهزة (حواسيب، طابعات، هواتف، خوادم) المترابطة بوسائط سلكية أو لاسلكية بهدف مشاركة الموارد وتبادل البيانات.",
-            "variant": "NOTE"
+            "variant": "NOTE",
+            "sourcePosition": {
+              "startLine": 20,
+              "endLine": 20
+            }
           },
           {
             "id": "b2-6",
@@ -723,18 +999,30 @@
             "id": "b2-7",
             "type": "callout",
             "variant": "IMPORTANT",
-            "content": "الخادم (Server): جهاز حاسوبي عالي الإمكانيات مخصص لتقديم خدمات محددة للمستخدمين عبر الشبكة، مثل خدمة تخزين الملفات (File Server)، أو استضافة المواقع (Web Server)، أو إدارة البريد (Mail Server)، ويعمل عادة بشكل دائم وبإشراف نظام تشغيل مخصص للخوادم."
+            "content": "الخادم (Server): جهاز حاسوبي عالي الإمكانيات مخصص لتقديم خدمات محددة للمستخدمين عبر الشبكة، مثل خدمة تخزين الملفات (File Server)، أو استضافة المواقع (Web Server)، أو إدارة البريد (Mail Server)، ويعمل عادة بشكل دائم وبإشراف نظام تشغيل مخصص للخوادم.",
+            "sourcePosition": {
+              "startLine": 23,
+              "endLine": 23
+            }
           },
           {
             "id": "b2-8",
             "type": "paragraph",
-            "text": "في المقابل يقف العميل (Client) وهو الجهاز الذي يطلب الخدمة ويستهلكها، وتُسمى هذه البنية بنموذج العميل/الخادم (Client/Server) الذي يحكم معظم تطبيقات الإنترنت الحالية. أما النموذج الآخر فهو الند للند (Peer-to-Peer) حيث يكون كل جهاز عميلاً وخادماً في آن واحد، ويُستخدم في الشبكات الصغيرة وتطبيقات مشاركة الملفات."
+            "text": "في المقابل يقف العميل (Client) وهو الجهاز الذي يطلب الخدمة ويستهلكها، وتُسمى هذه البنية بنموذج العميل/الخادم (Client/Server) الذي يحكم معظم تطبيقات الإنترنت الحالية. أما النموذج الآخر فهو الند للند (Peer-to-Peer) حيث يكون كل جهاز عميلاً وخادماً في آن واحد، ويُستخدم في الشبكات الصغيرة وتطبيقات مشاركة الملفات.",
+            "sourcePosition": {
+              "startLine": 25,
+              "endLine": 25
+            }
           },
           {
             "id": "b2-9",
             "type": "callout",
             "variant": "WARNING",
-            "content": "خطر شائع: الخلط بين \"الشبكة\" و\"الإنترنت\". الشبكة مفهوم عام يشمل أي مجموعة أجهزة مترابطة، بينما الإنترنت هو شبكة الشبكات — أكبر بنية مترابطة في العالم تربط مليارات الأجهزة عبر بروتوكولات موحدة."
+            "content": "خطر شائع: الخلط بين \"الشبكة\" و\"الإنترنت\". الشبكة مفهوم عام يشمل أي مجموعة أجهزة مترابطة، بينما الإنترنت هو شبكة الشبكات — أكبر بنية مترابطة في العالم تربط مليارات الأجهزة عبر بروتوكولات موحدة.",
+            "sourcePosition": {
+              "startLine": 27,
+              "endLine": 27
+            }
           },
           {
             "id": "b2-10",
@@ -748,7 +1036,11 @@
           {
             "id": "b2-11",
             "type": "paragraph",
-            "text": "أما من حيث الامتداد الجغرافي فتصنَّف الشبكات إلى ثلاث فئات رئيسية:"
+            "text": "أما من حيث الامتداد الجغرافي فتصنَّف الشبكات إلى ثلاث فئات رئيسية:",
+            "sourcePosition": {
+              "startLine": 30,
+              "endLine": 30
+            }
           },
           {
             "id": "b2-12",
@@ -759,7 +1051,11 @@
               "الشبكة المحلية (LAN - Local Area Network): تغطي مساحة محدودة كمبنى أو حرم جامعي، وتتميز بسرعات عالية وانخفاض زمن التأخير، وتُدار محلياً دون الحاجة لمزود خدمة.",
               "شبكة المدن الواسعة (MAN - Metropolitan Area Network): تمتد على مستوى مدينة، وتربط عدة شبكات محلية معاً، وغالباً ما تديرها جهات اتصال أو جامعات كبيرة.",
               "الشبكة الواسعة (WAN - Wide Area Network): تربط مدناً ودولاً وقارات، والإنترنت هو أكبر مثال عليها، وتعتمد على بنية تحتية معقدة من الكابلات البحرية والأقمار الصناعية."
-            ]
+            ],
+            "sourcePosition": {
+              "startLine": 32,
+              "endLine": 34
+            }
           }
         ]
       },
@@ -772,40 +1068,64 @@
             "id": "b3-1",
             "type": "heading",
             "level": 2,
-            "text": "التعاريف"
+            "text": "التعاريف",
+            "sourcePosition": {
+              "startLine": 37,
+              "endLine": 37
+            }
           },
           {
             "id": "b3-2",
             "type": "paragraph",
-            "text": "يجمع هذا القسم التعاريف الدقيقة التي تتكرر في أسئلة التنافسي بصيغها المختلفة:"
+            "text": "يجمع هذا القسم التعاريف الدقيقة التي تتكرر في أسئلة التنافسي بصيغها المختلفة:",
+            "sourcePosition": {
+              "startLine": 39,
+              "endLine": 39
+            }
           },
           {
             "id": "b3-3",
             "type": "definition",
             "term": "البروتوكول (Protocol)",
             "definition": "مجموعة القواعد والاتفاقيات المنظمة لتبادل البيانات بين الأجهزة، تحدد شكل الرسالة وتوقيت إرسالها والإجراء المتخذ عند وقوع خطأ. ويمكن تشبيهه باللغة المشتركة بين متحدثين من أمتين مختلفتين.",
-            "variant": "NOTE"
+            "variant": "NOTE",
+            "sourcePosition": {
+              "startLine": 41,
+              "endLine": 41
+            }
           },
           {
             "id": "b3-4",
             "type": "definition",
             "term": "عرض النطاق الترددي (Bandwidth)",
             "definition": "أقصى كمية بيانات يمكن لوسيط النقل تمريرها في وحدة زمنية معينة، ويُقاس بالبت في الثانية (bps) ومضاعفاتها (Kbps, Mbps, Gbps). وكلما زاد عرض النطاق زادت كمية البيانات القابلة للنقل في نفس الزمن.",
-            "variant": "NOTE"
+            "variant": "NOTE",
+            "sourcePosition": {
+              "startLine": 43,
+              "endLine": 43
+            }
           },
           {
             "id": "b3-5",
             "type": "definition",
             "term": "عقدة الشبكة (Node)",
             "definition": "أي نقطة اتصال نشطة داخل الشبكة قادرة على إرسال البيانات أو استقبالها أو إعادة توجيهها، وتشمل الحواسيب والطابعات والموجهات والمبدّلات.",
-            "variant": "NOTE"
+            "variant": "NOTE",
+            "sourcePosition": {
+              "startLine": 45,
+              "endLine": 45
+            }
           },
           {
             "id": "b3-6",
             "type": "definition",
             "term": "الموجِّه (Router)",
             "definition": "جهاز شبكي يربط شبكات مختلفة معاً ويتخذ قرارات توجيه الحزم (Packets) بينها اعتماداً على عناوين المنطق (IP Addresses) وجداول التوجيه.",
-            "variant": "NOTE"
+            "variant": "NOTE",
+            "sourcePosition": {
+              "startLine": 47,
+              "endLine": 47
+            }
           }
         ]
       },
@@ -818,52 +1138,88 @@
             "id": "b4-1",
             "type": "heading",
             "level": 2,
-            "text": "المعادلات"
+            "text": "المعادلات",
+            "sourcePosition": {
+              "startLine": 50,
+              "endLine": 50
+            }
           },
           {
             "id": "b4-2",
             "type": "paragraph",
-            "text": "يستند قياس أداء قنوات الاتصال إلى أسس رياضية دقيقة، وأهمها معادلة شانون لسعة القناة التي تحدد الحد الأقصى النظري لمعدل نقل البيانات في قناة تتأثر بالضوضاء:"
+            "text": "يستند قياس أداء قنوات الاتصال إلى أسس رياضية دقيقة، وأهمها معادلة شانون لسعة القناة التي تحدد الحد الأقصى النظري لمعدل نقل البيانات في قناة تتأثر بالضوضاء:",
+            "sourcePosition": {
+              "startLine": 52,
+              "endLine": 52
+            }
           },
           {
             "id": "b4-3",
             "type": "formula",
             "latex": "C = W \\log_2\\left(1 + \\frac{S}{N}\\right)",
-            "displayMode": false
+            "displayMode": false,
+            "sourcePosition": {
+              "startLine": 54,
+              "endLine": 54
+            }
           },
           {
             "id": "b4-4",
             "type": "paragraph",
-            "text": "حيث  تمثل سعة القناة بالبت في الثانية، و عرض النطاق الترددي بالهرتز، و نسبة الإشارة إلى الضوضاء. ولاحظ أن العلاقة لوغاريتمية؛ أي أن مضاعفة نسبة الإشارة إلى الضوضاء لا تضاعف السعة بل تزيدها زيادة محدودة."
+            "text": "حيث  تمثل سعة القناة بالبت في الثانية، و عرض النطاق الترددي بالهرتز، و نسبة الإشارة إلى الضوضاء. ولاحظ أن العلاقة لوغاريتمية؛ أي أن مضاعفة نسبة الإشارة إلى الضوضاء لا تضاعف السعة بل تزيدها زيادة محدودة.",
+            "sourcePosition": {
+              "startLine": 56,
+              "endLine": 56
+            }
           },
           {
             "id": "b4-5",
             "type": "formula",
             "latex": "C",
-            "displayMode": false
+            "displayMode": false,
+            "sourcePosition": {
+              "startLine": 56,
+              "endLine": 56
+            }
           },
           {
             "id": "b4-6",
             "type": "formula",
             "latex": "W",
-            "displayMode": false
+            "displayMode": false,
+            "sourcePosition": {
+              "startLine": 56,
+              "endLine": 56
+            }
           },
           {
             "id": "b4-7",
             "type": "formula",
             "latex": "\\frac{S}{N}",
-            "displayMode": false
+            "displayMode": false,
+            "sourcePosition": {
+              "startLine": 56,
+              "endLine": 56
+            }
           },
           {
             "id": "b4-8",
             "type": "paragraph",
-            "text": "أما قياس نسبة الإشارة إلى الضوضاء نفسها فيعبَّر عنها عادة بالديسيبل:"
+            "text": "أما قياس نسبة الإشارة إلى الضوضاء نفسها فيعبَّر عنها عادة بالديسيبل:",
+            "sourcePosition": {
+              "startLine": 58,
+              "endLine": 58
+            }
           },
           {
             "id": "b4-9",
             "type": "formula",
             "latex": "SNR_{dB} = 10 \\log_{10}\\frac{S}{N}",
-            "displayMode": false
+            "displayMode": false,
+            "sourcePosition": {
+              "startLine": 60,
+              "endLine": 60
+            }
           },
           {
             "id": "b4-10",
@@ -877,36 +1233,60 @@
           {
             "id": "b4-11",
             "type": "paragraph",
-            "text": "ولحساب زمن إرسال ملف عبر شبكة نستخدم العلاقة الأساسية:"
+            "text": "ولحساب زمن إرسال ملف عبر شبكة نستخدم العلاقة الأساسية:",
+            "sourcePosition": {
+              "startLine": 63,
+              "endLine": 63
+            }
           },
           {
             "id": "b4-12",
             "type": "formula",
             "latex": "T = \\frac{L}{B}",
-            "displayMode": false
+            "displayMode": false,
+            "sourcePosition": {
+              "startLine": 65,
+              "endLine": 65
+            }
           },
           {
             "id": "b4-13",
             "type": "paragraph",
-            "text": "حيث  زمن الإرسال بالثانية، و حجم الملف بالبت، و سرعة القناة بالبت في الثانية — وهذه معادلة تتكرر في مسائل أمثلة محلولة بصيغ مختلفة."
+            "text": "حيث  زمن الإرسال بالثانية، و حجم الملف بالبت، و سرعة القناة بالبت في الثانية — وهذه معادلة تتكرر في مسائل أمثلة محلولة بصيغ مختلفة.",
+            "sourcePosition": {
+              "startLine": 67,
+              "endLine": 67
+            }
           },
           {
             "id": "b4-14",
             "type": "formula",
             "latex": "T",
-            "displayMode": false
+            "displayMode": false,
+            "sourcePosition": {
+              "startLine": 67,
+              "endLine": 67
+            }
           },
           {
             "id": "b4-15",
             "type": "formula",
             "latex": "L",
-            "displayMode": false
+            "displayMode": false,
+            "sourcePosition": {
+              "startLine": 67,
+              "endLine": 67
+            }
           },
           {
             "id": "b4-16",
             "type": "formula",
             "latex": "B",
-            "displayMode": false
+            "displayMode": false,
+            "sourcePosition": {
+              "startLine": 67,
+              "endLine": 67
+            }
           }
         ]
       },
@@ -919,18 +1299,30 @@
             "id": "b5-1",
             "type": "heading",
             "level": 2,
-            "text": "أمثلة محلولة"
+            "text": "أمثلة محلولة",
+            "sourcePosition": {
+              "startLine": 70,
+              "endLine": 70
+            }
           },
           {
             "id": "b5-2",
             "type": "callout",
             "variant": "EXAMPLE",
-            "content": "مثال 1: احسب زمن إرسال ملف حجمه 10 ميجابايت عبر قناة سرعتها 20 ميجابت في الثانية."
+            "content": "مثال 1: احسب زمن إرسال ملف حجمه 10 ميجابايت عبر قناة سرعتها 20 ميجابت في الثانية.",
+            "sourcePosition": {
+              "startLine": 72,
+              "endLine": 72
+            }
           },
           {
             "id": "b5-3",
             "type": "paragraph",
-            "text": "الحل خطوة بخطوة:"
+            "text": "الحل خطوة بخطوة:",
+            "sourcePosition": {
+              "startLine": 74,
+              "endLine": 74
+            }
           },
           {
             "id": "b5-4",
@@ -940,13 +1332,21 @@
             "items": [
               "حوّل حجم الملف من ميجابايت إلى بت: الميجابايت الواحد يساوي 8 ميجابت، إذن الحجم = 10 × 8 = 80 ميجابت.",
               "طبّق معادلة زمن الإرسال: زمن الإرسال يساوي حجم الملف مقسوماً على سرعة القناة."
-            ]
+            ],
+            "sourcePosition": {
+              "startLine": 76,
+              "endLine": 77
+            }
           },
           {
             "id": "b5-5",
             "type": "formula",
             "latex": "T = \\frac{L}{B} = \\frac{80 \\text{ Mbit}}{20 \\text{ Mbit/s}}",
-            "displayMode": false
+            "displayMode": false,
+            "sourcePosition": {
+              "startLine": 79,
+              "endLine": 79
+            }
           },
           {
             "id": "b5-6",
@@ -955,18 +1355,30 @@
             "start": 3,
             "items": [
               "النتيجة: يستغرق إرسال الملف 4 ثوانٍ نظرياً، دون احتساب زمن التأخير في العقد الوسيطة."
-            ]
+            ],
+            "sourcePosition": {
+              "startLine": 81,
+              "endLine": 81
+            }
           },
           {
             "id": "b5-7",
             "type": "callout",
             "variant": "EXAMPLE",
-            "content": "مثال 2: قناة عرضها الترددي 3000 هرتز ونسبة الإشارة إلى الضوضاء 30 ديسيبل. احسب سعتها القصوى وفق نظرية شانون."
+            "content": "مثال 2: قناة عرضها الترددي 3000 هرتز ونسبة الإشارة إلى الضوضاء 30 ديسيبل. احسب سعتها القصوى وفق نظرية شانون.",
+            "sourcePosition": {
+              "startLine": 83,
+              "endLine": 83
+            }
           },
           {
             "id": "b5-8",
             "type": "paragraph",
-            "text": "الحل:"
+            "text": "الحل:",
+            "sourcePosition": {
+              "startLine": 85,
+              "endLine": 85
+            }
           },
           {
             "id": "b5-9",
@@ -976,13 +1388,21 @@
             "items": [
               "حوّل نسبة الديسيبل إلى نسبة خطية: بما أن 30 = 10 لوغاريتم النسبة، فإن نسبة الإشارة إلى الضوضاء = 10³ = 1000.",
               "طبّق معادلة شانون بالتعويض عن القيم."
-            ]
+            ],
+            "sourcePosition": {
+              "startLine": 87,
+              "endLine": 88
+            }
           },
           {
             "id": "b5-10",
             "type": "formula",
             "latex": "C = 3000 \\times \\log_2(1 + 1000) \\approx 3000 \\times 9.97 \\approx 29{,}900 \\text{ bps}",
-            "displayMode": false
+            "displayMode": false,
+            "sourcePosition": {
+              "startLine": 90,
+              "endLine": 90
+            }
           },
           {
             "id": "b5-11",
@@ -991,7 +1411,11 @@
             "start": 3,
             "items": [
               "النتيجة: الحد الأقصى النظري للسعة يقارب 30 كيلوبت في الثانية — وهذا سبب تاريخي لحدود خطوط الهاتف القديمة."
-            ]
+            ],
+            "sourcePosition": {
+              "startLine": 92,
+              "endLine": 92
+            }
           }
         ]
       },
@@ -1004,12 +1428,20 @@
             "id": "b6-1",
             "type": "heading",
             "level": 2,
-            "text": "الجداول المقارنة"
+            "text": "الجداول المقارنة",
+            "sourcePosition": {
+              "startLine": 95,
+              "endLine": 95
+            }
           },
           {
             "id": "b6-2",
             "type": "paragraph",
-            "text": "يُطلب في الامتحان غالباً المقارنة بين أنماط الشبكات، والجدول التالي يلخص الفروق الجوهرية:"
+            "text": "يُطلب في الامتحان غالباً المقارنة بين أنماط الشبكات، والجدول التالي يلخص الفروق الجوهرية:",
+            "sourcePosition": {
+              "startLine": 97,
+              "endLine": 97
+            }
           },
           {
             "id": "b6-3",
@@ -1057,7 +1489,11 @@
                 "شبكة بلدية",
                 "الإنترنت نفسه"
               ]
-            ]
+            ],
+            "sourcePosition": {
+              "startLine": 99,
+              "endLine": 106
+            }
           },
           {
             "id": "b6-4",
@@ -1071,7 +1507,11 @@
           {
             "id": "b6-5",
             "type": "paragraph",
-            "text": "أما من حيث اتجاه النقل فتُصنَّف قنوات الاتصال إلى ثلاثة أنماط موضحة في الجدول التالي:"
+            "text": "أما من حيث اتجاه النقل فتُصنَّف قنوات الاتصال إلى ثلاثة أنماط موضحة في الجدول التالي:",
+            "sourcePosition": {
+              "startLine": 109,
+              "endLine": 109
+            }
           },
           {
             "id": "b6-6",
@@ -1097,7 +1537,11 @@
                 "الاتجاهان معاً",
                 "المكالمة الهاتفية"
               ]
-            ]
+            ],
+            "sourcePosition": {
+              "startLine": 111,
+              "endLine": 115
+            }
           }
         ]
       },
@@ -1110,29 +1554,49 @@
             "id": "b7-1",
             "type": "heading",
             "level": 2,
-            "text": "تطبيق عملي"
+            "text": "تطبيق عملي",
+            "sourcePosition": {
+              "startLine": 118,
+              "endLine": 118
+            }
           },
           {
             "id": "b7-2",
             "type": "paragraph",
-            "text": "للتحقق من إعدادات الشبكة على جهاز يعمل بنظام ويندوز يُستخدم الأمر التالي في موجه الأوامر:"
+            "text": "للتحقق من إعدادات الشبكة على جهاز يعمل بنظام ويندوز يُستخدم الأمر التالي في موجه الأوامر:",
+            "sourcePosition": {
+              "startLine": 120,
+              "endLine": 120
+            }
           },
           {
             "id": "b7-3",
             "type": "code",
             "language": "bash",
-            "code": "ipconfig /all"
+            "code": "ipconfig /all",
+            "sourcePosition": {
+              "startLine": 122,
+              "endLine": 124
+            }
           },
           {
             "id": "b7-4",
             "type": "paragraph",
-            "text": "والخرج النموذجي للأمر يعرض العناصر التالية:"
+            "text": "والخرج النموذجي للأمر يعرض العناصر التالية:",
+            "sourcePosition": {
+              "startLine": 126,
+              "endLine": 126
+            }
           },
           {
             "id": "b7-5",
             "type": "code",
             "language": "text",
-            "code": "Ethernet adapter Ethernet:\n   IPv4 Address. . . . . . . . . . . : 192.168.1.15\n   Subnet Mask . . . . . . . . . . . : 255.255.255.0\n   Default Gateway . . . . . . . . . : 192.168.1.1\n   DNS Servers . . . . . . . . . . . : 8.8.8.8"
+            "code": "Ethernet adapter Ethernet:\n   IPv4 Address. . . . . . . . . . . : 192.168.1.15\n   Subnet Mask . . . . . . . . . . . : 255.255.255.0\n   Default Gateway . . . . . . . . . : 192.168.1.1\n   DNS Servers . . . . . . . . . . . : 8.8.8.8",
+            "sourcePosition": {
+              "startLine": 128,
+              "endLine": 134
+            }
           }
         ]
       },
@@ -1145,25 +1609,41 @@
             "id": "b8-1",
             "type": "heading",
             "level": 2,
-            "text": "نقاط مهمة"
+            "text": "نقاط مهمة",
+            "sourcePosition": {
+              "startLine": 137,
+              "endLine": 137
+            }
           },
           {
             "id": "b8-2",
             "type": "callout",
             "variant": "IMPORTANT",
-            "content": "قاعدة ذهبية: كل ضعف في عرض النطاق الترددي يؤدي — نظرياً — إلى خفض زمن الإرسال إلى النصف، شريطة ثبات باقي العوامل."
+            "content": "قاعدة ذهبية: كل ضعف في عرض النطاق الترددي يؤدي — نظرياً — إلى خفض زمن الإرسال إلى النصف، شريطة ثبات باقي العوامل.",
+            "sourcePosition": {
+              "startLine": 139,
+              "endLine": 139
+            }
           },
           {
             "id": "b8-3",
             "type": "callout",
             "variant": "WARNING",
-            "content": "انتبه في مسائل الامتحان إلى الفرق بين الميجابايت (MB) والميجابت (Mb): الفرق بينهما عامل 8، وكثير من الأسئلة المصطادة تُزرع في هذا الخلط تحديداً."
+            "content": "انتبه في مسائل الامتحان إلى الفرق بين الميجابايت (MB) والميجابت (Mb): الفرق بينهما عامل 8، وكثير من الأسئلة المصطادة تُزرع في هذا الخلط تحديداً.",
+            "sourcePosition": {
+              "startLine": 141,
+              "endLine": 141
+            }
           },
           {
             "id": "b8-4",
             "type": "callout",
             "variant": "NOTE",
-            "content": "نموذج الاتصال الكامل يتطلب البروتوكول دائماً — حتى أفضل وسيط ناقل في العالم لن ينقل حرفاً واحداً دون قواعد تتفق عليها الطرفان."
+            "content": "نموذج الاتصال الكامل يتطلب البروتوكول دائماً — حتى أفضل وسيط ناقل في العالم لن ينقل حرفاً واحداً دون قواعد تتفق عليها الطرفان.",
+            "sourcePosition": {
+              "startLine": 143,
+              "endLine": 143
+            }
           }
         ]
       },
@@ -1176,7 +1656,11 @@
             "id": "b9-1",
             "type": "heading",
             "level": 2,
-            "text": "أسئلة مراجعة"
+            "text": "أسئلة مراجعة",
+            "sourcePosition": {
+              "startLine": 145,
+              "endLine": 145
+            }
           },
           {
             "id": "b9-2",
@@ -1191,7 +1675,11 @@
               "ما الفرق الجوهري بين الموجِّه Router والمبدِّل Switch من حيث طبقة العمل ومبدأ التوجيه؟",
               "صنّف الشبكات حسب الامتداد الجغرافي مع ذكر خاصية مميزة لكل فئة.",
               "لماذا يُعد الإنترنت مثالاً مثالياً على الشبكة الواسعة WAN وليس على الشبكة المحلية؟"
-            ]
+            ],
+            "sourcePosition": {
+              "startLine": 147,
+              "endLine": 153
+            }
           }
         ]
       }
