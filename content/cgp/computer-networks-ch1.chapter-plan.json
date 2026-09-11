@@ -1,0 +1,5109 @@
+{
+  "schemaVersion": "cgp.chapter-plan.v1",
+  "generatedAt": "2026-09-11T22:00:00.000Z",
+  "basedOn": {
+    "topicMap": "cgp.topic-map.v1",
+    "deepTopics": "cgp.deep-topics.v1",
+    "validation": "cgp.validation.v1",
+    "composition": "cgp.composition.v1"
+  },
+  "metadata": {
+    "chapterId": "computer-networks-ch1",
+    "title": "Introduction to Data Communications and Networking",
+    "arabicTitleHint": "مقدمة في اتصالات البيانات والشبكات",
+    "subject": "computer-networks",
+    "language": "ar"
+  },
+  "chapterPurpose": "Comprehensive exam-aware study chapter derived from the validated Forouzan Ch.1 source: define core concepts, teach mechanisms and relationships, place source-backed examples/formulas beside their concepts, and preserve distinctions the old compressed sample lost.",
+  "learningArc": [
+    "WHAT — definitions and taxonomies",
+    "WHY — effectiveness, interoperation, historical need",
+    "HOW — representation, flow, topology, TCP/IP roles, RFC process",
+    "EXAMPLE — jitter, mesh n=6, heterogeneous internetwork, rate mismatch",
+    "COMPARE — flow modes, topologies, categories, de facto/de jure",
+    "APPLY — classification and calculation",
+    "CHECK — integrated review map"
+  ],
+  "chapterLearningObjectives": [
+    "Define data communications and name its effectiveness criteria and five components.",
+    "Explain how text, numbers, images, audio, and video are represented.",
+    "Classify links as simplex, half-duplex, or full-duplex.",
+    "State network quality criteria and the throughput–delay relationship.",
+    "Classify physical topologies and compute mesh links/ports.",
+    "Classify networks as LAN, MAN, or WAN and distinguish WAN subtypes.",
+    "Explain internetworks and how the Internet is organized via ISPs.",
+    "Describe protocol elements and the standards process."
+  ],
+  "dependencyGraph": [
+    {
+      "from": "concept-data",
+      "to": "concept-bit-pattern",
+      "note": "information must be represented"
+    },
+    {
+      "from": "concept-data-communications",
+      "to": "concept-five-components",
+      "note": "system anatomy"
+    },
+    {
+      "from": "concept-five-components",
+      "to": "concept-protocol-elements",
+      "note": "protocol is component #5, deepened later"
+    },
+    {
+      "from": "concept-transmission-medium",
+      "to": "concept-simplex",
+      "note": "flow mode constrains medium use"
+    },
+    {
+      "from": "concept-network",
+      "to": "concept-network-criteria",
+      "note": "quality criteria"
+    },
+    {
+      "from": "concept-network-criteria",
+      "to": "concept-topology",
+      "note": "structure trades criteria"
+    },
+    {
+      "from": "concept-point-to-point",
+      "to": "concept-topology",
+      "note": "connection types before topologies"
+    },
+    {
+      "from": "concept-topology",
+      "to": "concept-lan",
+      "note": "local designs become categories"
+    },
+    {
+      "from": "concept-lan",
+      "to": "concept-internetwork",
+      "note": "interconnection"
+    },
+    {
+      "from": "concept-internetwork",
+      "to": "concept-internet-global",
+      "note": "Internet is notable internetwork"
+    },
+    {
+      "from": "concept-tcp-ip-split",
+      "to": "concept-protocol-elements",
+      "note": "concrete protocol architecture"
+    },
+    {
+      "from": "concept-protocol-elements",
+      "to": "concept-standards-need",
+      "note": "agreed-upon rules"
+    }
+  ],
+  "sections": [
+    {
+      "id": "section-chapter-frame",
+      "order": 1,
+      "title": "Chapter roadmap: four issues",
+      "arabicTitleHint": "خريطة الفصل: أربعة محاور",
+      "purpose": "Orient the learner on the source’s four pillars before dense definitions.",
+      "whyItExists": "Orient learners on the source's four pillars before dense definitions.",
+      "depth": "FOUNDATIONAL",
+      "sourceWeight": {
+        "pages": [
+          1
+        ],
+        "conceptCount": 1,
+        "relationshipCount": 1,
+        "exerciseSignalCount": 0,
+        "signal": "light"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            1
+          ],
+          "evidence": "This chapter addresses four issues: data communications, networks, the Internet, and protocols and standards."
+        }
+      ],
+      "topicIds": [
+        "topic-chapter-frame"
+      ],
+      "conceptIds": [
+        "concept-four-issues"
+      ],
+      "relationshipIds": [
+        "rel-frame-sequence"
+      ],
+      "definitionIds": [],
+      "exampleIds": [],
+      "comparisonIds": [],
+      "formulaIds": [],
+      "confusionIds": [],
+      "prerequisiteConceptIds": [],
+      "learningObjectives": [
+        "Name the four issues the chapter addresses"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-frame-1",
+          "label": "Why data communications and networking matter",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-four-issues"
+          ],
+          "detail": "Brief motivation: decisions need immediate information; networks are infrastructure, not a luxury.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-frame-2",
+          "label": "Four-issue roadmap",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-four-issues"
+          ],
+          "detail": "Data communications → networks → Internet → protocols and standards. State this explicitly.",
+          "washHint": "list"
+        },
+        {
+          "id": "seq-frame-3",
+          "label": "How to use this chapter",
+          "kind": "bridge",
+          "conceptIds": [
+            "concept-four-issues"
+          ],
+          "detail": "Tell learners later sections expand each pillar; exam traps concentrate in distinctions.",
+          "washHint": "prose"
+        }
+      ],
+      "mustPreserve": [
+        "Four-pillar roadmap sentence"
+      ],
+      "transitions": {
+        "exitTo": "section-data-communication"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    },
+    {
+      "id": "section-data-communication",
+      "order": 2,
+      "title": "Data communications: effectiveness and five components",
+      "arabicTitleHint": "الاتصال البياناتي: الفعالية والمكوّنات الخمسة",
+      "purpose": "Define data communications and preserve the four effectiveness criteria and five-component taxonomy — the old sample’s first major loss.",
+      "whyItExists": "Define data communications and lock the four effectiveness criteria + five-component taxonomy that the old sample lost.",
+      "depth": "EXPLANATORY",
+      "sourceWeight": {
+        "pages": [
+          1,
+          2,
+          3
+        ],
+        "conceptCount": 15,
+        "relationshipCount": 4,
+        "exerciseSignalCount": 1,
+        "signal": "heavy"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            1,
+            2,
+            3
+          ],
+          "evidence": "Data communications are the exchange of data between two devices via some form of transmission medium."
+        }
+      ],
+      "topicIds": [
+        "topic-data-communication"
+      ],
+      "conceptIds": [
+        "concept-data-communications",
+        "concept-data",
+        "concept-effectiveness",
+        "concept-delivery",
+        "concept-accuracy",
+        "concept-timeliness",
+        "concept-jitter",
+        "concept-realtime",
+        "concept-five-components",
+        "concept-message",
+        "concept-sender",
+        "concept-receiver",
+        "concept-transmission-medium",
+        "concept-protocol-basic",
+        "concept-telecommunication"
+      ],
+      "relationshipIds": [
+        "rel-effectiveness-parts",
+        "rel-components-complete-set",
+        "rel-jitter-from-timeliness",
+        "rel-protocol-not-media"
+      ],
+      "definitionIds": [
+        "def-data-communications",
+        "def-jitter",
+        "def-protocol-basic"
+      ],
+      "exampleIds": [
+        "ex-jitter-video",
+        "ex-protocol-language"
+      ],
+      "comparisonIds": [
+        "cmp-effectiveness-four"
+      ],
+      "formulaIds": [],
+      "confusionIds": [
+        "conf-jitter-vs-delay",
+        "conf-network-vs-internet",
+        "conf-protocol-standard"
+      ],
+      "prerequisiteConceptIds": [
+        "concept-data",
+        "concept-data-communications",
+        "concept-effectiveness",
+        "concept-timeliness",
+        "concept-five-components"
+      ],
+      "learningObjectives": [
+        "Define data communications and its system requirements",
+        "List delivery, accuracy, timeliness, and jitter",
+        "Name the five components and explain why protocol is required"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-dc-1",
+          "label": "What is data / telecommunication / data communications",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-data",
+            "concept-telecommunication",
+            "concept-data-communications"
+          ],
+          "detail": "Agreed-form information; communication at a distance; exchange of data between two devices via a transmission medium (hardware+software system).",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-dc-2",
+          "label": "Four effectiveness characteristics",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-effectiveness",
+            "concept-delivery",
+            "concept-accuracy",
+            "concept-timeliness",
+            "concept-jitter"
+          ],
+          "detail": "Delivery, accuracy, timeliness, jitter. Jitter is variation in arrival time, not average delay.",
+          "washHint": "list"
+        },
+        {
+          "id": "seq-dc-3",
+          "label": "Jitter worked illustration",
+          "kind": "example",
+          "conceptIds": [
+            "concept-jitter",
+            "concept-realtime"
+          ],
+          "detail": "30 ms production interval with 30 ms vs 40 ms delays → uneven video quality.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-dc-4",
+          "label": "Five components taxonomy",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-five-components",
+            "concept-message",
+            "concept-sender",
+            "concept-receiver",
+            "concept-transmission-medium",
+            "concept-protocol-basic"
+          ],
+          "detail": "Message, sender, receiver, medium, protocol. Protocol is a component — connection without rules does not communicate.",
+          "washHint": "list"
+        },
+        {
+          "id": "seq-dc-5",
+          "label": "Protocol analogy exam note",
+          "kind": "exam-note",
+          "conceptIds": [
+            "concept-protocol-basic"
+          ],
+          "detail": "French/Japanese analogy: connected ≠ communicating. Emphasize protocol is not a physical device.",
+          "washHint": "callout"
+        },
+        {
+          "id": "seq-dc-6",
+          "label": "Effectiveness comparison",
+          "kind": "compare",
+          "conceptIds": [
+            "concept-effectiveness"
+          ],
+          "detail": "Place the four-way effectiveness comparison immediately after the list.",
+          "washHint": "table"
+        }
+      ],
+      "mustPreserve": [
+        "Jitter definition + 30/40 ms example",
+        "Complete five-component set including protocol",
+        "Connected ≠ communicating analogy"
+      ],
+      "transitions": {
+        "entryFrom": "section-chapter-frame",
+        "exitTo": "section-data-representation"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    },
+    {
+      "id": "section-data-representation",
+      "order": 3,
+      "title": "How information is represented",
+      "arabicTitleHint": "تمثُّل المعلومات",
+      "purpose": "Restore the largest sample omission: text/number/image/audio/video representation and bit depth.",
+      "whyItExists": "Restore the largest sample omission: how text/numbers/images/audio/video become bits, including Unicode/ASCII and pixel depth.",
+      "depth": "DETAILED",
+      "sourceWeight": {
+        "pages": [
+          3,
+          4
+        ],
+        "conceptCount": 6,
+        "relationshipCount": 2,
+        "exerciseSignalCount": 2,
+        "signal": "moderate"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            3,
+            4
+          ],
+          "evidence": "Information today comes in different forms such as text, numbers, images, audio, and video."
+        }
+      ],
+      "topicIds": [
+        "topic-data-representation"
+      ],
+      "conceptIds": [
+        "concept-bit-pattern",
+        "concept-coding",
+        "concept-unicode-ascii",
+        "concept-numbers-binary",
+        "concept-pixels",
+        "concept-audio-video-continuous"
+      ],
+      "relationshipIds": [
+        "rel-ascii-inside-unicode",
+        "rel-pixels-bit-depth"
+      ],
+      "definitionIds": [
+        "def-unicode",
+        "def-ascii",
+        "def-code"
+      ],
+      "exampleIds": [
+        "ex-gray-2bit",
+        "ex-16bit-color"
+      ],
+      "comparisonIds": [
+        "cmp-info-forms"
+      ],
+      "formulaIds": [
+        "formula-color-count"
+      ],
+      "confusionIds": [
+        "conf-ascii-vs-number"
+      ],
+      "prerequisiteConceptIds": [
+        "concept-data",
+        "concept-bit-pattern",
+        "concept-coding",
+        "concept-message"
+      ],
+      "learningObjectives": [
+        "Explain how text, numbers, and images are represented as bits",
+        "Relate Unicode and ASCII as stated in the source",
+        "Apply the 2^bits color-depth relationship"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-repr-1",
+          "label": "Five forms of information",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-bit-pattern"
+          ],
+          "detail": "Text, numbers, images, audio, video — different representation rules.",
+          "washHint": "list"
+        },
+        {
+          "id": "seq-repr-2",
+          "label": "Text: codes, Unicode, ASCII",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-coding",
+            "concept-unicode-ascii"
+          ],
+          "detail": "Codes map symbols to bit patterns. Preserve source claim: Unicode uses 32 bits; ASCII = first 127 / Basic Latin.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-repr-3",
+          "label": "Numbers as direct binary",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-numbers-binary"
+          ],
+          "detail": "Numbers are not ASCII-encoded; direct binary conversion simplifies math.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-repr-4",
+          "label": "Images as pixel matrices",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-pixels"
+          ],
+          "detail": "Resolution vs memory; 1-bit B/W; gray levels; RGB.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-repr-5",
+          "label": "Color depth formula",
+          "kind": "formula",
+          "conceptIds": [
+            "concept-pixels"
+          ],
+          "detail": "colors = 2^bits with conditions (uniform bpp).",
+          "washHint": "formula"
+        },
+        {
+          "id": "seq-repr-6",
+          "label": "Gray-scale and 16-bit examples",
+          "kind": "example",
+          "conceptIds": [
+            "concept-pixels"
+          ],
+          "detail": "2-bit gray mapping; exercise: 16 bits → 65536 colors.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-repr-7",
+          "label": "Audio and video continuous vs discrete",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-audio-video-continuous"
+          ],
+          "detail": "Mic audio continuous; video continuous or image sequence; both can become digital/analog.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-repr-8",
+          "label": "Unicode 32-bit qualifier note",
+          "kind": "exam-note",
+          "conceptIds": [
+            "concept-unicode-ascii"
+          ],
+          "detail": "Mark as textbook claim; do not silently modernize to UTF-8 inside core teaching.",
+          "washHint": "callout"
+        }
+      ],
+      "mustPreserve": [
+        "Unicode 32-bit source claim with qualifier",
+        "2^bits formula + 16-bit exercise",
+        "Numbers ≠ ASCII distinction"
+      ],
+      "transitions": {
+        "entryFrom": "section-data-communication",
+        "exitTo": "section-data-flow"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    },
+    {
+      "id": "section-data-flow",
+      "order": 4,
+      "title": "Data flow modes",
+      "arabicTitleHint": "أنماط تدفق البيانات",
+      "purpose": "Teach simplex / half-duplex / full-duplex with direction and capacity semantics.",
+      "whyItExists": "Teach direction of transmission with capacity semantics — a small but exam-dense unit.",
+      "depth": "EXPLANATORY",
+      "sourceWeight": {
+        "pages": [
+          4,
+          5
+        ],
+        "conceptCount": 3,
+        "relationshipCount": 2,
+        "exerciseSignalCount": 1,
+        "signal": "light"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            4,
+            5
+          ],
+          "evidence": "Communication between two devices can be simplex, half-duplex, or full-duplex."
+        }
+      ],
+      "topicIds": [
+        "topic-data-flow"
+      ],
+      "conceptIds": [
+        "concept-simplex",
+        "concept-half-duplex",
+        "concept-full-duplex"
+      ],
+      "relationshipIds": [
+        "rel-half-vs-full-capacity",
+        "rel-simplex-unidirectional"
+      ],
+      "definitionIds": [
+        "def-simplex",
+        "def-half-duplex",
+        "def-full-duplex"
+      ],
+      "exampleIds": [
+        "ex-flow-devices"
+      ],
+      "comparisonIds": [
+        "cmp-data-flow"
+      ],
+      "formulaIds": [],
+      "confusionIds": [
+        "conf-half-vs-full"
+      ],
+      "prerequisiteConceptIds": [
+        "concept-transmission-medium",
+        "concept-simplex",
+        "concept-half-duplex"
+      ],
+      "learningObjectives": [
+        "Classify a link as simplex, half-duplex, or full-duplex",
+        "Explain capacity use in each mode"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-flow-1",
+          "label": "Why direction matters",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-simplex"
+          ],
+          "detail": "Links differ in who may transmit and when.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-flow-2",
+          "label": "Simplex",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-simplex"
+          ],
+          "detail": "Unidirectional; entire capacity one way; keyboard/monitor.",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-flow-3",
+          "label": "Half-duplex",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-half-duplex"
+          ],
+          "detail": "Two-way, not simultaneous; capacity to current transmitter; walkie-talkie.",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-flow-4",
+          "label": "Full-duplex",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-full-duplex"
+          ],
+          "detail": "Simultaneous two-way; two paths or divided capacity; telephone.",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-flow-5",
+          "label": "Immediate three-way comparison",
+          "kind": "compare",
+          "conceptIds": [
+            "concept-simplex",
+            "concept-half-duplex",
+            "concept-full-duplex"
+          ],
+          "detail": "Do not defer the comparison table to the end of the chapter.",
+          "washHint": "table"
+        },
+        {
+          "id": "seq-flow-6",
+          "label": "Device mapping example",
+          "kind": "example",
+          "conceptIds": [
+            "concept-simplex",
+            "concept-half-duplex",
+            "concept-full-duplex"
+          ],
+          "detail": "Keyboard/monitor, walkie-talkie, telephone.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-flow-7",
+          "label": "Half vs full exam trap",
+          "kind": "exam-note",
+          "conceptIds": [
+            "concept-half-duplex",
+            "concept-full-duplex"
+          ],
+          "detail": "Both are two-way; only full-duplex is simultaneous.",
+          "washHint": "callout"
+        }
+      ],
+      "mustPreserve": [
+        "Direction + capacity semantics",
+        "Half vs full simultaneity distinction"
+      ],
+      "transitions": {
+        "entryFrom": "section-data-representation",
+        "exitTo": "section-networks-criteria"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    },
+    {
+      "id": "section-networks-criteria",
+      "order": 5,
+      "title": "Networks and quality criteria",
+      "arabicTitleHint": "الشبكات ومعايير الجودة",
+      "purpose": "Define network/node and restore the three criteria plus throughput–delay tradeoff (sample omission).",
+      "whyItExists": "Define networks and restore performance/reliability/security plus the throughput–delay relationship.",
+      "depth": "EXPLANATORY",
+      "sourceWeight": {
+        "pages": [
+          5,
+          6
+        ],
+        "conceptCount": 9,
+        "relationshipCount": 2,
+        "exerciseSignalCount": 3,
+        "signal": "moderate"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            5,
+            6
+          ],
+          "evidence": "A network is a set of devices (often referred to as nodes) connected by communication links."
+        }
+      ],
+      "topicIds": [
+        "topic-networks-criteria"
+      ],
+      "conceptIds": [
+        "concept-network",
+        "concept-node",
+        "concept-distributed-processing",
+        "concept-network-criteria",
+        "concept-performance-metrics",
+        "concept-throughput",
+        "concept-delay",
+        "concept-reliability",
+        "concept-security"
+      ],
+      "relationshipIds": [
+        "rel-throughput-delay-tradeoff",
+        "rel-performance-factors"
+      ],
+      "definitionIds": [
+        "def-network",
+        "def-distributed-processing",
+        "def-throughput",
+        "def-delay"
+      ],
+      "exampleIds": [],
+      "comparisonIds": [
+        "cmp-network-criteria"
+      ],
+      "formulaIds": [],
+      "confusionIds": [
+        "conf-bandwidth-throughput",
+        "conf-network-vs-internet"
+      ],
+      "prerequisiteConceptIds": [
+        "concept-data-communications",
+        "concept-network",
+        "concept-network-criteria",
+        "concept-performance-metrics"
+      ],
+      "learningObjectives": [
+        "Define network and node",
+        "State performance, reliability, and security as the three criteria",
+        "Explain the throughput–delay tradeoff under load"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-net-1",
+          "label": "Network and node definitions",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-network",
+            "concept-node"
+          ],
+          "detail": "Devices (nodes) connected by communication links.",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-net-2",
+          "label": "Distributed processing",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-distributed-processing"
+          ],
+          "detail": "Task divided among multiple computers.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-net-3",
+          "label": "Three criteria",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-network-criteria",
+            "concept-performance-metrics",
+            "concept-reliability",
+            "concept-security"
+          ],
+          "detail": "Performance, reliability, security — do not replace with bandwidth-only story.",
+          "washHint": "list"
+        },
+        {
+          "id": "seq-net-4",
+          "label": "Throughput vs delay relationship",
+          "kind": "relate",
+          "conceptIds": [
+            "concept-throughput",
+            "concept-delay"
+          ],
+          "detail": "Offered load can raise throughput and delay together (congestion). Explicit contrast required.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-net-5",
+          "label": "Criteria comparison",
+          "kind": "compare",
+          "conceptIds": [
+            "concept-network-criteria"
+          ],
+          "detail": "Performance vs reliability vs security side-by-side.",
+          "washHint": "table"
+        },
+        {
+          "id": "seq-net-6",
+          "label": "Bandwidth absence note",
+          "kind": "exam-note",
+          "conceptIds": [
+            "concept-throughput"
+          ],
+          "detail": "This source chapter teaches throughput/delay, not a bandwidth definition card. Optional external bandwidth note only if marked EXTERNAL.",
+          "washHint": "callout"
+        }
+      ],
+      "mustPreserve": [
+        "Performance + reliability + security",
+        "Throughput–delay tradeoff",
+        "Distributed processing"
+      ],
+      "transitions": {
+        "entryFrom": "section-data-flow",
+        "exitTo": "section-physical-structures"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    },
+    {
+      "id": "section-physical-structures",
+      "order": 6,
+      "title": "Connections and physical topologies",
+      "arabicTitleHint": "الاتصالات والطوبولوجيا الفيزيائية",
+      "purpose": "Largest omitted block: p2p/multipoint, mesh/star/bus/ring/hybrid, mesh formulas, failure modes.",
+      "whyItExists": "Largest source block: connection types, four topologies, hybrid, mesh formulas, and failure modes.",
+      "depth": "DETAILED",
+      "sourceWeight": {
+        "pages": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "conceptCount": 12,
+        "relationshipCount": 4,
+        "exerciseSignalCount": 7,
+        "signal": "heavy"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "evidence": "There are two possible types of connections: point-to-point and multipoint."
+        }
+      ],
+      "topicIds": [
+        "topic-physical-structures"
+      ],
+      "conceptIds": [
+        "concept-link",
+        "concept-point-to-point",
+        "concept-multipoint",
+        "concept-topology",
+        "concept-mesh",
+        "concept-star",
+        "concept-hub",
+        "concept-bus",
+        "concept-drop-line",
+        "concept-tap",
+        "concept-ring",
+        "concept-hybrid"
+      ],
+      "relationshipIds": [
+        "rel-mesh-from-p2p",
+        "rel-bus-is-multipoint",
+        "rel-star-hub-spof",
+        "rel-ring-repeater"
+      ],
+      "definitionIds": [
+        "def-point-to-point",
+        "def-multipoint",
+        "def-topology",
+        "def-drop-line",
+        "def-tap",
+        "def-hub"
+      ],
+      "exampleIds": [
+        "ex-mesh-six",
+        "ex-ir-tv"
+      ],
+      "comparisonIds": [
+        "cmp-connections",
+        "cmp-topologies"
+      ],
+      "formulaIds": [
+        "formula-mesh-links",
+        "formula-mesh-ports"
+      ],
+      "confusionIds": [
+        "conf-links-vs-ports"
+      ],
+      "prerequisiteConceptIds": [
+        "concept-network",
+        "concept-link",
+        "concept-point-to-point",
+        "concept-multipoint",
+        "concept-topology",
+        "concept-star",
+        "concept-bus",
+        "concept-ring"
+      ],
+      "learningObjectives": [
+        "Distinguish point-to-point and multipoint connections",
+        "Compare mesh, star, bus, and ring topologies including failure modes",
+        "Compute mesh links and ports for n devices"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-topo-1",
+          "label": "Link, point-to-point, multipoint",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-link",
+            "concept-point-to-point",
+            "concept-multipoint"
+          ],
+          "detail": "Dedicated two-device link vs shared 3+ device link (spatial/temporal).",
+          "washHint": "list"
+        },
+        {
+          "id": "seq-topo-2",
+          "label": "What topology means",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-topology"
+          ],
+          "detail": "Geometric representation of links and nodes.",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-topo-3",
+          "label": "Mesh topology",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-mesh"
+          ],
+          "detail": "Fully connected dedicated p2p; robust; privacy; expensive.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-topo-4",
+          "label": "Mesh formulas",
+          "kind": "formula",
+          "conceptIds": [
+            "concept-mesh"
+          ],
+          "detail": "links = n(n−1)/2 duplex; ports = n−1 with assumptions.",
+          "washHint": "formula"
+        },
+        {
+          "id": "seq-topo-5",
+          "label": "Six-device mesh example",
+          "kind": "example",
+          "conceptIds": [
+            "concept-mesh"
+          ],
+          "detail": "n=6 → 15 cables, 5 ports each; state links vs ports trap.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-topo-6",
+          "label": "Star topology and hub",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-star",
+            "concept-hub"
+          ],
+          "detail": "Hub exchange; single point of failure; cheaper than mesh.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-topo-7",
+          "label": "Bus topology anatomy",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-bus",
+            "concept-drop-line",
+            "concept-tap"
+          ],
+          "detail": "Backbone, drop lines, taps, attenuation, break stops all.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-topo-8",
+          "label": "Ring topology",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-ring"
+          ],
+          "detail": "Two neighbors, repeaters, unidirectional; dual-ring mitigation.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-topo-9",
+          "label": "Hybrid",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-hybrid"
+          ],
+          "detail": "Star backbone + bus branches example.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-topo-10",
+          "label": "Topology comparison",
+          "kind": "compare",
+          "conceptIds": [
+            "concept-mesh",
+            "concept-star",
+            "concept-bus",
+            "concept-ring"
+          ],
+          "detail": "Line config, cabling, failure, fault isolation — after all four are taught.",
+          "washHint": "table"
+        },
+        {
+          "id": "seq-topo-11",
+          "label": "Links vs ports trap",
+          "kind": "exam-note",
+          "conceptIds": [
+            "concept-mesh"
+          ],
+          "detail": "Exercises ask both; do not interchange answers.",
+          "washHint": "callout"
+        }
+      ],
+      "mustPreserve": [
+        "n(n−1)/2 and n−1 with conditions",
+        "Hub single point of failure",
+        "Bus break stops all transmission",
+        "Topology comparison axes"
+      ],
+      "transitions": {
+        "entryFrom": "section-networks-criteria",
+        "exitTo": "section-network-categories"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    },
+    {
+      "id": "section-network-categories",
+      "order": 7,
+      "title": "LAN, MAN, and WAN",
+      "arabicTitleHint": "تصنيف الشبكات: LAN و MAN و WAN",
+      "purpose": "Classify by geographic scope; add switched vs p2p WAN; no invented speed tables.",
+      "whyItExists": "Classify by geographic scope and distinguish switched vs point-to-point WAN without invented speed tables.",
+      "depth": "DETAILED",
+      "sourceWeight": {
+        "pages": [
+          11,
+          12,
+          13
+        ],
+        "conceptCount": 5,
+        "relationshipCount": 2,
+        "exerciseSignalCount": 2,
+        "signal": "moderate"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            11,
+            12,
+            13
+          ],
+          "evidence": "A LAN normally covers an area less than 2 mi; a WAN can be worldwide."
+        }
+      ],
+      "topicIds": [
+        "topic-network-categories"
+      ],
+      "conceptIds": [
+        "concept-lan",
+        "concept-man",
+        "concept-wan",
+        "concept-switched-wan",
+        "concept-p2p-wan"
+      ],
+      "relationshipIds": [
+        "rel-size-spectrum",
+        "rel-lan-resources"
+      ],
+      "definitionIds": [
+        "def-lan",
+        "def-wan",
+        "def-man"
+      ],
+      "exampleIds": [
+        "ex-man-dsl-cable",
+        "ex-home-hub-classify"
+      ],
+      "comparisonIds": [
+        "cmp-lan-man-wan",
+        "cmp-switched-vs-p2p-wan"
+      ],
+      "formulaIds": [],
+      "confusionIds": [
+        "conf-lan-wan-classify"
+      ],
+      "prerequisiteConceptIds": [
+        "concept-network",
+        "concept-topology",
+        "concept-lan",
+        "concept-wan"
+      ],
+      "learningObjectives": [
+        "Classify networks as LAN, MAN, or WAN by scope",
+        "Distinguish switched WAN from point-to-point WAN"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-cat-1",
+          "label": "Classification by size",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-lan",
+            "concept-man",
+            "concept-wan"
+          ],
+          "detail": "Source basis is size/scope, not brand or speed marketing.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-cat-2",
+          "label": "LAN",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-lan"
+          ],
+          "detail": "Private, office/building/campus, resource sharing, common topologies.",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-cat-3",
+          "label": "WAN and subtypes",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-wan",
+            "concept-switched-wan",
+            "concept-p2p-wan"
+          ],
+          "detail": "Switched WAN vs point-to-point WAN with examples.",
+          "washHint": "list"
+        },
+        {
+          "id": "seq-cat-4",
+          "label": "MAN",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-man"
+          ],
+          "detail": "City scale; DSL and cable TV examples.",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-cat-5",
+          "label": "LAN/MAN/WAN comparison",
+          "kind": "compare",
+          "conceptIds": [
+            "concept-lan",
+            "concept-man",
+            "concept-wan"
+          ],
+          "detail": "Size, ownership, examples — not fabricated Mbps tables.",
+          "washHint": "table"
+        },
+        {
+          "id": "seq-cat-6",
+          "label": "Classification exam note",
+          "kind": "exam-note",
+          "conceptIds": [
+            "concept-lan"
+          ],
+          "detail": "Home Ethernet hub is a LAN (exercise 18).",
+          "washHint": "callout"
+        }
+      ],
+      "mustPreserve": [
+        "Size-based classification",
+        "Switched vs point-to-point WAN",
+        "MAN examples DSL/cable"
+      ],
+      "transitions": {
+        "entryFrom": "section-physical-structures",
+        "exitTo": "section-internetwork"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    },
+    {
+      "id": "section-internetwork",
+      "order": 8,
+      "title": "Internetworks",
+      "arabicTitleHint": "الشبكات المتشابكة (Internetwork)",
+      "purpose": "Keep lowercase internetwork distinct from the Internet; use the heterogeneous scenario.",
+      "whyItExists": "Keep lowercase internetwork distinct from the Internet using the heterogeneous two-LAN scenario.",
+      "depth": "EXPLANATORY",
+      "sourceWeight": {
+        "pages": [
+          13,
+          14
+        ],
+        "conceptCount": 2,
+        "relationshipCount": 2,
+        "exerciseSignalCount": 1,
+        "signal": "light"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            13,
+            14
+          ],
+          "evidence": "When two or more networks are connected, they become an internetwork, or internet."
+        }
+      ],
+      "topicIds": [
+        "topic-internetwork"
+      ],
+      "conceptIds": [
+        "concept-internetwork",
+        "concept-heterogeneous-mix",
+        "concept-internet-global"
+      ],
+      "relationshipIds": [
+        "rel-internet-is-notable-internetwork",
+        "rel-hetero-needs-wan"
+      ],
+      "definitionIds": [
+        "def-internetwork"
+      ],
+      "exampleIds": [
+        "ex-two-lan-wan"
+      ],
+      "comparisonIds": [
+        "cmp-network-vs-internetwork"
+      ],
+      "formulaIds": [],
+      "confusionIds": [
+        "conf-network-vs-internet",
+        "conf-internet-capitalization"
+      ],
+      "prerequisiteConceptIds": [
+        "concept-network",
+        "concept-lan",
+        "concept-wan",
+        "concept-internetwork"
+      ],
+      "learningObjectives": [
+        "Define internetwork (lowercase internet)",
+        "Explain the heterogeneous two-LAN + WAN scenario"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-inet-1",
+          "label": "Internetwork definition",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-internetwork"
+          ],
+          "detail": "Two or more networks that communicate with each other (lowercase internet).",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-inet-2",
+          "label": "Heterogeneous enterprise scenario",
+          "kind": "example",
+          "conceptIds": [
+            "concept-heterogeneous-mix"
+          ],
+          "detail": "Bus LAN + star LAN + president via switched WAN + p2p WANs.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-inet-3",
+          "label": "Network vs internetwork",
+          "kind": "compare",
+          "conceptIds": [
+            "concept-network",
+            "concept-internetwork"
+          ],
+          "detail": "Single network vs network-of-networks.",
+          "washHint": "table"
+        },
+        {
+          "id": "seq-inet-4",
+          "label": "Bridge to the Internet",
+          "kind": "bridge",
+          "conceptIds": [
+            "concept-internetwork",
+            "concept-internet-global"
+          ],
+          "detail": "The Internet is the most notable internetwork — do not merge terms.",
+          "washHint": "prose"
+        }
+      ],
+      "mustPreserve": [
+        "Lowercase internet distinction",
+        "Two-LAN + WAN scenario"
+      ],
+      "transitions": {
+        "entryFrom": "section-network-categories",
+        "exitTo": "section-internet"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    },
+    {
+      "id": "section-internet",
+      "order": 9,
+      "title": "The Internet: history and ISP hierarchy",
+      "arabicTitleHint": "الإنترنت: التاريخ وتسلسل مزودي الخدمة",
+      "purpose": "Restore ARPANET/TCP-IP narrative and four-level ISP hierarchy (sample omission).",
+      "whyItExists": "Explain how the Internet emerged (ARPANET → TCP/IP) and how it is organized (ISP hierarchy).",
+      "depth": "EXPLANATORY",
+      "sourceWeight": {
+        "pages": [
+          14,
+          15,
+          16,
+          17
+        ],
+        "conceptCount": 6,
+        "relationshipCount": 2,
+        "exerciseSignalCount": 2,
+        "signal": "moderate"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            14,
+            15,
+            16,
+            17
+          ],
+          "evidence": "The Internet is a structured, organized system."
+        }
+      ],
+      "topicIds": [
+        "topic-internet"
+      ],
+      "conceptIds": [
+        "concept-internet-global",
+        "concept-arpanet-history",
+        "concept-imp",
+        "concept-tcp-ip-split",
+        "concept-isp-hierarchy",
+        "concept-nap-peering"
+      ],
+      "relationshipIds": [
+        "rel-ncp-precedes-tcpip",
+        "rel-isp-part-of-internet"
+      ],
+      "definitionIds": [
+        "def-internet",
+        "def-isp",
+        "def-nap"
+      ],
+      "exampleIds": [
+        "ex-1969-four-nodes",
+        "ex-tcp-ip-roles"
+      ],
+      "comparisonIds": [
+        "cmp-isp-levels"
+      ],
+      "formulaIds": [],
+      "confusionIds": [
+        "conf-internet-capitalization",
+        "conf-network-vs-internet"
+      ],
+      "prerequisiteConceptIds": [
+        "concept-internetwork",
+        "concept-internet-global",
+        "concept-arpanet-history",
+        "concept-isp-hierarchy"
+      ],
+      "learningObjectives": [
+        "Summarize the ARPANET → TCP/IP path",
+        "Describe the four-level ISP hierarchy"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-www-1",
+          "label": "Internet as structured system",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-internet-global"
+          ],
+          "detail": "Uppercase Internet; hundreds of thousands of networks; not a random mesh.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-www-2",
+          "label": "ARPANET timeline",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-arpanet-history",
+            "concept-imp"
+          ],
+          "detail": "ARPA/DoD motivation; 1967 proposal; 1969 four nodes (UCLA, UCSB, SRI, Utah); NCP; IMPs.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-www-3",
+          "label": "Cerf/Kahn and TCP/IP split",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-tcp-ip-split"
+          ],
+          "detail": "IP routes datagrams; TCP segmentation/reassembly/errors.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-www-4",
+          "label": "ISP hierarchy",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-isp-hierarchy"
+          ],
+          "detail": "International → national → regional → local.",
+          "washHint": "list"
+        },
+        {
+          "id": "seq-www-5",
+          "label": "NAPs and peering",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-nap-peering"
+          ],
+          "detail": "Third-party NAPs; private peering points.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-www-6",
+          "label": "ISP level comparison",
+          "kind": "compare",
+          "conceptIds": [
+            "concept-isp-hierarchy"
+          ],
+          "detail": "Roles and typical users per level.",
+          "washHint": "table"
+        },
+        {
+          "id": "seq-www-7",
+          "label": "internet vs Internet recap",
+          "kind": "exam-note",
+          "conceptIds": [
+            "concept-internet-global",
+            "concept-internetwork"
+          ],
+          "detail": "Reinforce capitalization distinction.",
+          "washHint": "callout"
+        }
+      ],
+      "mustPreserve": [
+        "1969 four nodes",
+        "TCP/IP split roles",
+        "Four ISP levels + NAP/peering"
+      ],
+      "transitions": {
+        "entryFrom": "section-internetwork",
+        "exitTo": "section-protocols"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    },
+    {
+      "id": "section-protocols",
+      "order": 10,
+      "title": "Protocols: syntax, semantics, timing",
+      "arabicTitleHint": "البروتوكولات: البنية والمعنى والتوقيت",
+      "purpose": "Upgrade protocol from 'a set of rules' to the three-element structure.",
+      "whyItExists": "Upgrade protocol from 'a set of rules' to syntax/semantics/timing with a rate-mismatch example.",
+      "depth": "DETAILED",
+      "sourceWeight": {
+        "pages": [
+          17
+        ],
+        "conceptCount": 5,
+        "relationshipCount": 2,
+        "exerciseSignalCount": 1,
+        "signal": "moderate"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            17
+          ],
+          "evidence": "The key elements of a protocol are syntax, semantics, and timing."
+        }
+      ],
+      "topicIds": [
+        "topic-protocols"
+      ],
+      "conceptIds": [
+        "concept-protocol-elements",
+        "concept-entity",
+        "concept-syntax",
+        "concept-semantics",
+        "concept-timing"
+      ],
+      "relationshipIds": [
+        "rel-protocol-triad",
+        "rel-protocol-vs-standard"
+      ],
+      "definitionIds": [
+        "def-protocol-full"
+      ],
+      "exampleIds": [
+        "ex-timing-mismatch",
+        "ex-syntax-header"
+      ],
+      "comparisonIds": [
+        "cmp-protocol-elements"
+      ],
+      "formulaIds": [],
+      "confusionIds": [
+        "conf-protocol-standard"
+      ],
+      "prerequisiteConceptIds": [
+        "concept-protocol-basic",
+        "concept-protocol-elements"
+      ],
+      "learningObjectives": [
+        "Explain syntax, semantics, and timing as protocol elements",
+        "Use the rate-mismatch example to show why timing matters"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-proto-1",
+          "label": "Entities and why protocols exist",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-entity",
+            "concept-protocol-elements"
+          ],
+          "detail": "Bit streams alone are not understood; agreement is required.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-proto-2",
+          "label": "Syntax",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-syntax"
+          ],
+          "detail": "Structure/format/order; header field example.",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-proto-3",
+          "label": "Semantics",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-semantics"
+          ],
+          "detail": "Meaning of bit sections and required action.",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-proto-4",
+          "label": "Timing",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-timing"
+          ],
+          "detail": "When to send and how fast; rate mismatch example.",
+          "washHint": "definition-card"
+        },
+        {
+          "id": "seq-proto-5",
+          "label": "Triad comparison",
+          "kind": "compare",
+          "conceptIds": [
+            "concept-syntax",
+            "concept-semantics",
+            "concept-timing"
+          ],
+          "detail": "Question each element answers + source example.",
+          "washHint": "table"
+        },
+        {
+          "id": "seq-proto-6",
+          "label": "100 vs 1 Mbps example",
+          "kind": "example",
+          "conceptIds": [
+            "concept-timing"
+          ],
+          "detail": "Sender faster than receiver → overload/loss risk.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-proto-7",
+          "label": "Protocol vs standard preview",
+          "kind": "exam-note",
+          "conceptIds": [
+            "concept-protocol-elements",
+            "concept-standards-need"
+          ],
+          "detail": "Rules vs agreed-upon rules — full standards section follows.",
+          "washHint": "callout"
+        }
+      ],
+      "mustPreserve": [
+        "Syntax/semantics/timing triad",
+        "Rate-mismatch example",
+        "Protocol vs standard preview"
+      ],
+      "transitions": {
+        "entryFrom": "section-internet",
+        "exitTo": "section-standards"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    },
+    {
+      "id": "section-standards",
+      "order": 11,
+      "title": "Standards, organizations, and the RFC process",
+      "arabicTitleHint": "المعايير والمنظمات وعملية RFC",
+      "purpose": "Restore de facto/de jure, orgs, forums, and Internet standard pipeline.",
+      "whyItExists": "Restore de facto/de jure, organizations, forums, and the draft→RFC process.",
+      "depth": "DETAILED",
+      "sourceWeight": {
+        "pages": [
+          18,
+          19
+        ],
+        "conceptCount": 6,
+        "relationshipCount": 2,
+        "exerciseSignalCount": 2,
+        "signal": "moderate"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            18,
+            19
+          ],
+          "evidence": "Data communication standards fall into two categories: de facto and de jure."
+        }
+      ],
+      "topicIds": [
+        "topic-standards"
+      ],
+      "conceptIds": [
+        "concept-standards-need",
+        "concept-de-facto",
+        "concept-de-jure",
+        "concept-standards-orgs",
+        "concept-forums",
+        "concept-rfc"
+      ],
+      "relationshipIds": [
+        "rel-draft-to-rfc",
+        "rel-forums-to-bodies"
+      ],
+      "definitionIds": [
+        "def-de-facto",
+        "def-de-jure",
+        "def-rfc"
+      ],
+      "exampleIds": [],
+      "comparisonIds": [
+        "cmp-de-facto-de-jure",
+        "cmp-protocol-vs-standard",
+        "cmp-forum-vs-committee"
+      ],
+      "formulaIds": [],
+      "confusionIds": [
+        "conf-protocol-standard-2",
+        "conf-protocol-standard"
+      ],
+      "prerequisiteConceptIds": [
+        "concept-protocol-elements",
+        "concept-standards-need",
+        "concept-standards-orgs"
+      ],
+      "learningObjectives": [
+        "Distinguish de facto and de jure standards",
+        "Name major standards organizations",
+        "Describe the draft → RFC → Internet standard process"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-std-1",
+          "label": "Why standards are needed",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-standards-need"
+          ],
+          "detail": "Multi-vendor interoperation.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-std-2",
+          "label": "De facto vs de jure",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-de-facto",
+            "concept-de-jure"
+          ],
+          "detail": "By use vs by recognized body.",
+          "washHint": "list"
+        },
+        {
+          "id": "seq-std-3",
+          "label": "Standards organizations",
+          "kind": "introduce",
+          "conceptIds": [
+            "concept-standards-orgs"
+          ],
+          "detail": "ISO, ITU-T, ANSI, IEEE, EIA; FCC as regulator.",
+          "washHint": "list"
+        },
+        {
+          "id": "seq-std-4",
+          "label": "Forums",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-forums"
+          ],
+          "detail": "Faster special-interest evaluation feeding formal bodies.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-std-5",
+          "label": "Draft → RFC → Internet standard",
+          "kind": "explain",
+          "conceptIds": [
+            "concept-rfc"
+          ],
+          "detail": "6-month draft lifetime; maturity levels; requirement categories.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-std-6",
+          "label": "De facto vs de jure comparison",
+          "kind": "compare",
+          "conceptIds": [
+            "concept-de-facto",
+            "concept-de-jure"
+          ],
+          "detail": "Place next to definitions.",
+          "washHint": "table"
+        },
+        {
+          "id": "seq-std-7",
+          "label": "Protocol vs standard distinction",
+          "kind": "exam-note",
+          "conceptIds": [
+            "concept-protocol-elements",
+            "concept-standards-need"
+          ],
+          "detail": "Close the chapter’s terminology loop.",
+          "washHint": "callout"
+        }
+      ],
+      "mustPreserve": [
+        "De facto vs de jure",
+        "ISO/ITU-T/ANSI/IEEE/EIA",
+        "Draft → RFC → standard",
+        "Forums vs committees"
+      ],
+      "transitions": {
+        "entryFrom": "section-protocols",
+        "exitTo": "section-integrated-review"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    },
+    {
+      "id": "section-integrated-review",
+      "order": 12,
+      "title": "Integrated review and exam map",
+      "arabicTitleHint": "مراجعة متكاملة وخريطة الامتحان",
+      "purpose": "Structured review by skill type; generate questions later from validated knowledge — not a cheat sheet.",
+      "whyItExists": "Map exam skills from validated knowledge; questions are generated later, not authored now.",
+      "depth": "EXAM-CRITICAL",
+      "sourceWeight": {
+        "pages": [
+          21,
+          22,
+          23
+        ],
+        "conceptCount": 70,
+        "relationshipCount": 25,
+        "exerciseSignalCount": 22,
+        "signal": "heavy"
+      },
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            21,
+            22,
+            23
+          ],
+          "evidence": "1.7 Summary and 1.8 Practice Set"
+        }
+      ],
+      "topicIds": [
+        "topic-chapter-frame",
+        "topic-data-communication",
+        "topic-data-representation",
+        "topic-data-flow",
+        "topic-networks-criteria",
+        "topic-physical-structures",
+        "topic-network-categories",
+        "topic-internetwork",
+        "topic-internet",
+        "topic-protocols",
+        "topic-standards"
+      ],
+      "conceptIds": [
+        "concept-four-issues",
+        "concept-mesh",
+        "concept-pixels",
+        "concept-protocol-elements",
+        "concept-standards-need"
+      ],
+      "relationshipIds": [],
+      "definitionIds": [],
+      "exampleIds": [],
+      "comparisonIds": [],
+      "formulaIds": [],
+      "confusionIds": [
+        "conf-links-vs-ports",
+        "conf-protocol-standard"
+      ],
+      "prerequisiteConceptIds": [
+        "concept-point-to-point",
+        "concept-topology",
+        "concept-bit-pattern",
+        "concept-protocol-basic",
+        "concept-protocol-elements"
+      ],
+      "learningObjectives": [
+        "Check definitions, distinctions, calculations, and scenarios from the chapter"
+      ],
+      "teachingSequence": [
+        {
+          "id": "seq-rev-1",
+          "label": "Four-pillar recap",
+          "kind": "bridge",
+          "conceptIds": [
+            "concept-four-issues"
+          ],
+          "detail": "One short recap of the chapter arc.",
+          "washHint": "prose"
+        },
+        {
+          "id": "seq-rev-2",
+          "label": "Definition battery",
+          "kind": "exam-note",
+          "conceptIds": [
+            "concept-data-communications",
+            "concept-network",
+            "concept-internetwork",
+            "concept-internet-global",
+            "concept-protocol-elements"
+          ],
+          "detail": "Key definitions without re-teaching mechanisms.",
+          "washHint": "callout"
+        },
+        {
+          "id": "seq-rev-3",
+          "label": "Distinction battery",
+          "kind": "exam-note",
+          "conceptIds": [
+            "concept-half-duplex",
+            "concept-full-duplex",
+            "concept-jitter",
+            "concept-throughput",
+            "concept-de-facto",
+            "concept-de-jure"
+          ],
+          "detail": "High-value confusions only.",
+          "washHint": "callout"
+        },
+        {
+          "id": "seq-rev-4",
+          "label": "Calculation check",
+          "kind": "formula",
+          "conceptIds": [
+            "concept-mesh",
+            "concept-pixels"
+          ],
+          "detail": "Mesh links/ports and 2^bits practice slots.",
+          "washHint": "formula"
+        },
+        {
+          "id": "seq-rev-5",
+          "label": "Scenario check",
+          "kind": "example",
+          "conceptIds": [
+            "concept-heterogeneous-mix",
+            "concept-lan"
+          ],
+          "detail": "Internetwork composition + LAN classification.",
+          "washHint": "prose"
+        }
+      ],
+      "mustPreserve": [
+        "Mesh calculation slot",
+        "internet vs Internet slot",
+        "protocol triad slot"
+      ],
+      "transitions": {
+        "entryFrom": "section-standards"
+      },
+      "cardPolicy": [
+        "Cards only for strong definitions, key rules, and exam traps — not every concept."
+      ],
+      "tablePolicy": [
+        "Tables only where aligned dimensions matter (flow modes, topologies, categories, de facto/de jure)."
+      ]
+    }
+  ],
+  "knowledgeCoverage": [
+    {
+      "entityId": "topic-chapter-frame",
+      "kind": "topic",
+      "primarySectionId": "section-chapter-frame",
+      "teachingRole": "primary",
+      "depth": "FOUNDATIONAL",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            1
+          ],
+          "evidence": "This chapter addresses four issues: data communications, networks, the Internet, and protocols and standards."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-four-issues",
+      "kind": "concept",
+      "primarySectionId": "section-chapter-frame",
+      "teachingRole": "primary",
+      "depth": "FOUNDATIONAL",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "rel-frame-sequence",
+      "kind": "relationship",
+      "primarySectionId": "section-chapter-frame",
+      "teachingRole": "primary",
+      "depth": "FOUNDATIONAL",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "topic-data-communication",
+      "kind": "topic",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            1,
+            2,
+            3
+          ],
+          "evidence": "Data communications are the exchange of data between two devices via some form of transmission medium."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-data-communications",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ],
+          "evidence": "Data communications are the exchange of data between two devices via some form of transmission medium."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-data",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ],
+          "evidence": "The word data refers to information presented in whatever form is agreed upon by the parties creating and using the data."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-effectiveness",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ],
+          "evidence": "The effectiveness of a data communications system depends on four fundamental characteristics: delivery, accuracy, timeliness, and jitter."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-delivery",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-accuracy",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-timeliness",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-jitter",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ],
+          "evidence": "Jitter refers to the variation in the packet arrival time."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-realtime",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-five-components",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2,
+            3
+          ],
+          "evidence": "A data communications system has five components."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-message",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-data-representation"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-sender",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-receiver",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-transmission-medium",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-data-flow"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-protocol-basic",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-protocols"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            3
+          ],
+          "evidence": "A protocol is a set of rules that govern data communications."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-telecommunication",
+      "kind": "concept",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            1,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "rel-effectiveness-parts",
+      "kind": "relationship",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-components-complete-set",
+      "kind": "relationship",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-jitter-from-timeliness",
+      "kind": "relationship",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-protocol-not-media",
+      "kind": "relationship",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-data-communications",
+      "kind": "definition",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-jitter",
+      "kind": "definition",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-protocol-basic",
+      "kind": "definition",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-jitter-video",
+      "kind": "example",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-protocol-language",
+      "kind": "example",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-effectiveness-four",
+      "kind": "comparison",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "conf-jitter-vs-delay",
+      "kind": "confusion",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXAM-CRITICAL",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "conf-network-vs-internet",
+      "kind": "confusion",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXAM-CRITICAL",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-networks-criteria",
+        "section-internetwork",
+        "section-internet"
+      ],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "conf-protocol-standard",
+      "kind": "confusion",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "EXAM-CRITICAL",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-protocols",
+        "section-standards",
+        "section-integrated-review"
+      ],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "topic-data-representation",
+      "kind": "topic",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            3,
+            4
+          ],
+          "evidence": "Information today comes in different forms such as text, numbers, images, audio, and video."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-bit-pattern",
+      "kind": "concept",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-coding",
+      "kind": "concept",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-unicode-ascii",
+      "kind": "concept",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            3
+          ],
+          "evidence": "Unicode, which uses 32 bits to represent a symbol or character"
+        }
+      ]
+    },
+    {
+      "entityId": "concept-numbers-binary",
+      "kind": "concept",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-pixels",
+      "kind": "concept",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            3,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-audio-video-continuous",
+      "kind": "concept",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "rel-ascii-inside-unicode",
+      "kind": "relationship",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-pixels-bit-depth",
+      "kind": "relationship",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-unicode",
+      "kind": "definition",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-ascii",
+      "kind": "definition",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-code",
+      "kind": "definition",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-gray-2bit",
+      "kind": "example",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-16bit-color",
+      "kind": "example",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-info-forms",
+      "kind": "comparison",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "formula-color-count",
+      "kind": "formula",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "conf-ascii-vs-number",
+      "kind": "confusion",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "EXAM-CRITICAL",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "topic-data-flow",
+      "kind": "topic",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            4,
+            5
+          ],
+          "evidence": "Communication between two devices can be simplex, half-duplex, or full-duplex."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-simplex",
+      "kind": "concept",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-half-duplex",
+      "kind": "concept",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            4,
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-full-duplex",
+      "kind": "concept",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "rel-half-vs-full-capacity",
+      "kind": "relationship",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-simplex-unidirectional",
+      "kind": "relationship",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-simplex",
+      "kind": "definition",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-half-duplex",
+      "kind": "definition",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-full-duplex",
+      "kind": "definition",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-flow-devices",
+      "kind": "example",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-data-flow",
+      "kind": "comparison",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "conf-half-vs-full",
+      "kind": "confusion",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "EXAM-CRITICAL",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "topic-networks-criteria",
+      "kind": "topic",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            5,
+            6
+          ],
+          "evidence": "A network is a set of devices (often referred to as nodes) connected by communication links."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-network",
+      "kind": "concept",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            5
+          ],
+          "evidence": "A network is a set of devices (often referred to as nodes) connected by communication links."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-node",
+      "kind": "concept",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-distributed-processing",
+      "kind": "concept",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            5
+          ],
+          "evidence": "Most networks use distributed processing"
+        }
+      ]
+    },
+    {
+      "entityId": "concept-network-criteria",
+      "kind": "concept",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-physical-structures"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            5,
+            6
+          ],
+          "evidence": "The most important of these are performance, reliability, and security."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-performance-metrics",
+      "kind": "concept",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            5,
+            6
+          ],
+          "evidence": "If we try to send more data to the network, we may increase throughput but we increase the delay"
+        }
+      ]
+    },
+    {
+      "entityId": "concept-throughput",
+      "kind": "concept",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            6
+          ],
+          "evidence": "Performance is often evaluated by two networking metrics: throughput and delay."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-delay",
+      "kind": "concept",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-reliability",
+      "kind": "concept",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-security",
+      "kind": "concept",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "rel-throughput-delay-tradeoff",
+      "kind": "relationship",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-performance-factors",
+      "kind": "relationship",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-network",
+      "kind": "definition",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-distributed-processing",
+      "kind": "definition",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-throughput",
+      "kind": "definition",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-delay",
+      "kind": "definition",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-network-criteria",
+      "kind": "comparison",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "conf-bandwidth-throughput",
+      "kind": "confusion",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "EXAM-CRITICAL",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "topic-physical-structures",
+      "kind": "topic",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            6,
+            7,
+            8,
+            9,
+            10,
+            11
+          ],
+          "evidence": "There are two possible types of connections: point-to-point and multipoint."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-link",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            6
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-point-to-point",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            6
+          ],
+          "evidence": "A point-to-point connection provides a dedicated link between two devices."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-multipoint",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            6
+          ],
+          "evidence": "A multipoint (also called multidrop) connection is one in which more than two specific devices share a single link."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-topology",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-mesh",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            7,
+            8,
+            9
+          ],
+          "evidence": "In a mesh topology, every device has a dedicated point-to-point link to every other device."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-star",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            8,
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-hub",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            8,
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-bus",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            9,
+            10
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-drop-line",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-tap",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-ring",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            10,
+            11
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-hybrid",
+      "kind": "concept",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            11
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "rel-mesh-from-p2p",
+      "kind": "relationship",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-bus-is-multipoint",
+      "kind": "relationship",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-star-hub-spof",
+      "kind": "relationship",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-ring-repeater",
+      "kind": "relationship",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-point-to-point",
+      "kind": "definition",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-multipoint",
+      "kind": "definition",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-topology",
+      "kind": "definition",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-drop-line",
+      "kind": "definition",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-tap",
+      "kind": "definition",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-hub",
+      "kind": "definition",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-mesh-six",
+      "kind": "example",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-ir-tv",
+      "kind": "example",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-connections",
+      "kind": "comparison",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-topologies",
+      "kind": "comparison",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "formula-mesh-links",
+      "kind": "formula",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "formula-mesh-ports",
+      "kind": "formula",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "conf-links-vs-ports",
+      "kind": "confusion",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "EXAM-CRITICAL",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "topic-network-categories",
+      "kind": "topic",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            11,
+            12,
+            13
+          ],
+          "evidence": "A LAN normally covers an area less than 2 mi; a WAN can be worldwide."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-lan",
+      "kind": "concept",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            11,
+            12
+          ],
+          "evidence": "A local area network (LAN) is usually privately owned"
+        }
+      ]
+    },
+    {
+      "entityId": "concept-man",
+      "kind": "concept",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            13
+          ],
+          "evidence": "A metropolitan area network (MAN) is a network with a size between a LAN and a WAN."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-wan",
+      "kind": "concept",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            12
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-switched-wan",
+      "kind": "concept",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            12,
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-p2p-wan",
+      "kind": "concept",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            12,
+            13
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "rel-size-spectrum",
+      "kind": "relationship",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-lan-resources",
+      "kind": "relationship",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-lan",
+      "kind": "definition",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-wan",
+      "kind": "definition",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-man",
+      "kind": "definition",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-man-dsl-cable",
+      "kind": "example",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-home-hub-classify",
+      "kind": "example",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-lan-man-wan",
+      "kind": "comparison",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-switched-vs-p2p-wan",
+      "kind": "comparison",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "conf-lan-wan-classify",
+      "kind": "confusion",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "EXAM-CRITICAL",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "topic-internetwork",
+      "kind": "topic",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            13,
+            14
+          ],
+          "evidence": "When two or more networks are connected, they become an internetwork, or internet."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-internetwork",
+      "kind": "concept",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-internet"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            13,
+            15
+          ],
+          "evidence": "An internet (note the lowercase letter i) is two or more networks that can communicate with each other."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-heterogeneous-mix",
+      "kind": "concept",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            13,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-internet-global",
+      "kind": "concept",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-internet"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            14,
+            15
+          ],
+          "evidence": "The most notable internet is called the Internet (uppercase letter I)"
+        }
+      ]
+    },
+    {
+      "entityId": "rel-internet-is-notable-internetwork",
+      "kind": "relationship",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-hetero-needs-wan",
+      "kind": "relationship",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-internetwork",
+      "kind": "definition",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-two-lan-wan",
+      "kind": "example",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-network-vs-internetwork",
+      "kind": "comparison",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "conf-internet-capitalization",
+      "kind": "confusion",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "EXAM-CRITICAL",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-internet"
+      ],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "topic-internet",
+      "kind": "topic",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            14,
+            15,
+            16,
+            17
+          ],
+          "evidence": "The Internet is a structured, organized system."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-arpanet-history",
+      "kind": "concept",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            15,
+            16
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-imp",
+      "kind": "concept",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            15
+          ],
+          "evidence": "attached to a specialized computer, called an interface message processor (IMP)"
+        }
+      ]
+    },
+    {
+      "entityId": "concept-tcp-ip-split",
+      "kind": "concept",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-protocols"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            15
+          ],
+          "evidence": "IP would handle datagram routing while TCP would be responsible for higher-level functions"
+        }
+      ]
+    },
+    {
+      "entityId": "concept-isp-hierarchy",
+      "kind": "concept",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            16,
+            17
+          ],
+          "evidence": "There are international service providers, national service providers, regional service providers, and local service providers."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-nap-peering",
+      "kind": "concept",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            16
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "rel-ncp-precedes-tcpip",
+      "kind": "relationship",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-isp-part-of-internet",
+      "kind": "relationship",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-internet",
+      "kind": "definition",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-isp",
+      "kind": "definition",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-nap",
+      "kind": "definition",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-1969-four-nodes",
+      "kind": "example",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-tcp-ip-roles",
+      "kind": "example",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-isp-levels",
+      "kind": "comparison",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "EXPLANATORY",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "topic-protocols",
+      "kind": "topic",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            17
+          ],
+          "evidence": "The key elements of a protocol are syntax, semantics, and timing."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-protocol-elements",
+      "kind": "concept",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-standards",
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            17
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-entity",
+      "kind": "concept",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            17
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-syntax",
+      "kind": "concept",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            17
+          ],
+          "evidence": "The term syntax refers to the structure or format of the data"
+        }
+      ]
+    },
+    {
+      "entityId": "concept-semantics",
+      "kind": "concept",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            17
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-timing",
+      "kind": "concept",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            17
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "rel-protocol-triad",
+      "kind": "relationship",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-protocol-vs-standard",
+      "kind": "relationship",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-protocol-full",
+      "kind": "definition",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-timing-mismatch",
+      "kind": "example",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "ex-syntax-header",
+      "kind": "example",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "APPLIED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-protocol-elements",
+      "kind": "comparison",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "topic-standards",
+      "kind": "topic",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            18,
+            19
+          ],
+          "evidence": "Data communication standards fall into two categories: de facto and de jure."
+        }
+      ]
+    },
+    {
+      "entityId": "concept-standards-need",
+      "kind": "concept",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [
+        "section-integrated-review"
+      ],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            18,
+            22
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-de-facto",
+      "kind": "concept",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            18
+          ],
+          "evidence": "De facto. Standards that have not been approved by an organized body"
+        }
+      ]
+    },
+    {
+      "entityId": "concept-de-jure",
+      "kind": "concept",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            18
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-standards-orgs",
+      "kind": "concept",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            18,
+            19
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-forums",
+      "kind": "concept",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            19
+          ]
+        }
+      ]
+    },
+    {
+      "entityId": "concept-rfc",
+      "kind": "concept",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [
+        {
+          "sourceId": "src-forouzan-ch1-intro",
+          "pages": [
+            19
+          ],
+          "evidence": "An Internet draft is a working document... a 6-month lifetime."
+        }
+      ]
+    },
+    {
+      "entityId": "rel-draft-to-rfc",
+      "kind": "relationship",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "rel-forums-to-bodies",
+      "kind": "relationship",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-de-facto",
+      "kind": "definition",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-de-jure",
+      "kind": "definition",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "def-rfc",
+      "kind": "definition",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-de-facto-de-jure",
+      "kind": "comparison",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-protocol-vs-standard",
+      "kind": "comparison",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cmp-forum-vs-committee",
+      "kind": "comparison",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "conf-protocol-standard-2",
+      "kind": "confusion",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "EXAM-CRITICAL",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": []
+    },
+    {
+      "entityId": "cov-topic-chapter-frame-1",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-chapter-frame",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Open with the four-issue roadmap so later sections are not orphaned facts."
+    },
+    {
+      "entityId": "cov-topic-data-communication-2",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "All five components as a complete set (never drop protocol)."
+    },
+    {
+      "entityId": "cov-topic-data-communication-3",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Four effectiveness characteristics including jitter with the 30/40 ms example."
+    },
+    {
+      "entityId": "cov-topic-data-communication-4",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-data-communication",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Connected ≠ communicating analogy."
+    },
+    {
+      "entityId": "cov-topic-data-representation-5",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "All five information forms with distinct representation rules."
+    },
+    {
+      "entityId": "cov-topic-data-representation-6",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Unicode 32-bit claim as stated + ASCII as Basic Latin."
+    },
+    {
+      "entityId": "cov-topic-data-representation-7",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-data-representation",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Pixel bit-depth → color count formula with 16-bit exercise."
+    },
+    {
+      "entityId": "cov-topic-data-flow-8",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Three modes with direction + capacity semantics + one device example each."
+    },
+    {
+      "entityId": "cov-topic-data-flow-9",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-data-flow",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Half vs full simultaneity distinction."
+    },
+    {
+      "entityId": "cov-topic-networks-criteria-10",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Three criteria: performance, reliability, security."
+    },
+    {
+      "entityId": "cov-topic-networks-criteria-11",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Throughput–delay contradiction under load."
+    },
+    {
+      "entityId": "cov-topic-networks-criteria-12",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-networks-criteria",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Distributed processing definition."
+    },
+    {
+      "entityId": "cov-topic-physical-structures-13",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Point-to-point vs multipoint before topologies."
+    },
+    {
+      "entityId": "cov-topic-physical-structures-14",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "All four basic topologies + hybrid with advantages/disadvantages/failure modes."
+    },
+    {
+      "entityId": "cov-topic-physical-structures-15",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Mesh formulas n(n−1)/2 and n−1 with conditions and n=6 example."
+    },
+    {
+      "entityId": "cov-topic-physical-structures-16",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Bus anatomy: drop line, tap, signal attenuation."
+    },
+    {
+      "entityId": "cov-topic-physical-structures-17",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-physical-structures",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Star hub single point of failure."
+    },
+    {
+      "entityId": "cov-topic-network-categories-18",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "LAN/MAN/WAN definitions by size/scope."
+    },
+    {
+      "entityId": "cov-topic-network-categories-19",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Switched WAN vs point-to-point WAN."
+    },
+    {
+      "entityId": "cov-topic-network-categories-20",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-network-categories",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "MAN examples DSL and cable TV."
+    },
+    {
+      "entityId": "cov-topic-internetwork-21",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Internetwork definition with lowercase-i distinction."
+    },
+    {
+      "entityId": "cov-topic-internetwork-22",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-internetwork",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Heterogeneous two-LAN + WAN scenario as the worked example."
+    },
+    {
+      "entityId": "cov-topic-internet-23",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "1960s–1973 timeline: ARPA, ARPANET, IMP, NCP, Cerf/Kahn, TCP/IP split with roles."
+    },
+    {
+      "entityId": "cov-topic-internet-24",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Four-level ISP hierarchy + NAP/peering."
+    },
+    {
+      "entityId": "cov-topic-internet-25",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-internet",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Uppercase Internet vs lowercase internet."
+    },
+    {
+      "entityId": "cov-topic-protocols-26",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Always teach syntax/semantics/timing together."
+    },
+    {
+      "entityId": "cov-topic-protocols-27",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Rate-mismatch timing example."
+    },
+    {
+      "entityId": "cov-topic-protocols-28",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-protocols",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Protocol vs standard distinction preview."
+    },
+    {
+      "entityId": "cov-topic-standards-29",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "De facto vs de jure with definitions."
+    },
+    {
+      "entityId": "cov-topic-standards-30",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Major orgs ISO, ITU-T, ANSI, IEEE, EIA (+ FCC regulatory)."
+    },
+    {
+      "entityId": "cov-topic-standards-31",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Draft → RFC → Internet standard process with 6-month draft lifetime."
+    },
+    {
+      "entityId": "cov-topic-standards-32",
+      "kind": "coverage-requirement",
+      "primarySectionId": "section-standards",
+      "teachingRole": "primary",
+      "depth": "DETAILED",
+      "mustPreserve": true,
+      "referencedFrom": [],
+      "sourceRefs": [],
+      "reason": "Forums as accelerators, not replacements for committees."
+    }
+  ],
+  "compositionRules": [
+    "Never use public/samples/computer-networks-ch1.md as the structural template.",
+    "No arbitrary page or word target — length follows mustPreserve + depth + examples.",
+    "Teach examples/comparisons/formulas beside the concept they explain.",
+    "Do not cardify every concept; cards for strong definitions, key rules, exam traps.",
+    "Tables only for genuinely aligned dimensions.",
+    "Only source-backed formulas in core: n(n−1)/2, n−1, 2^bits.",
+    "Shannon/SNR/T=L/B stay out of core until separately sourced.",
+    "Each concept has one primary teaching home; later mentions are references.",
+    "Preserve internet (lowercase) vs Internet (uppercase).",
+    "When shortening, compress repetition/generic prose — never must knowledge."
+  ],
+  "externalContextPolicy": [
+    {
+      "id": "extra-shannon",
+      "title": "Shannon capacity",
+      "decision": "needs-separate-source",
+      "note": "Not in the attached 23-page Ch.1 source. Treat as enrichment only after source-backed topics; requires another verified source to become DIRECT_SOURCE."
+    },
+    {
+      "id": "extra-snr-db",
+      "title": "SNR in dB",
+      "decision": "needs-separate-source",
+      "note": "Not in attached Ch.1 source."
+    },
+    {
+      "id": "extra-transmission-time",
+      "title": "T = L/B",
+      "decision": "needs-separate-source",
+      "note": "Not in attached Ch.1 source."
+    },
+    {
+      "id": "extra-ipconfig",
+      "title": "Windows ipconfig lab",
+      "decision": "optional",
+      "placement": "Optional appendix after review — clearly non-source",
+      "note": "Practical enrichment only."
+    },
+    {
+      "id": "extra-mb-mb-trap",
+      "title": "MB vs Mb trap",
+      "decision": "optional",
+      "placement": "Optional exam-trap sidebar if needed",
+      "note": "Not in Ch.1 extract; do not present as source-core."
+    },
+    {
+      "id": "extra-bandwidth-definition",
+      "title": "Bandwidth definition card",
+      "decision": "future-chapter",
+      "note": "Source teaches throughput/delay; bandwidth card would recreate wrong emphasis."
+    }
+  ],
+  "reviewPlan": {
+    "purpose": "Structured exam map from validated knowledge; wording authored in CGP-4.",
+    "categories": [
+      {
+        "id": "rev-def",
+        "name": "Definitions",
+        "skill": "define",
+        "conceptIds": [
+          "concept-data-communications",
+          "concept-network",
+          "concept-internetwork",
+          "concept-internet-global",
+          "def-protocol-full",
+          "concept-de-facto",
+          "concept-de-jure"
+        ],
+        "sourceSignalIds": [
+          "exsig-q1-five-components",
+          "exsig-q11-internet"
+        ],
+        "countHint": 8
+      },
+      {
+        "id": "rev-cmp",
+        "name": "Comparisons",
+        "skill": "compare",
+        "conceptIds": [
+          "concept-half-duplex",
+          "concept-full-duplex",
+          "concept-lan",
+          "concept-man",
+          "concept-wan",
+          "concept-mesh",
+          "concept-star",
+          "concept-bus",
+          "concept-ring"
+        ],
+        "sourceSignalIds": [
+          "exsig-q7-half-full",
+          "exsig-q8-topo-advantages"
+        ],
+        "countHint": 6
+      },
+      {
+        "id": "rev-class",
+        "name": "Classification",
+        "skill": "apply",
+        "conceptIds": [
+          "concept-lan",
+          "concept-point-to-point",
+          "concept-multipoint"
+        ],
+        "sourceSignalIds": [
+          "exsig-q18-home-lan",
+          "exsig-q5-line-config"
+        ],
+        "countHint": 4
+      },
+      {
+        "id": "rev-calc",
+        "name": "Calculation",
+        "skill": "compute",
+        "conceptIds": [
+          "concept-mesh",
+          "concept-pixels"
+        ],
+        "sourceSignalIds": [
+          "exsig-q16-mesh-six",
+          "exsig-q15-colors"
+        ],
+        "countHint": 4
+      },
+      {
+        "id": "rev-scenario",
+        "name": "Scenario reasoning",
+        "skill": "analyze",
+        "conceptIds": [
+          "concept-heterogeneous-mix",
+          "concept-delay",
+          "concept-jitter"
+        ],
+        "sourceSignalIds": [
+          "exsig-q17-failure-modes",
+          "exsig-q23-delay-apps"
+        ],
+        "countHint": 4
+      },
+      {
+        "id": "rev-concept",
+        "name": "Conceptual reasoning",
+        "skill": "explain",
+        "conceptIds": [
+          "concept-protocol-elements",
+          "concept-throughput",
+          "concept-tcp-ip-split"
+        ],
+        "sourceSignalIds": [
+          "exsig-q12-why-protocols",
+          "exsig-q13-why-standards"
+        ],
+        "countHint": 4
+      }
+    ],
+    "practiceClassification": {
+      "core": [
+        "Review Q1 five components",
+        "Q3 three criteria",
+        "Q7 half vs full duplex",
+        "Q8 topology advantages",
+        "Q9 mesh/ring/bus/star link counts",
+        "Q11 internet vs Internet",
+        "Q12 why protocols",
+        "Q13 why standards",
+        "Q15 16-bit colors",
+        "Q16 six-device mesh",
+        "Q18 home LAN classification"
+      ],
+      "optionalResearch": [
+        "Q26 OSI model site",
+        "Q27 ANSI activities",
+        "Q28 IEEE activities",
+        "Q29 IETF/RFC types"
+      ],
+      "futureExpansion": [
+        "Advanced routing",
+        "Subnetting",
+        "Modern Unicode encoding note (separately sourced)"
+      ]
+    },
+    "exclusions": [
+      "Do not generate questions from EXTERNAL Shannon/SNR/T=L/B unless later sourced",
+      "Do not invent research-activity essays 26–29 as core exam items"
+    ]
+  },
+  "provenancePlan": {
+    "washCommentPattern": "<!-- source: {document} p.{page} -->",
+    "rule": "Every SOURCE_CORE block in CGP-4 carries provenance from knowledgeCoverage sourceRefs / deep-topics.",
+    "externalMarking": "External enrichment (if any) is labeled non-source and never claims Forouzan Ch.1 pages."
+  },
+  "compressionGuards": [
+    {
+      "id": "guard-five-components",
+      "kind": "taxonomy",
+      "description": "Message, sender, receiver, medium, protocol must stay as a complete set.",
+      "appearsAs": "complete five-item taxonomy in prose/list + protocol analogy — not one bullet",
+      "appearsInSectionId": "section-data-communication",
+      "requiredDepth": "EXPLANATORY"
+    },
+    {
+      "id": "guard-effectiveness-four",
+      "kind": "taxonomy",
+      "description": "Delivery, accuracy, timeliness, jitter — do not drop jitter.",
+      "appearsAs": "four characteristics with jitter example beside them",
+      "appearsInSectionId": "section-data-communication",
+      "requiredDepth": "EXPLANATORY"
+    },
+    {
+      "id": "guard-flow-three",
+      "kind": "distinction",
+      "description": "Simplex / half-duplex / full-duplex directionality distinction.",
+      "appearsAs": "three modes with immediate comparison + device examples",
+      "appearsInSectionId": "section-data-flow",
+      "requiredDepth": "EXPLANATORY"
+    },
+    {
+      "id": "guard-topology-four",
+      "kind": "taxonomy",
+      "description": "Mesh, star, bus, ring (+ hybrid) with failure modes.",
+      "appearsAs": "each topology with structure, pros/cons, failure mode",
+      "appearsInSectionId": "section-physical-structures",
+      "requiredDepth": "DETAILED"
+    },
+    {
+      "id": "guard-mesh-formulas",
+      "kind": "formula",
+      "description": "n(n−1)/2 duplex links and n−1 ports with conditions.",
+      "appearsAs": "both formulas with conditions, n=6 example, links-vs-ports trap",
+      "appearsInSectionId": "section-physical-structures",
+      "requiredDepth": "APPLIED"
+    },
+    {
+      "id": "guard-throughput-delay",
+      "kind": "relationship",
+      "description": "Throughput↑ can increase delay under congestion.",
+      "appearsAs": "explicit relationship beat, not two glossary lines",
+      "appearsInSectionId": "section-networks-criteria",
+      "requiredDepth": "EXPLANATORY"
+    },
+    {
+      "id": "guard-internet-history",
+      "kind": "worked-example",
+      "description": "1969 four-node ARPANET + TCP/IP split narrative.",
+      "appearsAs": "timeline narrative + TCP/IP roles + ISP hierarchy",
+      "appearsInSectionId": "section-internet",
+      "requiredDepth": "EXPLANATORY"
+    },
+    {
+      "id": "guard-protocol-elements",
+      "kind": "distinction",
+      "description": "Syntax / semantics / timing triad.",
+      "appearsAs": "syntax/semantics/timing triad with rate-mismatch example",
+      "appearsInSectionId": "section-protocols",
+      "requiredDepth": "DETAILED"
+    },
+    {
+      "id": "guard-de-facto-de-jure",
+      "kind": "distinction",
+      "description": "De facto vs de jure standards.",
+      "appearsAs": "paired definitions + comparison + org/RFC process",
+      "appearsInSectionId": "section-standards",
+      "requiredDepth": "DETAILED"
+    },
+    {
+      "id": "guard-heterogeneous-internetwork",
+      "kind": "worked-example",
+      "description": "Two LANs + switched WAN + p2p WANs scenario.",
+      "appearsAs": "worked two-LAN + WAN scenario as section core",
+      "appearsInSectionId": "section-internetwork",
+      "requiredDepth": "EXPLANATORY"
+    }
+  ],
+  "qualityChecks": {
+    "allCoreTopicsAssigned": true,
+    "allMustPreserveAssigned": true,
+    "allSourceFormulasAssigned": true,
+    "noDuplicatePrimaryConceptTeaching": true,
+    "externalNotSmuggledIntoCore": true,
+    "noArbitraryPageTarget": true
+  },
+  "omissions": [
+    {
+      "entityId": "block-1.5-reading-list",
+      "reason": "Recommended reading/sites are not teachable core knowledge",
+      "disposition": "optional context in CGP-4 if space allows"
+    },
+    {
+      "entityId": "block-1.6-key-terms-dump",
+      "reason": "Glossary terms already covered via definitions",
+      "disposition": "no separate term-dump section"
+    },
+    {
+      "entityId": "research-activities-26-29",
+      "reason": "Site-research activities are optional research, not core exam teaching",
+      "disposition": "optionalResearch in reviewPlan"
+    }
+  ]
+}

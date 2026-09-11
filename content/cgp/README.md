@@ -7,8 +7,9 @@ Research artifacts for chapter generation. **Not** Washi ChapterAST, renderer, o
 | CGP-0 Source structure & topic discovery | done | `computer-networks-ch1.topic-map.json` |
 | CGP-1 Topic deep extraction | done | `computer-networks-ch1.deep-topics.json` |
 | CGP-2 Coverage / consistency validation | done | `computer-networks-ch1.validation.json` |
-| CGP-3 Chapter composition architecture | done | `computer-networks-ch1.composition.json` |
-| CGP-4 Chapter writing / Washi Markdown | next | — |
+| CGP-3 Chapter composition architecture | done | `computer-networks-ch1.composition.json` + `computer-networks-ch1.chapter-plan.json` |
+| CGP-4 Chapter authoring | done | `computer-networks-ch1.chapter.md` |
+| CGP-4A Content review audit | done | `computer-networks-ch1.content-review.json` |
 
 ## Source
 
