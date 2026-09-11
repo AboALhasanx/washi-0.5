@@ -683,6 +683,56 @@ function latexToSpans(latex: string): React.ReactNode[] {
  *  Formulas absent from the map fall back to the LaTeX-lite text card. */
 export type FormulaArtMap = Map<string, { src: string; width: number; height: number }>;
 
+/** Compact inline math (displayMode=false). No card chrome — sits in text flow. */
+const InlineFormula = ({
+  latex,
+  art,
+  env,
+}: {
+  latex: string;
+  art?: { src: string; width: number; height: number };
+  env: RenderEnv;
+}): React.ReactNode => {
+  if (art) {
+    return (
+      <span
+        style={
+          {
+            display: "inline-block",
+            verticalAlign: "middle",
+            direction: "ltr",
+            margin: "0 2px",
+          } as React.CSSProperties
+        }
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={art.src}
+          width={art.width}
+          height={art.height}
+          style={{ width: art.width, height: art.height } as React.CSSProperties}
+        />
+      </span>
+    );
+  }
+  return (
+    <span
+      dir="ltr"
+      style={
+        {
+          fontFamily: env.fontMono,
+          fontSize: "0.95em",
+          color: env.palette.ink,
+          padding: "0 3px",
+          unicodeBidi: "isolate",
+        } as React.CSSProperties
+      }
+    >
+      {latexToSpans(latex.trim())}
+    </span>
+  );
+};
+
 const FormulaCard = ({
   latex,
   caption,
@@ -974,6 +1024,10 @@ function RenderNode({
       });
     case "formula": {
       const art = formulaArt?.get(norm(n.latex ?? ""));
+      // displayMode=false → compact inline (P1); true/undefined → display card
+      if (n.displayMode === false) {
+        return InlineFormula({ latex: n.latex, art, env });
+      }
       return FormulaCard({
         latex: n.latex,
         caption: n.caption,
